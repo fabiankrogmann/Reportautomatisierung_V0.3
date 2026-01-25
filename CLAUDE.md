@@ -1,11 +1,11 @@
 # Projekt: KI-gestützte Finanzvisualisierung
 
-Automatisierte Chart-Generierung für Finanzreports mit intelligentem Mix aus Waterfall, Stacked Bar und Bar Charts.
+Automatisierte Chart-Generierung für Finanzreports mit Waterfall, Stacked Bar und Bar Charts. Die KI empfiehlt den optimalen Chart-Typ, der User wählt explizit.
 
 ## Projektstruktur
 
 ```
-Reportautomatisierung_V10.0/
+Reportautomatisierung_V0.1/
 ├── 1. Konzept/                    # Konzeptdokumentation
 │   └── Konzept_KI_Finanzvisualisierung.md
 ├── 3. HTML-Seiten/                # Frontend (Workflow)
@@ -15,8 +15,9 @@ Reportautomatisierung_V10.0/
 │   └── charts.html                # 4. Chart-Generierung + Export
 ├── 4. Prompts/                    # Prompt-Definitionen (Source of Truth)
 │   ├── COLOR-SCHEMA-PROMPT.md
-│   ├── RANKING-MIX-PROMPT.md
 │   ├── FIELD-MAPPING-PROMPT.md
+│   ├── archiv/                    # Archivierte Prompts (nicht mehr verwendet)
+│   │   └── RANKING-MIX-PROMPT.md.archived
 │   └── Prompts for Charts/
 │       ├── BAR-CHART-PROMPT.md
 │       ├── STACKED-BAR-CHART-PROMPT.md
@@ -92,9 +93,10 @@ Bei Änderungen an Prompts:
 | `waterfall` | `Prompts for Charts/WATERFALL-CHART-PROMPT.md` | ~51 KB |
 | `bar` | `Prompts for Charts/BAR-CHART-PROMPT.md` | ~38 KB |
 | `stacked_bar` | `Prompts for Charts/STACKED-BAR-CHART-PROMPT.md` | ~39 KB |
-| `ranking_mix` | `RANKING-MIX-PROMPT.md` | ~8 KB |
-| `field_mapping` | `FIELD-MAPPING-PROMPT.md` | ~4 KB |
-| `color_schema` | `COLOR-SCHEMA-PROMPT.md` | ~3 KB |
+| `field_mapping` | `FIELD-MAPPING-PROMPT.md` | ~11 KB |
+| `color_schema` | `COLOR-SCHEMA-PROMPT.md` | ~19 KB |
+
+**Hinweis:** `ranking_mix` wurde entfernt (archiviert). Das System generiert nun alle Templates des gewählten Typs statt einer KI-basierten Auswahl.
 
 ### Anthropic Prompt Caching
 
@@ -158,21 +160,24 @@ Daten werden via `sessionStorage` zwischen den Seiten übergeben.
 
 - 30 Templates in `6. Bibliotheken/templates.json`
 - 12 Waterfall + 8 Stacked Bar + 10 Bar Chart
-- KI wählt optimalen Mix basierend auf Daten-Profil
+- Alle Templates des gewählten Typs werden generiert
 
-### Chart-Mix vs. Einzeltyp
+### Chart-Typ-Auswahl (Phase 1 Refactoring)
 
-- **Chart-Mix** ist der **Standard** auf results.html - generiert eine Auswahl verschiedener Chart-Typen
-- User kann explizit einen Einzeltyp wählen (Waterfall, Bar, Stacked Bar)
-- Wichtige Unterscheidung im Code:
-  - `primaryChart`: KI-Empfehlung aus der Analyse (welcher Typ passt am besten)
-  - `selectedChart`: User-Auswahl (was soll generiert werden)
+**Neues Konzept:** User MUSS einen Chart-Typ wählen, kein automatischer Mix mehr.
 
-**Ähnlichkeitsprüfung im Chart-Mix:**
-- Bevor ein Chart generiert wird, prüft das System auf Layout-Ähnlichkeit zu bereits generierten Charts
-- Charts mit >80% Ähnlichkeit (gleiche Struktur, ähnliche Datenpunkte) werden übersprungen
+- **results.html:** Zeigt KI-Empfehlung (`primaryChart`), User wählt explizit
+- **charts.html:** Generiert ALLE Templates des gewählten Typs (bis zu 12)
+- **Export:** User wählt per Checkbox welche Charts exportiert werden
+
+**Code-Unterscheidung:**
+- `primaryChart`: KI-Empfehlung aus der Analyse (welcher Typ passt am besten)
+- `selectedChart`: User-Auswahl (MUSS gewählt werden, sonst "Weiter" deaktiviert)
+
+**Duplikat-Erkennung:**
+- Fingerprint-basierte Erkennung ähnlicher Chart-Configs
+- Charts mit identischem Fingerprint werden übersprungen
 - Reduziert Redundanz und API-Kosten
-- Im Ergebnisprotokoll sichtbar: "Chart X übersprungen (ähnliches Layout wie Chart Y)"
 
 ### Zwei Modi
 
@@ -215,7 +220,7 @@ User wählt Provider in `upload.html`.
 ### Lokale Entwicklung
 **WICHTIG:** Die HTML-Seiten müssen über einen lokalen HTTP-Server geöffnet werden (wegen CORS bei JSON-Dateien):
 ```bash
-cd /Users/fabiankrogmann/Claude/Reportautomatisierung_V10.0
+cd /Users/fabiankrogmann/Claude/Reportautomatisierung_V0.1
 python3 -m http.server 8000
 ```
 Dann im Browser: `http://localhost:8000/3.%20HTML-Seiten/upload.html`
@@ -234,8 +239,7 @@ Das System ist modular aufgebaut. Folgende Erweiterungen sind **ohne Code-Änder
 |-------------|-------|--------------|
 | Neue Farbpalette | `color-schemes.json` | JSON-Eintrag hinzufügen → automatisch in colors.html sichtbar |
 | Neue Beispiel-Config | `chart-examples.json` | Trainingsbeispiele für KI-Generierung |
-| Neues Template | `templates.json` | Neue Chart-Variante für den Mix-Algorithmus |
-| Neue Perspektive | `RANKING-MIX-PROMPT.md` | Dokumentation + Template-Zuordnung |
+| Neues Template | `templates.json` | Neue Chart-Variante für Template-Bibliothek |
 
 **NICHT erweiterbar ohne Code-Änderungen:**
 - Chart-Typen (nur Waterfall, Bar, Stacked Bar - bewusst limitiert)
@@ -285,9 +289,11 @@ Enthält Beispiel-Konfigurationen für jeden Chart-Typ. Die KI nutzt diese als F
 
 **maxTokens:** Auf 16384 gesetzt um Abschneiden zu minimieren.
 
-### Chart-Mix wird nicht ausgewählt
-**Problem:** Bei Auswahl von "Chart-Mix" wurde trotzdem nur ein Einzeltyp generiert.
-**Lösung:** results.html setzt `selectedChart` jetzt immer auf `'chart-mix'` als Default, außer der User wählt explizit anders.
+### Chart-Auswahl für Export
+**Neu in Phase 1:** User kann per Checkbox wählen, welche Charts exportiert werden sollen.
+- Alle Charts sind standardmäßig ausgewählt
+- "Alle auswählen" / "Keine auswählen" Buttons in der Selection-Bar
+- "Ausgewählte als ZIP/PPTX" Buttons im Header
 
 ### PromptLoader Debug-Informationen
 Im Browser-Console werden beim Laden der Prompts folgende Infos angezeigt:

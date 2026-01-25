@@ -415,6 +415,95 @@
             padding-top: 12px;
             border-top: 1px solid #e2e8f0;
         }
+
+        /* Checkbox UI für Chart-Auswahl */
+        .chart-select-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: auto;
+        }
+
+        .chart-select-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
+        .chart-select-checkbox label {
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .chart-select-checkbox label:hover {
+            color: #1e293b;
+        }
+
+        .export-selection-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .export-selection-bar .selection-info {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .export-selection-bar .selection-count {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .export-selection-bar .btn-toggle-all {
+            padding: 6px 12px;
+            font-size: 13px;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .export-selection-bar .btn-toggle-all:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .btn-export-selected {
+            margin-left: auto;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-export-selected:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
+
+        .btn-export-selected:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .chart-container.selected {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -423,17 +512,26 @@
             <span>&larr;</span> Zurück
         </a>
         <div class="nav-buttons">
-            <button class="btn btn-pptx" onclick="downloadAllAsPPTX()" title="Alle Charts in einer PowerPoint-Datei">
-                Alle als PPTX
+            <button class="btn btn-pptx" onclick="downloadSelectedAsPPTX()" title="Ausgewählte Charts als PowerPoint">
+                Ausgewählte als PPTX
             </button>
-            <button class="btn btn-primary" onclick="downloadAllAsZIP()">
-                Alle als ZIP
+            <button class="btn btn-primary" onclick="downloadSelectedAsZIP()">
+                Ausgewählte als ZIP
             </button>
         </div>
     </nav>
 
     <h1 id="page-title">Chart-Beispiele - Think-Cell Stil</h1>
     <p class="page-subtitle" id="page-subtitle">Basierend auf den analysierten Daten</p>
+
+    <!-- Export-Auswahl-Leiste -->
+    <div class="export-selection-bar" id="selectionBar" style="display: none;">
+        <span class="selection-info">
+            <span class="selection-count" id="selectionCount">0</span> von <span id="totalCharts">0</span> Charts ausgewählt
+        </span>
+        <button class="btn-toggle-all" onclick="toggleAllCharts()">Alle auswählen</button>
+        <button class="btn-toggle-all" onclick="deselectAllCharts()">Keine auswählen</button>
+    </div>
 
     <div id="charts-wrapper">
         <!-- Charts werden hier dynamisch eingefügt -->
@@ -462,7 +560,8 @@
         let companyColors = [];
         let chartConfigs = [];
         let renderedCharts = {}; // Speichert SVG-Inhalte für Export
-        let chartCount = 5; // Anzahl zu generierender Charts (Default: 5)
+        let chartCount = 12; // Generiere alle Templates des gewählten Typs (max 12)
+        let selectedChartsForExport = new Set(); // Tracks which charts are selected for export
 
         // KI-Entscheidungsdaten für Chain-of-Thought Anzeige
         let aiReasoningData = {
@@ -1280,234 +1379,31 @@
         };
 
         // =====================================================
-        // MODUL 4: CHART MIXER
-        // Wählt die optimale Template-Kombination
+        // MODUL 4: CHART MIXER (VEREINFACHT)
+        // Gibt alle Templates des gewählten Typs zurück
+        // Kein KI-Ranking mehr - User wählt nachträglich per Checkbox
         // =====================================================
         const ChartMixer = {
             /**
-             * Wählt die optimalen Templates basierend auf dem Daten-Profil
-             * @param {Object} profile - Daten-Profil vom DataProfiler
+             * Gibt alle Templates des gewählten Typs zurück
+             * @param {Object} profile - Daten-Profil vom DataProfiler (für Logging)
              * @param {Array} templates - Verfügbare Templates
-             * @param {number} count - Gewünschte Anzahl Charts
-             * @param {Array} allowedTypes - Erlaubte Chart-Typen
-             * @returns {Promise<Array>} Ausgewählte Templates
+             * @param {number} count - Max Anzahl (wird ignoriert, alle werden generiert)
+             * @param {Array} allowedTypes - Erlaubte Chart-Typen (nur einer!)
+             * @returns {Promise<Array>} Alle Templates des Typs
              */
-            async selectTemplates(profile, templates, count, allowedTypes = ['waterfall', 'bar', 'stacked_bar']) {
-                // Filtere Templates nach erlaubten Typen
+            async selectTemplates(profile, templates, count, allowedTypes = ['waterfall']) {
+                // Filtere Templates nach erlaubtem Typ
                 const filtered = templates.filter(t =>
                     allowedTypes.includes(t.chart_type) ||
                     allowedTypes.includes(t.chart_type.replace('_', '-'))
                 );
 
-                // Prüfe ob API-Key vorhanden
-                if (!APIClient.apiKey) {
-                    throw new Error('Kein API-Key vorhanden - Demo-Modus erforderlich');
-                }
+                console.log(`ChartMixer: ${filtered.length} Templates für Typ "${allowedTypes.join(', ')}" gefunden`);
+                console.log('ChartMixer: Template-IDs:', filtered.map(t => t.template_id).join(', '));
 
-                // KI-Auswahl mit RANKING_MIX_PROMPT
-                console.log('ChartMixer: Starte KI-Auswahl...');
-                const result = await this._selectWithAI(profile, filtered, count, allowedTypes);
-                console.log('ChartMixer: KI-Auswahl erfolgreich, Templates:', result.length);
-                return result;
-                // Fehler werden nach oben propagiert für Demo-Modus
-            },
-
-            /**
-             * KI-gestützte Template-Auswahl
-             */
-            async _selectWithAI(profile, templates, count, allowedTypes) {
-                const systemPrompt = await PromptLoader.load('ranking_mix') || this._getDefaultRankingPrompt();
-
-                const userPrompt = `## Daten-Profil
-${JSON.stringify(profile, null, 2)}
-
-## User-Einstellungen
-{
-  "chart_count": ${count},
-  "selected_chart_types": ${JSON.stringify(allowedTypes)}
-}
-
-## Template-Bibliothek
-${JSON.stringify(templates.map(t => ({
-    template_id: t.template_id,
-    name: t.name,
-    chart_type: t.chart_type,
-    metadata: t.metadata,
-    best_for: t.best_for
-})), null, 2)}
-
-Wähle die optimale Kombination aus ${count} Charts.`;
-
-                console.log('ChartMixer._selectWithAI: Sende API-Request...');
-                const response = await APIClient.call(systemPrompt, userPrompt);
-                console.log('ChartMixer._selectWithAI: API-Antwort erhalten, Länge:', response?.length);
-
-                let result;
-                try {
-                    result = APIClient.parseJSON(response);
-                    console.log('ChartMixer._selectWithAI: JSON geparst:', result);
-                } catch (parseError) {
-                    console.error('ChartMixer._selectWithAI: JSON-Parsing fehlgeschlagen');
-                    console.error('ChartMixer._selectWithAI: Rohe Antwort:', response?.substring(0, 500));
-                    throw new Error(`JSON-Parsing fehlgeschlagen: ${parseError.message}`);
-                }
-
-                // Extrahiere die ausgewählten Template-IDs
-                const selectedIds = result.selected_charts?.map(c => c.template_id) || [];
-                console.log('ChartMixer._selectWithAI: Gefundene Template-IDs:', selectedIds);
-
-                if (selectedIds.length === 0) {
-                    console.warn('ChartMixer._selectWithAI: Keine Template-IDs in der Antwort gefunden');
-                    throw new Error('KI hat keine Templates ausgewählt');
-                }
-
-                // =====================================================
-                // DEDUPLIZIERUNG: Jede Template-ID nur einmal verwenden
-                // =====================================================
-                const uniqueIds = [...new Set(selectedIds)];
-                console.log('ChartMixer._selectWithAI: Eindeutige Template-IDs:', uniqueIds.length, 'von', selectedIds.length);
-
-                // Mappe IDs zurück zu vollen Templates (nur eindeutige!)
-                let mappedTemplates = uniqueIds
-                    .map(id => templates.find(t => t.template_id === id))
-                    .filter(t => t !== undefined);
-
-                // =====================================================
-                // BEGRENZUNG: Maximal so viele Templates wie verfügbar
-                // =====================================================
-                const maxAvailable = templates.length;
-                const requestedCount = Math.min(count, maxAvailable, mappedTemplates.length);
-
-                if (requestedCount < count) {
-                    console.log(`ChartMixer._selectWithAI: Reduziere von ${count} auf ${requestedCount} (max verfügbar: ${maxAvailable}, eindeutige Auswahl: ${mappedTemplates.length})`);
-                }
-
-                mappedTemplates = mappedTemplates.slice(0, requestedCount);
-
-                console.log('ChartMixer._selectWithAI: Gemappte Templates:', mappedTemplates.length);
-
-                // VALIDIERUNG: Prüfe Chart-Typ-Diversität bei Mix-Modus
-                if (allowedTypes.length > 1) {
-                    const typesUsed = new Set(mappedTemplates.map(t => t.chart_type));
-                    console.log('ChartMixer._selectWithAI: Verwendete Chart-Typen:', Array.from(typesUsed));
-
-                    // Wenn nur ein Typ verwendet wurde, aber mehrere erlaubt sind -> erweitere die Auswahl
-                    if (typesUsed.size === 1 && mappedTemplates.length >= 3) {
-                        console.warn('ChartMixer._selectWithAI: Nur ein Chart-Typ in der KI-Auswahl! Ergänze mit anderen Typen...');
-
-                        // Finde Templates anderer Typen
-                        const currentType = Array.from(typesUsed)[0];
-                        const otherTypes = allowedTypes.filter(t => t !== currentType && t !== currentType.replace('_', '-'));
-
-                        for (const otherType of otherTypes) {
-                            // Finde ein Template dieses Typs
-                            const otherTemplates = templates.filter(t =>
-                                (t.chart_type === otherType || t.chart_type === otherType.replace('-', '_')) &&
-                                !mappedTemplates.includes(t)
-                            );
-
-                            if (otherTemplates.length > 0 && mappedTemplates.length > 1) {
-                                // Ersetze das letzte Template mit einem anderen Typ
-                                const removed = mappedTemplates.pop();
-                                mappedTemplates.push(otherTemplates[0]);
-                                console.log(`ChartMixer._selectWithAI: Ersetzt ${removed.template_id} mit ${otherTemplates[0].template_id} für Typ-Diversität`);
-                            }
-                        }
-
-                        const newTypesUsed = new Set(mappedTemplates.map(t => t.chart_type));
-                        console.log('ChartMixer._selectWithAI: Finale Chart-Typen:', Array.from(newTypesUsed));
-                    }
-                }
-
-                return mappedTemplates;
-            },
-
-            /**
-             * DEPRECATED - Nicht mehr verwendet
-             * Regelbasierte Template-Auswahl wurde durch reine KI-Generierung ersetzt.
-             * Bei Fehlern wird direkt der Demo-Modus aktiviert.
-             */
-            _selectWithRules(profile, templates, count) {
-                const selected = [];
-                const usedPerspectives = new Set();
-
-                // Perspektiven-Priorität basierend auf Profil
-                const perspectives = this._getPerspectivePriority(profile);
-
-                for (const perspective of perspectives) {
-                    if (selected.length >= count) break;
-
-                    // Finde Templates mit dieser Perspektive
-                    const matching = templates.filter(t =>
-                        t.metadata?.analysis_perspective === perspective &&
-                        !selected.includes(t)
-                    );
-
-                    if (matching.length > 0) {
-                        // Priorisiere nach Zielgruppe
-                        const executive = matching.find(t =>
-                            t.metadata?.target_audience === 'executive');
-                        const finance = matching.find(t =>
-                            t.metadata?.target_audience === 'finance');
-
-                        selected.push(executive || finance || matching[0]);
-                        usedPerspectives.add(perspective);
-                    }
-                }
-
-                // Fülle auf falls nötig
-                while (selected.length < count && selected.length < templates.length) {
-                    const unused = templates.find(t => !selected.includes(t));
-                    if (unused) selected.push(unused);
-                    else break;
-                }
-
-                return selected;
-            },
-
-            /**
-             * Bestimmt die Perspektiven-Priorität basierend auf dem Profil
-             */
-            _getPerspectivePriority(profile) {
-                const priorities = ['structure']; // Struktur immer zuerst
-
-                if (profile.has_variance_column || profile.has_budget) {
-                    priorities.push('variance');
-                }
-                if (profile.has_prior_year) {
-                    priorities.push('comparison');
-                }
-                if (profile.report_type === 'cost_report') {
-                    priorities.push('composition');
-                }
-                if (profile.has_time_series) {
-                    priorities.push('trend');
-                }
-                priorities.push('ranking');
-
-                return priorities;
-            },
-
-            /**
-             * Default Ranking-Prompt falls RANKING_MIX_PROMPT nicht definiert
-             */
-            _getDefaultRankingPrompt() {
-                return `Du bist ein Financial Visualization Expert.
-Wähle die optimale Kombination von Charts zur Darstellung eines Finanzdatensatzes.
-
-## WICHTIGE REGELN
-1. Verschiedene Perspektiven abdecken (Struktur, Varianz, Vergleich, Zusammensetzung, Trend, Ranking)
-2. Nicht mehr als 2 Charts der gleichen Perspektive
-3. Zielgruppen-Mix berücksichtigen (Executive, Finance, Operational)
-4. Keine redundanten Charts
-
-## OUTPUT-FORMAT
-Gib ausschließlich ein JSON-Objekt zurück:
-{
-  "selected_charts": [
-    { "rank": 1, "template_id": "WF-01", "perspective": "structure", "unique_value": "..." }
-  ]
-}`;
+                // Alle Templates zurückgeben (User wählt später per Checkbox)
+                return filtered;
             }
         };
 
@@ -1844,13 +1740,14 @@ Befolge exakt das config-Format aus dem Prompt.`;
             },
 
             // Mapping: Prompt-Name → Dateiname
+            // HINWEIS: Nur noch die in charts.html benötigten Prompts
+            // - ranking_mix: entfernt (archiviert)
+            // - color_schema: nur in colors.html benötigt
             promptFiles: {
                 'waterfall': 'WATERFALL-CHART-PROMPT.md',
                 'bar': 'BAR-CHART-PROMPT.md',
                 'stacked_bar': 'STACKED-BAR-CHART-PROMPT.md',
-                'ranking_mix': 'RANKING-MIX-PROMPT.md',
-                'field_mapping': 'FIELD-MAPPING-PROMPT.md',
-                'color_schema': 'COLOR-SCHEMA-PROMPT.md'
+                'field_mapping': 'FIELD-MAPPING-PROMPT.md'
             },
 
             /**
@@ -2201,80 +2098,11 @@ Gib ein JSON-Objekt mit variant1 bis variant10 zurück, wobei jede Variante enth
 Jede Config muss direkt vom Renderer verwendbar sein mit allen erforderlichen Feldern.`;
 
         // =====================================================
-        // LAYOUT-RANKING API-CALL (Legacy-Funktion)
+        // LAYOUT-RANKING API-CALL - ENTFERNT (Phase 1 Refactoring)
         // =====================================================
-        async function rankLayoutsViaAPI(apiKey, provider, chartType, analysisData) {
-            const catalog = getLayoutCatalog(chartType);
-            if (!catalog) {
-                throw new Error(`Kein Katalog für ${chartType} verfügbar`);
-            }
-
-            // Lade Prompt aus .md-Datei
-            const layoutRankingPrompt = await PromptLoader.load('ranking_mix');
-
-            const userPrompt = `## Analyse-Ergebnis:
-${JSON.stringify(analysisData, null, 2)}
-
-## Chart-Typ: ${chartType}
-
-## Layout-Katalog (${catalog.layouts.length} Layouts):
-${JSON.stringify(catalog, null, 2)}
-
-Bitte ranke die Top 10 Layouts basierend auf den Kriterien im System-Prompt.
-Gib NUR das JSON-Objekt zurück, keine zusätzlichen Erklärungen.`;
-
-            let response;
-            if (provider === 'anthropic') {
-                response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 4000,
-                        messages: [
-                            { role: 'user', content: layoutRankingPrompt + '\n\n' + userPrompt }
-                        ]
-                    })
-                });
-            } else {
-                response = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-4o',
-                        max_tokens: 4000,
-                        messages: [
-                            { role: 'system', content: layoutRankingPrompt },
-                            { role: 'user', content: userPrompt }
-                        ]
-                    })
-                });
-            }
-
-            if (!response.ok) {
-                throw new Error(`Ranking API Error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            const content = provider === 'anthropic'
-                ? data.content[0].text
-                : data.choices[0].message.content;
-
-            const jsonMatch = content.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                throw new Error('Keine gültige JSON-Antwort vom Ranking');
-            }
-
-            return JSON.parse(jsonMatch[0]);
-        }
+        // Diese Funktion wurde entfernt, da ranking_mix nicht mehr verwendet wird.
+        // Stattdessen werden ALLE Templates des gewählten Typs direkt generiert.
+        // Die Funktion generateChartsWithRanking ist ebenfalls Legacy und wird nicht mehr aufgerufen.
 
         // =====================================================
         // CONFIG-GENERATOR API-CALL
@@ -2390,73 +2218,12 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
         }
 
         // =====================================================
-        // NEUE HAUPTFUNKTION: generateChartsWithRanking
+        // LEGACY: generateChartsWithRanking - ENTFERNT (Phase 1 Refactoring)
         // =====================================================
-        async function generateChartsWithRanking(apiKey, provider, chartType) {
-            try {
-                console.log('=== Layout-Ranking-System gestartet ===');
-
-                // Hole Analyse-Daten
-                const analysisData = analysisResult.parsed.analysis || {};
-                const extractedData = analysisResult.parsed.extractedData || {};
-
-                // Erstelle Analyse-Objekt für Ranking
-                const rankingInput = {
-                    positions: analysisData.positions?.length || 0,
-                    valueTypes: analysisData.valueTypes || ['IST'],
-                    dataPattern: analysisData.dataPattern || 'revenue-to-profit',
-                    keywords: extractKeywordsFromAnalysis(analysisData)
-                };
-
-                console.log('Ranking-Input:', rankingInput);
-
-                // SCHRITT 1: Layout-Ranking
-                console.log('Schritt 1: Rufe Layout-Ranking API auf...');
-                const rankingResult = await rankLayoutsViaAPI(apiKey, provider, chartType, rankingInput);
-                console.log('Ranking-Ergebnis:', rankingResult);
-
-                if (!rankingResult.rankings || rankingResult.rankings.length === 0) {
-                    throw new Error('Keine passenden Layouts gefunden');
-                }
-
-                // SCHRITT 2: Config-Generierung für ALLE Top 10 in EINEM API-Call
-                console.log('Schritt 2: Generiere alle Configs in einem API-Call...');
-
-                const catalog = getLayoutCatalog(chartType);
-                const relevantExtractedData = extractedData[chartType] || extractedData.waterfall || extractedData;
-
-                // Standard-Farbpalette wenn keine Firmenfarben definiert
-                const DEFAULT_COLOR_PALETTE = ['#2E5A88', '#4A7C59', '#B85450', '#E8A838', '#7B68A6', '#888888'];
-                const colorsToUse = companyColors.length > 0 ? companyColors : DEFAULT_COLOR_PALETTE;
-
-                chartConfigs = await generateAllConfigsViaAPI(
-                    apiKey,
-                    provider,
-                    rankingResult.rankings,
-                    catalog,
-                    relevantExtractedData,
-                    colorsToUse
-                );
-
-                console.log(`=== ${chartConfigs.length} Chart-Configs generiert (nur 2 API-Calls!) ===`);
-
-                // Stoppe Loading
-                if (window.loadingInterval) {
-                    clearInterval(window.loadingInterval);
-                    const fill = document.getElementById('progressFill');
-                    if (fill) fill.style.width = '100%';
-                }
-
-            } catch (error) {
-                console.error('Layout-Ranking-System Fehler:', error);
-                // Stoppe Loading
-                if (window.loadingInterval) clearInterval(window.loadingInterval);
-
-                // Fallback zum alten System
-                console.log('Fallback zu generateConceptsViaAPI...');
-                await generateConceptsViaAPI(apiKey, provider, chartType);
-            }
-        }
+        // Diese Funktion wurde entfernt, da sie rankLayoutsViaAPI verwendet hat.
+        // Das System generiert nun ALLE Templates des gewählten Typs direkt
+        // über den Template-basierten Workflow (TemplateLoader + ChartMixer).
+        // Siehe: selectTemplates() in ChartMixer
 
         // Hilfsfunktion: Keywords aus Analyse extrahieren
         function extractKeywordsFromAnalysis(analysis) {
@@ -2486,9 +2253,9 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
 
         async function initializeCharts() {
             try {
-                // Prompts vorladen für schnellere Chart-Generierung
-                // (läuft parallel zu den anderen Initialisierungen)
-                const promptPreloadPromise = PromptLoader.preloadAll();
+                // HINWEIS: Prompts werden NICHT mehr vorab geladen
+                // Stattdessen wird nur der benötigte Chart-Prompt später geladen
+                // Das spart ~20.000 Tokens pro Generierung!
 
                 // Lade Analyse-Ergebnis
                 const resultRaw = sessionStorage.getItem('analysisResult');
@@ -2512,11 +2279,10 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
                     companyColors = JSON.parse(colorsRaw);
                 }
 
-                // Lade Chart-Anzahl (User-Auswahl von results.html)
-                if (analysisResult.parsed.recommendation?.chartCount) {
-                    chartCount = analysisResult.parsed.recommendation.chartCount;
-                }
-                console.log('Chart-Anzahl:', chartCount);
+                // Chart-Anzahl: ALLE Templates des gewählten Typs generieren
+                // (Slider wurde in Phase 1 entfernt - keine User-Auswahl mehr)
+                // chartCount bleibt auf 12 (Maximum aus templates.json)
+                console.log('Chart-Anzahl: Generiere alle Templates des Typs (max', chartCount, ')');
 
                 // Ermittle Chart-Typ
                 console.log('=== CHART-TYP DEBUG (charts.html) ===');
@@ -2525,31 +2291,24 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
                 console.log('primaryChart:', analysisResult.parsed.recommendation?.primaryChart);
                 console.log('_userSelectedChart:', analysisResult.parsed.recommendation?._userSelectedChart);
 
-                // WICHTIG: Nur selectedChart verwenden wenn es EXPLIZIT gesetzt wurde
-                // Ansonsten Default auf 'chart-mix'
+                // chartType kommt aus User-Auswahl in results.html (selectedChart)
+                // Fallback auf primaryChart (KI-Empfehlung) wenn nichts gewählt
                 let chartType;
                 if (analysisResult.parsed.recommendation?.selectedChart) {
                     chartType = analysisResult.parsed.recommendation.selectedChart;
                     console.log('chartType aus selectedChart:', chartType);
                 } else if (analysisResult.parsed.recommendation?.primaryChart) {
-                    // primaryChart ist nur eine KI-Empfehlung, nicht die User-Auswahl
-                    // Bei Chart-Mix-Modus wollen wir trotzdem alle Typen
-                    chartType = 'chart-mix';
-                    console.log('chartType auf chart-mix gesetzt (primaryChart ignoriert für Mix)');
+                    chartType = analysisResult.parsed.recommendation.primaryChart;
+                    console.log('chartType aus primaryChart (KI-Empfehlung):', chartType);
                 } else {
-                    chartType = 'chart-mix';
-                    console.log('chartType auf chart-mix gesetzt (Default)');
+                    chartType = 'waterfall';
+                    console.log('chartType auf waterfall gesetzt (Default)');
                 }
                 console.log('Finaler chartType:', chartType);
-
-                // Prüfe ob Chart-Mix oder einzelner Typ
-                const isChartMix = chartType === 'chart-mix';
-                console.log('isChartMix:', isChartMix);
                 console.log('=== END DEBUG (charts.html) ===')
 
                 // Setze Seitentitel
                 const typeLabels = {
-                    'chart-mix': 'Chart-Mix',
                     'waterfall': 'Waterfall Charts',
                     'bar': 'Bar Charts',
                     'stacked-bar': 'Stacked Bar Charts',
@@ -2594,22 +2353,20 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
                         APIClient.init(apiKey, provider);
                         console.log('APIClient initialisiert');
 
-                        // Warte auf Prompt-Preload (falls noch nicht fertig)
-                        await promptPreloadPromise;
-                        console.log('Prompts bereit');
+                        // Lade nur den benötigten Chart-Prompt (spart ~20.000 Tokens!)
+                        const promptName = chartType === 'stacked-bar' ? 'stacked_bar' : chartType;
+                        console.log(`Lade nur Chart-Prompt für '${promptName}'...`);
+                        await PromptLoader.load(promptName);
+                        console.log('Chart-Prompt geladen');
 
                         // Lade Template-Bibliothek
                         console.log('1/3: Lade Template-Bibliothek...');
                         await TemplateLoader.load();
                         console.log('1/3: Template-Bibliothek geladen');
 
-                        // Wähle optimale Templates via KI (RANKING_MIX_PROMPT)
-                        console.log('2/3: Wähle optimale Templates via KI (RANKING_MIX_PROMPT)...');
-                        console.log('isChartMix für Template-Auswahl:', isChartMix);
-                        console.log('chartType für Template-Auswahl:', chartType);
-                        const allowedTypes = isChartMix
-                            ? ['waterfall', 'bar', 'stacked_bar']
-                            : [chartType.replace('-', '_')];
+                        // Wähle alle Templates des gewählten Typs
+                        console.log('2/3: Lade alle Templates für Typ:', chartType);
+                        const allowedTypes = [chartType.replace('-', '_')];
                         console.log('Erlaubte Chart-Typen:', allowedTypes);
                         const allTemplates = TemplateLoader.getAll();
                         console.log('Verfügbare Templates:', allTemplates.length);
@@ -2765,31 +2522,22 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
                             timestamp: new Date().toISOString()
                         });
 
-                        // Demo-Daten laden
+                        // Demo-Daten laden für den gewählten Typ
                         console.log('Wechsel zu Demo-Modus...');
-                        if (isChartMix) {
-                            generateChartMixVariants(chartCount);
-                        } else {
-                            generateChartVariants(chartType);
-                        }
+                        generateChartVariants(chartType);
                     }
                 } else {
                     // DEMO-MODUS: Kein API-Key vorhanden
                     console.log('Kein API-Key - Demo-Modus aktiv');
                     aiReasoningData.generationMode = 'demo';
-                    if (isChartMix) {
-                        generateChartMixVariants(chartCount);
-                    } else {
-                        generateChartVariants(chartType);
-                    }
+                    generateChartVariants(chartType);
                 }
 
                 renderAllCharts();
 
                 // Sammle finale KI-Entscheidungsdaten für Chain-of-Thought Anzeige
                 // (nach allen Fallbacks, damit chartConfigs korrekt gefüllt ist)
-                // Sammle finale KI-Entscheidungsdaten fuer Chain-of-Thought Anzeige
-                const finalChartType = isChartMix ? 'chart-mix' : chartType;
+                const finalChartType = chartType;
                 aiReasoningData.chartConfigs = chartConfigs;
                 aiReasoningData.chartType = finalChartType;
                 aiReasoningData.chartCount = chartConfigs.length;
@@ -3293,55 +3041,6 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             chartConfigs = chartConfigs.map(config => applyCompanyColors(config, chartType));
         }
 
-        function generateChartMixVariants(count) {
-            // Generiert einen Mix aus verschiedenen Chart-Typen
-            console.log('Generiere Chart-Mix mit', count, 'Charts');
-
-            // Hole Demo-Configs für jeden Typ
-            const waterfallConfigs = generateDemoWaterfallConfigs();
-            const barConfigs = generateDemoBarConfigs();
-            const stackedConfigs = generateDemoStackedBarConfigs();
-
-            // Kombiniere alle verfügbaren Configs
-            const allConfigs = [
-                ...waterfallConfigs.map(c => ({ ...c, _chartType: 'waterfall' })),
-                ...barConfigs.map(c => ({ ...c, _chartType: 'bar' })),
-                ...stackedConfigs.map(c => ({ ...c, _chartType: 'stacked-bar' }))
-            ];
-
-            // Wähle die gewünschte Anzahl aus (mit Diversität)
-            chartConfigs = [];
-            const typeCounts = { waterfall: 0, bar: 0, 'stacked-bar': 0 };
-            const typePriority = ['waterfall', 'bar', 'stacked-bar'];
-
-            // Verteile gleichmäßig auf die Typen
-            let typeIndex = 0;
-            for (let i = 0; i < count && allConfigs.length > 0; i++) {
-                const targetType = typePriority[typeIndex % typePriority.length];
-                const configIndex = allConfigs.findIndex(c => c._chartType === targetType);
-
-                if (configIndex !== -1) {
-                    const config = allConfigs.splice(configIndex, 1)[0];
-                    const chartType = config._chartType;
-                    delete config._chartType;
-                    chartConfigs.push(applyCompanyColors(config, chartType));
-                    typeCounts[chartType]++;
-                } else {
-                    // Kein Chart dieses Typs mehr verfügbar, nimm irgendeinen
-                    const config = allConfigs.shift();
-                    if (config) {
-                        const chartType = config._chartType;
-                        delete config._chartType;
-                        chartConfigs.push(applyCompanyColors(config, chartType));
-                        typeCounts[chartType]++;
-                    }
-                }
-                typeIndex++;
-            }
-
-            console.log('Chart-Mix erstellt:', typeCounts, '- Total:', chartConfigs.length);
-        }
-
         function generateWaterfallVariants(baseConfig) {
             const bars = baseConfig.bars || [];
             const metadata = analysisResult.parsed.metadata || {};
@@ -3684,7 +3383,119 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                 bracket: { show: true, fromIndex: 0, toIndex: 5, label: '-42,5%' }
             };
 
-            return [variant1, variant2, variant3, variant4, variant5];
+            // Variante 6: Cash Flow Bridge
+            const variant6 = {
+                title: 'Chart 6: Cash Flow Bridge',
+                subtitle: 'Operating Cash Flow - in T€',
+                colors: {
+                    start: '#1B4F72',
+                    end: '#1B4F72',
+                    positive: '#27AE60',
+                    negative: '#E74C3C',
+                    compare: '#7F8C8D',
+                    connector: '#333333'
+                },
+                bars: [
+                    { type: 'start', label: 'Jahres-\nüberschuss', value: 103.21, displayValue: '103,21 T€' },
+                    { type: 'increase', label: 'Abschrei-\nbungen', value: 101, displayValue: '+101 T€' },
+                    { type: 'decrease', label: 'Working\nCapital', value: -45, displayValue: '-45 T€' },
+                    { type: 'increase', label: 'Rück-\nstellungen', value: 12, displayValue: '+12 T€' },
+                    { type: 'end', label: 'Operativer\nCash Flow', value: 171.21, displayValue: '171,21 T€' }
+                ],
+                bracket: { show: true, fromIndex: 0, toIndex: 4, label: '+66%' }
+            };
+
+            // Variante 7: Umsatzentwicklung Q1-Q4
+            const variant7 = {
+                title: 'Chart 7: Umsatzentwicklung',
+                subtitle: 'Quartalsweise Veränderung - in T€',
+                colors: {
+                    start: '#2E86AB',
+                    end: '#2E86AB',
+                    positive: '#28A745',
+                    negative: '#DC3545',
+                    compare: '#6C757D',
+                    connector: '#444444'
+                },
+                bars: [
+                    { type: 'start', label: 'Q1\nUmsatz', value: 520, displayValue: '520 T€' },
+                    { type: 'increase', label: 'Q2\nWachstum', value: 45, displayValue: '+45 T€' },
+                    { type: 'increase', label: 'Q3\nWachstum', value: 62, displayValue: '+62 T€' },
+                    { type: 'decrease', label: 'Q4\nRückgang', value: -18, displayValue: '-18 T€' },
+                    { type: 'end', label: 'Jahres-\numsatz', value: 609, displayValue: '609 T€' }
+                ],
+                bracket: { show: true, fromIndex: 0, toIndex: 4, label: '+17,1%' }
+            };
+
+            // Variante 8: Margenanalyse
+            const variant8 = {
+                title: 'Chart 8: Margenanalyse',
+                subtitle: 'Von Bruttomarge zu Nettomarge - in %',
+                colors: {
+                    start: '#1A535C',
+                    end: '#1A535C',
+                    positive: '#4ECDC4',
+                    negative: '#FF6B6B',
+                    compare: '#A0A0A0',
+                    connector: '#333333'
+                },
+                bars: [
+                    { type: 'start', label: 'Brutto-\nmarge', value: 42.5, displayValue: '42,5%' },
+                    { type: 'decrease', label: 'Personal', value: -12.3, displayValue: '-12,3%' },
+                    { type: 'decrease', label: 'Marketing', value: -5.8, displayValue: '-5,8%' },
+                    { type: 'decrease', label: 'Overhead', value: -8.2, displayValue: '-8,2%' },
+                    { type: 'decrease', label: 'Abschreib.', value: -3.5, displayValue: '-3,5%' },
+                    { type: 'end', label: 'EBIT-\nMarge', value: 12.7, displayValue: '12,7%' }
+                ],
+                bracket: { show: true, fromIndex: 0, toIndex: 5, label: '-29,8%pt' }
+            };
+
+            // Variante 9: Segment Performance
+            const variant9 = {
+                title: 'Chart 9: Segment Performance',
+                subtitle: 'Beitrag der Geschäftsbereiche - in T€',
+                colors: {
+                    start: '#5D4E8C',
+                    end: '#5D4E8C',
+                    positive: '#2ECC71',
+                    negative: '#E74C3C',
+                    compare: '#95A5A6',
+                    connector: '#333333'
+                },
+                bars: [
+                    { type: 'start', label: 'Konzern-\nEBIT VJ', value: 150, displayValue: '150 T€' },
+                    { type: 'increase', label: 'Segment A', value: 28, displayValue: '+28 T€' },
+                    { type: 'increase', label: 'Segment B', value: 15, displayValue: '+15 T€' },
+                    { type: 'decrease', label: 'Segment C', value: -8, displayValue: '-8 T€' },
+                    { type: 'decrease', label: 'Holding', value: -5.5, displayValue: '-5,5 T€' },
+                    { type: 'end', label: 'Konzern-\nEBIT CY', value: 179.5, displayValue: '179,5 T€' }
+                ],
+                bracket: { show: true, fromIndex: 0, toIndex: 5, label: '+19,7%' }
+            };
+
+            // Variante 10: Investitionsrechnung
+            const variant10 = {
+                title: 'Chart 10: Investitionsrechnung',
+                subtitle: 'Free Cash Flow Verwendung - in T€',
+                colors: {
+                    start: '#34495E',
+                    end: '#34495E',
+                    positive: '#27AE60',
+                    negative: '#C0392B',
+                    compare: '#7F8C8D',
+                    connector: '#333333'
+                },
+                bars: [
+                    { type: 'start', label: 'Free\nCash Flow', value: 171.21, displayValue: '171,21 T€' },
+                    { type: 'decrease', label: 'CAPEX', value: -85, displayValue: '-85 T€' },
+                    { type: 'decrease', label: 'Dividende', value: -30, displayValue: '-30 T€' },
+                    { type: 'decrease', label: 'Tilgung', value: -25, displayValue: '-25 T€' },
+                    { type: 'end', label: 'Überschuss', value: 31.21, displayValue: '31,21 T€' }
+                ],
+                bracket: { show: true, fromIndex: 0, toIndex: 4, label: '-81,8%' }
+            };
+
+            return [variant1, variant2, variant3, variant4, variant5, variant6, variant7, variant8, variant9, variant10];
         }
 
         function generateDemoBarConfigs() {
@@ -3756,7 +3567,78 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                 showBrackets: false
             };
 
-            return [variant1, variant2, variant3, variant4, variant5];
+            // Variante 6: Mit Budget-Vergleich
+            const variant6 = {
+                title: 'Chart 6: IST vs Budget',
+                subtitle: 'Quartale mit Planwerten - in Mio. EUR',
+                periods: [
+                    { label: 'Q1 IST', color: '#333333', type: 'IST' },
+                    { label: 'Q1 BUD', color: '#999999', type: 'BUD' },
+                    { label: 'Q2 IST', color: '#333333', type: 'IST' },
+                    { label: 'Q2 BUD', color: '#999999', type: 'BUD' }
+                ],
+                categories: [{ name: 'Revenue', values: [245, 240, 268, 255] }],
+                showBrackets: true
+            };
+
+            // Variante 7: Multi-Kategorie
+            const variant7 = {
+                title: 'Chart 7: Produkt-Performance',
+                subtitle: 'Nach Kategorie - in T€',
+                periods: [
+                    { label: '2023', color: '#666666' },
+                    { label: '2024', color: '#0066B1' }
+                ],
+                categories: [
+                    { name: 'Produkt A', values: [320, 385] },
+                    { name: 'Produkt B', values: [280, 312] },
+                    { name: 'Produkt C', values: [195, 225] }
+                ],
+                showBrackets: true
+            };
+
+            // Variante 8: Forecast
+            const variant8 = {
+                title: 'Chart 8: Halbjahres-Forecast',
+                subtitle: 'H1 vs H2 - in Mio. EUR',
+                periods: [
+                    { label: 'H1 IST', color: '#333333', type: 'IST' },
+                    { label: 'H2 FC', color: '#0066B1', type: 'FC' }
+                ],
+                categories: [{ name: 'Umsatz', values: [513, 548] }],
+                showBrackets: true
+            };
+
+            // Variante 9: Regional
+            const variant9 = {
+                title: 'Chart 9: Regionale Verteilung',
+                subtitle: 'Nach Standort - in T€',
+                periods: [
+                    { label: 'DACH', color: '#1E3A5F' },
+                    { label: 'EU', color: '#2E5A88' },
+                    { label: 'USA', color: '#5B8DBE' },
+                    { label: 'APAC', color: '#8BBDE0' }
+                ],
+                categories: [{ name: 'Revenue', values: [425, 312, 285, 161] }],
+                showBrackets: false
+            };
+
+            // Variante 10: Wachstum
+            const variant10 = {
+                title: 'Chart 10: 5-Jahres-Wachstum',
+                subtitle: 'Langfristentwicklung - in Mio. EUR',
+                periods: [
+                    { label: '2020', color: '#E8E8E8' },
+                    { label: '2021', color: '#CCCCCC' },
+                    { label: '2022', color: '#999999' },
+                    { label: '2023', color: '#666666' },
+                    { label: '2024', color: '#333333' }
+                ],
+                categories: [{ name: 'Gesamtumsatz', values: [850, 920, 1025, 1120, 1183] }],
+                showBrackets: true
+            };
+
+            return [variant1, variant2, variant3, variant4, variant5, variant6, variant7, variant8, variant9, variant10];
         }
 
         function generateDemoStackedBarConfigs() {
@@ -3837,7 +3719,84 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                 options: { showValues: false, showTotals: false, showLegend: true }
             };
 
-            return [variant1, variant2, variant3, variant4, variant5];
+            // Variante 6: Prozentual
+            const variant6 = {
+                title: 'Chart 6: Anteil am Gesamtumsatz',
+                subtitle: 'Prozentuale Verteilung',
+                categories: [
+                    { label: 'Berlin' }, { label: 'München' }, { label: 'Hamburg' }
+                ],
+                segments: [
+                    { name: 'Personal', color: '#1E3A5F', values: [54, 54, 52] },
+                    { name: 'Miete', color: '#2E5A88', values: [22, 29, 21] },
+                    { name: 'Material', color: '#5B8DBE', values: [14, 10, 19] },
+                    { name: 'IT', color: '#8BBDE0', values: [10, 7, 8] }
+                ],
+                options: { showValues: true, showTotals: false, showLegend: true, isPercentage: true }
+            };
+
+            // Variante 7: Zeitreihe
+            const variant7 = {
+                title: 'Chart 7: Entwicklung über Zeit',
+                subtitle: 'Q1-Q4 - in TEUR',
+                categories: [
+                    { label: 'Q1' }, { label: 'Q2' }, { label: 'Q3' }, { label: 'Q4' }
+                ],
+                segments: [
+                    { name: 'Produkt A', color: '#1E3A5F', values: [120, 135, 142, 155] },
+                    { name: 'Produkt B', color: '#2E5A88', values: [95, 88, 102, 98] },
+                    { name: 'Produkt C', color: '#5B8DBE', values: [65, 72, 68, 85] }
+                ],
+                options: { showValues: true, showTotals: true, showLegend: true }
+            };
+
+            // Variante 8: Zwei Kategorien
+            const variant8 = {
+                title: 'Chart 8: IST vs PLAN',
+                subtitle: 'Kostenvergleich - in TEUR',
+                categories: [
+                    { label: 'IST' }, { label: 'PLAN' }
+                ],
+                segments: [
+                    { name: 'Personal', color: '#1E3A5F', values: [520, 500] },
+                    { name: 'Miete', color: '#2E5A88', values: [280, 270] },
+                    { name: 'Material', color: '#5B8DBE', values: [140, 155] },
+                    { name: 'IT', color: '#8BBDE0', values: [85, 90] }
+                ],
+                options: { showValues: true, showTotals: true, showLegend: true }
+            };
+
+            // Variante 9: Viele Kategorien
+            const variant9 = {
+                title: 'Chart 9: Monatliche Entwicklung',
+                subtitle: 'Jan-Jun - in TEUR',
+                categories: [
+                    { label: 'Jan' }, { label: 'Feb' }, { label: 'Mär' },
+                    { label: 'Apr' }, { label: 'Mai' }, { label: 'Jun' }
+                ],
+                segments: [
+                    { name: 'Umsatz', color: '#1E3A5F', values: [85, 92, 88, 95, 102, 98] },
+                    { name: 'Kosten', color: '#5B8DBE', values: [72, 78, 75, 80, 85, 82] }
+                ],
+                options: { showValues: true, showTotals: true, showLegend: true }
+            };
+
+            // Variante 10: Regional
+            const variant10 = {
+                title: 'Chart 10: Regionale Verteilung',
+                subtitle: 'Nach Geschäftsbereich - in T€',
+                categories: [
+                    { label: 'DACH' }, { label: 'EU' }, { label: 'USA' }
+                ],
+                segments: [
+                    { name: 'Consulting', color: '#1E3A5F', values: [180, 120, 95] },
+                    { name: 'Produkte', color: '#2E5A88', values: [220, 185, 240] },
+                    { name: 'Services', color: '#5B8DBE', values: [95, 65, 55] }
+                ],
+                options: { showValues: true, showTotals: true, showLegend: true }
+            };
+
+            return [variant1, variant2, variant3, variant4, variant5, variant6, variant7, variant8, variant9, variant10];
         }
 
         // =====================================================
@@ -3992,31 +3951,7 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             const hasBudget = profile.has_budget;
             const hasPriorYear = profile.has_prior_year;
 
-            if (chartType === 'chart-mix') {
-                // Mix-Strategie erklaeren
-                const strategies = [];
-
-                if (reportType === 'income_statement' || reportType === 'financial_report') {
-                    strategies.push('Waterfall-Charts fuer GuV-Struktur (Umsatz zu Ergebnis)');
-                }
-                if (hasBudget || hasVariance) {
-                    strategies.push('Bar-Charts fuer Plan/Ist-Vergleiche');
-                }
-                if (hasPriorYear) {
-                    strategies.push('Vergleichs-Charts fuer Vorjahresanalyse');
-                }
-                if (rowCount > 5) {
-                    strategies.push('Stacked Bar fuer Zusammensetzungsanalyse');
-                }
-
-                reasoning.mixStrategy = strategies.length > 0
-                    ? strategies.join('; ') + '.'
-                    : 'Automatische Auswahl basierend auf Datenstruktur.';
-
-                reasoning.chartTypeReason = `Chart-Mix gewaehlt, um verschiedene Perspektiven auf die ${
-                    reportType === 'income_statement' ? 'GuV-Daten' : 'Finanzdaten'
-                } zu ermoeglichen.`;
-            } else if (chartType === 'waterfall') {
+            if (chartType === 'waterfall') {
                 reasoning.chartTypeReason = `Waterfall gewaehlt: ${
                     reportType === 'income_statement'
                         ? 'Ideal fuer GuV-Darstellung mit Kostenaufschluesselung vom Umsatz zum Ergebnis.'
@@ -4162,7 +4097,6 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
 
             // 4. Chart-Auswahl mit Modus
             const chartTypeLabel = {
-                'chart-mix': 'Chart-Mix (automatische Kombination)',
                 'waterfall': 'Waterfall Charts',
                 'bar': 'Bar Charts',
                 'stacked-bar': 'Stacked Bar Charts',
@@ -4348,11 +4282,10 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
         function renderAllCharts() {
             const wrapper = document.getElementById('charts-wrapper');
             const selectedChartType = analysisResult?.parsed?.recommendation?.selectedChart ||
-                              analysisResult?.parsed?.recommendation?.primaryChart || 'chart-mix';
-            const isChartMix = selectedChartType === 'chart-mix';
+                              analysisResult?.parsed?.recommendation?.primaryChart || 'waterfall';
 
-            // Begrenze die Anzahl der Charts auf die User-Auswahl
-            let configsToRender = chartConfigs.slice(0, chartCount);
+            // Alle Charts rendern (kein Limit mehr)
+            let configsToRender = [...chartConfigs];
 
             // Hilfsfunktion: Bestimme den Chart-Typ einer Config
             function detectChartType(config) {
@@ -4437,17 +4370,29 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             // Falls nach Validierung keine Configs übrig, verwende Demo-Daten
             if (configsToRender.length === 0) {
                 console.log('Keine gültigen Configs - Fallback zu Demo-Daten');
-                if (isChartMix) {
-                    generateChartMixVariants(chartCount);
-                } else {
-                    generateChartVariants(selectedChartType);
-                }
-                configsToRender = chartConfigs.slice(0, chartCount);
+                generateChartVariants(selectedChartType);
+                configsToRender = [...chartConfigs];
+            }
+
+            // Initialisiere selectedChartsForExport mit allen Charts (standardmäßig ausgewählt)
+            selectedChartsForExport.clear();
+            configsToRender.forEach((_, index) => selectedChartsForExport.add(index));
+
+            // Zeige Selection-Bar
+            const selectionBar = document.getElementById('selectionBar');
+            if (selectionBar) {
+                selectionBar.style.display = 'flex';
+                document.getElementById('totalCharts').textContent = configsToRender.length;
+                updateSelectionCount();
             }
 
             wrapper.innerHTML = configsToRender.map((config, index) => `
-                <div class="chart-container">
+                <div class="chart-container ${selectedChartsForExport.has(index) ? 'selected' : ''}" id="chartContainer${index}">
                     <div class="chart-header">
+                        <div class="chart-select-checkbox">
+                            <input type="checkbox" id="chartSelect${index}" ${selectedChartsForExport.has(index) ? 'checked' : ''} onchange="toggleChartSelection(${index})">
+                            <label for="chartSelect${index}">Für Export auswählen</label>
+                        </div>
                         <div class="chart-info">
                             <div class="chart-title">${config.title || `Beispiel ${index + 1}`}</div>
                             <div class="chart-subtitle">${config.subtitle || ''}</div>
@@ -4464,9 +4409,9 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                 </div>
             `).join('');
 
-            // Rendere jeden Chart basierend auf seinem Typ
+            // Rendere jeden Chart basierend auf dem gewählten Typ
             configsToRender.forEach((config, index) => {
-                const chartType = isChartMix ? detectChartType(config) : selectedChartType;
+                const chartType = selectedChartType.replace('_', '-');
                 switch (chartType) {
                     case 'waterfall':
                         renderWaterfallChart(`chart${index}`, config);
@@ -4481,6 +4426,55 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                         renderWaterfallChart(`chart${index}`, config);
                 }
             });
+        }
+
+        // Chart-Auswahl Funktionen
+        function toggleChartSelection(index) {
+            if (selectedChartsForExport.has(index)) {
+                selectedChartsForExport.delete(index);
+            } else {
+                selectedChartsForExport.add(index);
+            }
+            updateChartContainerStyle(index);
+            updateSelectionCount();
+        }
+
+        function updateChartContainerStyle(index) {
+            const container = document.getElementById(`chartContainer${index}`);
+            if (container) {
+                if (selectedChartsForExport.has(index)) {
+                    container.classList.add('selected');
+                } else {
+                    container.classList.remove('selected');
+                }
+            }
+        }
+
+        function updateSelectionCount() {
+            const countElement = document.getElementById('selectionCount');
+            if (countElement) {
+                countElement.textContent = selectedChartsForExport.size;
+            }
+        }
+
+        function toggleAllCharts() {
+            const checkboxes = document.querySelectorAll('[id^="chartSelect"]');
+            checkboxes.forEach((cb, index) => {
+                selectedChartsForExport.add(index);
+                cb.checked = true;
+                updateChartContainerStyle(index);
+            });
+            updateSelectionCount();
+        }
+
+        function deselectAllCharts() {
+            const checkboxes = document.querySelectorAll('[id^="chartSelect"]');
+            checkboxes.forEach((cb, index) => {
+                selectedChartsForExport.delete(index);
+                cb.checked = false;
+                updateChartContainerStyle(index);
+            });
+            updateSelectionCount();
         }
 
         // =====================================================
@@ -5627,11 +5621,19 @@ ${svg.innerHTML}
             downloadBlob(blob, 'chart-' + (index + 1) + '.html');
         }
 
-        async function downloadAllAsZIP() {
+        async function downloadSelectedAsZIP() {
+            if (selectedChartsForExport.size === 0) {
+                alert('Bitte wählen Sie mindestens einen Chart für den Export aus.');
+                return;
+            }
+
             const zip = new JSZip();
 
-            chartConfigs.forEach(function(config, index) {
+            const selectedIndices = Array.from(selectedChartsForExport).sort((a, b) => a - b);
+            selectedIndices.forEach(function(index, i) {
                 const svg = document.getElementById('chart' + index);
+                if (!svg) return;
+
                 const viewBox = svg.getAttribute('viewBox') || '0 0 1280 720';
                 const svgParts = [];
                 svgParts.push('<?xml version="1.0" encoding="UTF-8"?>');
@@ -5639,11 +5641,18 @@ ${svg.innerHTML}
                 svgParts.push(getEmbeddedSVGStyles());
                 svgParts.push(svg.innerHTML);
                 svgParts.push('<\/svg>');
-                zip.file('chart-' + (index + 1) + '.svg', svgParts.join('\n'));
+                zip.file('chart-' + (i + 1) + '.svg', svgParts.join('\n'));
             });
 
             const blob = await zip.generateAsync({ type: 'blob' });
-            downloadBlob(blob, 'charts.zip');
+            downloadBlob(blob, 'selected-charts.zip');
+        }
+
+        // Legacy-Funktion für Kompatibilität
+        async function downloadAllAsZIP() {
+            // Alle Charts auswählen und dann exportieren
+            chartConfigs.forEach((_, index) => selectedChartsForExport.add(index));
+            await downloadSelectedAsZIP();
         }
 
         function downloadBlob(blob, filename) {
@@ -5808,16 +5817,25 @@ ${svg.innerHTML}
             img.src = url;
         }
 
-        // Alle Charts als PPTX (eine Folie pro Chart)
-        async function downloadAllAsPPTX() {
+        // Ausgewählte Charts als PPTX (eine Folie pro Chart)
+        async function downloadSelectedAsPPTX() {
+            if (selectedChartsForExport.size === 0) {
+                alert('Bitte wählen Sie mindestens einen Chart für den Export aus.');
+                return;
+            }
+
             const pptx = new PptxGenJS();
             pptx.layout = 'LAYOUT_16x9';
             pptx.title = 'Chart Collection';
             pptx.author = 'Chart Generator';
 
-            for (let index = 0; index < chartConfigs.length; index++) {
+            const selectedIndices = Array.from(selectedChartsForExport).sort((a, b) => a - b);
+
+            for (const index of selectedIndices) {
                 const config = chartConfigs[index];
                 const svg = document.getElementById('chart' + index);
+                if (!svg || !config) continue;
+
                 const title = config.title || 'Chart ' + (index + 1);
                 const subtitle = config.subtitle || '';
 
@@ -5880,7 +5898,14 @@ ${svg.innerHTML}
             }
 
             // Download
-            pptx.writeFile({ fileName: 'all-charts.pptx' });
+            pptx.writeFile({ fileName: 'selected-charts.pptx' });
+        }
+
+        // Legacy-Funktion für Kompatibilität
+        async function downloadAllAsPPTX() {
+            // Alle Charts auswählen und dann exportieren
+            chartConfigs.forEach((_, index) => selectedChartsForExport.add(index));
+            await downloadSelectedAsPPTX();
         }
     </script>
 </body>
