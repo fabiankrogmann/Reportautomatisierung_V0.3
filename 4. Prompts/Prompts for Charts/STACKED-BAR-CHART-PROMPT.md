@@ -529,12 +529,16 @@ const chartHeight = height - margin.top - margin.bottom;
 // ============================================
 const numCategories = config.categories.length;
 
-// Balkenbreite: Konfiguriert oder dynamisch
-const barWidth = config.options.barWidth ||
-                 Math.min(80, (chartWidth / numCategories) * 0.6);
+// WICHTIG: FESTE Balkenbreite für Konsistenz zwischen allen Charts!
+// Alle Charts verwenden dieselbe Breite, unabhängig von der Kategorienanzahl.
+// config.options.barWidth kann überschreiben falls spezifisch gesetzt.
+const barWidth = config.options.barWidth || 60;  // Feste Breite - NICHT dynamisch!
 
-// Lücke zwischen Balken
-const barGap = (chartWidth - (numCategories * barWidth)) / (numCategories + 1);
+// Mindestabstand zwischen Balken
+const minBarGap = 20;
+
+// Lücke zwischen Balken: gleichmäßig verteilt, aber mindestens minBarGap
+const barGap = Math.max(minBarGap, (chartWidth - (numCategories * barWidth)) / (numCategories + 1));
 
 // X-Position für jeden Balken
 function getBarX(catIndex) {
@@ -857,6 +861,150 @@ Optionen: Absolute Werte anzeigen, Totals über Balken, Legende unten
                                                  (Plan)
 
    Nur EIN strategischer Bracket zwischen IST und PLAN!
+```
+
+---
+
+## Horizontal Stacked Bar Chart
+
+Für horizontale gestapelte Balken (z.B. Kostenvergleich, Ressourcenverteilung):
+
+### Datenstruktur-Unterschied
+
+```javascript
+const config = {
+    title: 'Kostenverteilung nach Abteilung',
+    subtitle: 'in Tausend EUR',
+
+    // Bei horizontal: Kategorien werden zu Y-Achsen-Labels
+    orientation: 'horizontal',  // NEU: 'vertical' (default) oder 'horizontal'
+
+    categories: [
+        { label: 'Produktion' },
+        { label: 'Vertrieb' },
+        { label: 'IT' },
+        { label: 'Verwaltung' }
+    ],
+    segments: [
+        { name: 'Personal', color: '#1E3A5F', values: [450, 280, 180, 120] },
+        { name: 'Material', color: '#2E5A88', values: [320, 85, 45, 30] },
+        { name: 'Sonstige', color: '#5B8DBE', values: [180, 95, 75, 50] }
+    ]
+};
+```
+
+### Layout-Berechnung (Horizontal)
+
+```javascript
+// ============================================
+// HORIZONTAL STACKED BAR: Layout-Unterschiede
+// ============================================
+
+if (config.orientation === 'horizontal') {
+    // Kategorien auf Y-Achse (von oben nach unten)
+    const barHeight = Math.min(40, (chartHeight / numCategories) * 0.6);
+    const barGap = (chartHeight - (numCategories * barHeight)) / (numCategories + 1);
+
+    function getBarY(catIndex) {
+        return margin.top + barGap + catIndex * (barHeight + barGap);
+    }
+
+    // X-Skala: Wert → horizontale Position
+    function xScale(value) {
+        return margin.left + (value / maxTotal) * chartWidth;
+    }
+
+    // Segmente von LINKS nach RECHTS stapeln
+    config.categories.forEach((category, catIndex) => {
+        let currentX = margin.left;  // Starte am linken Rand
+        const barY = getBarY(catIndex);
+
+        config.segments.forEach((segment, segIndex) => {
+            const value = segment.values[catIndex];
+            const segmentWidth = (value / maxTotal) * chartWidth;
+
+            svgContent += `<rect
+                class="stacked-bar horizontal"
+                x="${currentX}"
+                y="${barY}"
+                width="${segmentWidth}"
+                height="${barHeight}"
+                fill="${segment.color}"
+                rx="2"
+            />`;
+
+            // Label im Segment (wenn breit genug)
+            if (segmentWidth >= 40) {
+                svgContent += `<text
+                    class="segment-label"
+                    x="${currentX + segmentWidth / 2}"
+                    y="${barY + barHeight / 2}"
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                >${value}</text>`;
+            }
+
+            currentX += segmentWidth;
+        });
+
+        // Gesamtsumme am Ende des Balkens
+        if (config.options.showTotals) {
+            const total = categoryTotals[catIndex];
+            svgContent += `<text
+                class="total-label"
+                x="${currentX + 8}"
+                y="${barY + barHeight / 2}"
+                dominant-baseline="middle"
+            >${total.toLocaleString('de-DE')}</text>`;
+        }
+    });
+
+    // Y-Achsen-Labels (Kategorienamen links)
+    config.categories.forEach((category, catIndex) => {
+        const barY = getBarY(catIndex);
+        svgContent += `<text
+            class="category-label"
+            x="${margin.left - 10}"
+            y="${barY + barHeight / 2}"
+            text-anchor="end"
+            dominant-baseline="middle"
+        >${category.label}</text>`;
+    });
+}
+```
+
+### Legende bei Horizontal
+
+```javascript
+// Legende UNTER dem Chart (horizontal angeordnet)
+if (config.orientation === 'horizontal') {
+    const legendY = height - 25;
+    const legendStartX = (width - (config.segments.length * 100)) / 2;
+
+    config.segments.forEach((segment, index) => {
+        const x = legendStartX + index * 100;
+        svgContent += `
+            <rect x="${x}" y="${legendY}" width="12" height="12"
+                  fill="${segment.color}" rx="2"/>
+            <text x="${x + 18}" y="${legendY + 10}"
+                  class="legend-text">${segment.name}</text>
+        `;
+    });
+}
+```
+
+### Visualisierung Horizontal
+
+```
+Kostenverteilung nach Abteilung
+in Tausend EUR
+
+  Produktion  ████████████████████████████████████  950
+    Vertrieb  █████████████████████  460
+         IT  ████████████  300
+ Verwaltung  ████████  200
+
+■ Personal  ■ Material  ■ Sonstige
 ```
 
 ---

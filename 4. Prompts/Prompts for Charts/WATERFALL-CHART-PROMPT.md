@@ -45,14 +45,18 @@ const config = {
         positive: '#7CB342',   // Grün für positive Änderungen (increase)
         negative: '#C0392B',   // Rot für negative Änderungen (decrease)
         compare: '#808080',    // Grau für Vergleichswerte
-        connector: '#333333'   // Farbe der gestrichelten Verbindungslinien
+        connector: '#333333',  // Farbe der gestrichelten Verbindungslinien
+        // Zusätzliche Bar-Typen
+        subtotal: '#6B7280',   // Grau für Zwischenergebnisse (EBITDA, Gross Profit)
+        delta: 'auto'          // Automatisch: verwendet positive/negative je nach Vorzeichen
     },
 
     // ============================================
     // ABSCHNITT: Balkendaten
     // ============================================
     // Jeder Balken hat: type, label, value, displayValue
-    // Types: 'start', 'increase', 'decrease', 'end', 'compare'
+    // Types: 'start', 'increase', 'decrease', 'end', 'compare', 'subtotal', 'delta'
+    // Zusätzlich für Varianzanalyse: 'budget', 'actual', 'target'
     bars: [
         // Startwert (type: 'start') - Voller Balken von 0 bis Wert
         {
@@ -278,6 +282,63 @@ if (bar.type === 'end') {
 - Farbe: colors.compare (Standard: Grau)
 - Für Benchmarks/Vergleichswerte
 - KEIN Connector davor oder danach
+
+#### Subtotal-Balken (type: 'subtotal')
+- Volle Höhe vom Boden bis zum Wert (wie 'end')
+- Farbe: colors.subtotal (Standard: Grau #6B7280)
+- Für Zwischenergebnisse wie Bruttoergebnis, EBITDA, etc.
+- HAT Connector-Linien davor UND danach (im Gegensatz zu 'compare')
+
+```javascript
+// ============================================
+// Subtotal-Balken Rendering
+// ============================================
+// Subtotal zeigt Zwischenergebnisse - voller Balken mit Connectors
+if (bar.type === 'subtotal') {
+    const subtotalValue = bar.value !== undefined ? bar.value : cumulative;
+
+    // Voller Balken von Nulllinie bis Wert
+    const barY = yScale(subtotalValue);
+    const barHeight = baselineY - barY;
+
+    // Connector für nächsten Balken: Oberkante dieses Balkens
+    connectorY = barY;
+
+    // Kumulierten Wert NICHT zurücksetzen - Bridge geht weiter
+    // cumulative bleibt unverändert
+}
+```
+
+#### Delta-Balken (type: 'delta')
+- Dynamischer Balken - verhält sich je nach Vorzeichen wie 'increase' oder 'decrease'
+- Positiver Wert → Grün, schwebend (wie increase)
+- Negativer Wert → Rot, hängend (wie decrease)
+- Nützlich wenn Vorzeichen der Varianz nicht vorher bekannt ist
+
+```javascript
+// ============================================
+// Delta-Balken Rendering (dynamische Varianz)
+// ============================================
+// Delta-Balken: Farbe und Verhalten basieren auf Vorzeichen
+if (bar.type === 'delta') {
+    if (bar.value >= 0) {
+        // Positiv → wie 'increase'
+        const barY = yScale(cumulative + bar.value);
+        const barHeight = yScale(cumulative) - barY;
+        connectorY = barY;
+        // Farbe: colors.positive (grün)
+        barColor = config.colors.positive;
+    } else {
+        // Negativ → wie 'decrease'
+        const barY = yScale(cumulative);
+        const barHeight = yScale(cumulative + bar.value) - barY;
+        connectorY = yScale(cumulative + bar.value);
+        // Farbe: colors.negative (rot)
+        barColor = config.colors.negative;
+    }
+    cumulative += bar.value;
+}
+```
 
 ### 2. Connector-Linien
 
@@ -633,11 +694,20 @@ const chartHeight = height - margin.top - margin.bottom;
 // ============================================
 const numBars = config.bars.length;
 
-// Balkenbreite: Maximum 70px, sonst 60% des verfügbaren Platzes pro Balken
-const barWidth = Math.min(70, (chartWidth / numBars) * 0.6);
+// WICHTIG: FESTE Balkenbreite für Konsistenz zwischen allen Charts!
+// Alle Charts verwenden dieselbe Breite, unabhängig von der Balkenanzahl.
+// Bei vielen Balken wird die Chart-Breite entsprechend angepasst.
+const barWidth = 50;  // Feste Breite in Pixel - NICHT dynamisch berechnen!
 
-// Lücke zwischen Balken
-const barGap = (chartWidth - numBars * barWidth) / (numBars + 1);
+// Mindestabstand zwischen Balken
+const minBarGap = 15;
+
+// Prüfen ob alle Balken mit dem festen barWidth passen
+const requiredWidth = numBars * barWidth + (numBars + 1) * minBarGap;
+const availableWidth = chartWidth;
+
+// Lücke zwischen Balken: gleichmäßig verteilt, aber mindestens minBarGap
+const barGap = Math.max(minBarGap, (availableWidth - numBars * barWidth) / (numBars + 1));
 
 // X-Position für jeden Balken berechnen
 function getBarX(index) {

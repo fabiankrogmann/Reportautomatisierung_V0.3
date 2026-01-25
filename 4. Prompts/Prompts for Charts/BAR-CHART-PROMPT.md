@@ -88,7 +88,7 @@ const config = {
 | IST, Ist, Actual, Act | `IST` | Realisierte/abgeschlossene Werte |
 | PLAN, Plan, Forecast, FC | `PLAN` | Geplante/prognostizierte Werte |
 | BUD, Budget | `BUD` | Budgetwerte |
-| VJ, Vorjahr, PY | `VJ` | Letztes Jahr |
+| VJ, Vorjahr, PY, Prior Year | `VJ` | Vorjahreswerte (leicht transparent) |
 
 **KRITISCH: Der Typ wird IMMER aus den Quelldaten extrahiert - NIEMALS geraten!**
 
@@ -114,6 +114,7 @@ periods: [
 | IST | Grautöne (#E0E0E0 → #333333) | Solid, automatische Abstufung |
 | PLAN | Akzentfarbe (#0066B1) | **Gestrichelter Rand** + halbtransparente Füllung |
 | BUD | Akzentfarbe (#27AE60) | **Gestrichelter Rand** + halbtransparente Füllung |
+| VJ/PY | Hellgrau (#9CA3AF) | **Solid, 70% Opacity** - visuell zurückgesetzt |
 
 **Gestrichelte Balken für Prognosen:**
 ```javascript
@@ -175,6 +176,12 @@ function renderBar(barX, barY, barWidth, barHeight, period, category, value) {
             stroke="${period.color}"
             stroke-width="2"
             stroke-dasharray="4,2"
+        />`;
+    } else if (period.type === 'VJ' || period.type === 'PY') {
+        // Vorjahr-Balken: solid aber leicht transparent (visuell zurückgesetzt)
+        return `<rect ${rectAttrs}
+            fill="#9CA3AF"
+            fill-opacity="0.7"
         />`;
     } else {
         // IST-Balken: solid gefüllt
@@ -498,9 +505,10 @@ const numCategories = config.categories.length;
 const numPeriods = config.periods.length;
 const groupWidth = chartWidth / numCategories;
 
-// Balkenbreite dynamisch berechnen
-const barWidth = Math.min(40, (groupWidth - 40) / numPeriods - 5);
-const barGap = Math.min(8, barWidth * 0.2);
+// WICHTIG: FESTE Balkenbreite für Konsistenz zwischen allen Charts!
+// Alle Charts verwenden dieselbe Breite, unabhängig von der Kategorien-/Periodenanzahl.
+const barWidth = 35;  // Feste Breite in Pixel - NICHT dynamisch berechnen!
+const barGap = 6;     // Fester Abstand zwischen Balken einer Gruppe
 
 // Balken zentrieren innerhalb der Gruppe
 const totalBarsWidth = numPeriods * barWidth + (numPeriods - 1) * barGap;

@@ -39,10 +39,7 @@
             border-radius: 12px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             padding: 30px;
-            margin-bottom: 40px;
-            max-width: 1400px;  /* Angepasst für 16:9 Charts (1280px + padding) */
-            margin-left: auto;
-            margin-right: auto;
+            /* Margin wird jetzt vom .chart-wrapper gehandhabt */
         }
 
         .chart-header {
@@ -416,29 +413,35 @@
             border-top: 1px solid #e2e8f0;
         }
 
-        /* Checkbox UI für Chart-Auswahl */
-        .chart-select-checkbox {
+        /* Checkbox UI für Chart-Auswahl - ÜBER der Chart-Box */
+        .chart-wrapper {
+            max-width: 1400px;
+            margin: 0 auto 40px auto;
+        }
+
+        .chart-select-row {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-right: auto;
+            margin-bottom: 8px;
+            padding-left: 4px;
         }
 
-        .chart-select-checkbox input[type="checkbox"] {
+        .chart-select-row input[type="checkbox"] {
             width: 18px;
             height: 18px;
             cursor: pointer;
             accent-color: #2563eb;
         }
 
-        .chart-select-checkbox label {
+        .chart-select-row label {
             font-size: 13px;
             color: #64748b;
             cursor: pointer;
             user-select: none;
         }
 
-        .chart-select-checkbox label:hover {
+        .chart-select-row label:hover {
             color: #1e293b;
         }
 
@@ -451,6 +454,9 @@
             border-radius: 8px;
             margin-bottom: 20px;
             border: 1px solid #e2e8f0;
+            max-width: 1400px;  /* Gleiche Breite wie Chart-Container */
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .export-selection-bar .selection-info {
@@ -1379,20 +1385,20 @@
         };
 
         // =====================================================
-        // MODUL 4: CHART MIXER (VEREINFACHT)
-        // Gibt alle Templates des gewählten Typs zurück
-        // Kein KI-Ranking mehr - User wählt nachträglich per Checkbox
+        // MODUL 4: CHART MIXER
+        // Filtert Templates nach Typ und nutzt optional KI-Ranking
         // =====================================================
         const ChartMixer = {
             /**
-             * Gibt alle Templates des gewählten Typs zurück
-             * @param {Object} profile - Daten-Profil vom DataProfiler (für Logging)
+             * Wählt Templates des gewählten Typs aus
+             * @param {Object} profile - Daten-Profil vom DataProfiler
              * @param {Array} templates - Verfügbare Templates
-             * @param {number} count - Max Anzahl (wird ignoriert, alle werden generiert)
+             * @param {number} count - Max Anzahl (für Ranking)
              * @param {Array} allowedTypes - Erlaubte Chart-Typen (nur einer!)
-             * @returns {Promise<Array>} Alle Templates des Typs
+             * @param {boolean} useRanking - Ob KI-Ranking verwendet werden soll
+             * @returns {Promise<Array>} Ausgewählte Templates
              */
-            async selectTemplates(profile, templates, count, allowedTypes = ['waterfall']) {
+            async selectTemplates(profile, templates, count, allowedTypes = ['waterfall'], useRanking = false) {
                 // Filtere Templates nach erlaubtem Typ
                 const filtered = templates.filter(t =>
                     allowedTypes.includes(t.chart_type) ||
@@ -1402,8 +1408,145 @@
                 console.log(`ChartMixer: ${filtered.length} Templates für Typ "${allowedTypes.join(', ')}" gefunden`);
                 console.log('ChartMixer: Template-IDs:', filtered.map(t => t.template_id).join(', '));
 
-                // Alle Templates zurückgeben (User wählt später per Checkbox)
+                // Wenn Ranking aktiviert und API verfügbar
+                if (useRanking && APIClient.apiKey && filtered.length > count) {
+                    console.log(`ChartMixer: Starte KI-Ranking (${filtered.length} → max ${count})`);
+                    try {
+                        const ranked = await LayoutRanker.rank(
+                            allowedTypes[0],
+                            profile,
+                            filtered,
+                            count
+                        );
+                        if (ranked && ranked.length > 0) {
+                            console.log(`ChartMixer: KI-Ranking erfolgreich - ${ranked.length} Templates ausgewählt`);
+                            return ranked;
+                        }
+                    } catch (error) {
+                        console.warn('ChartMixer: KI-Ranking fehlgeschlagen, verwende alle Templates:', error.message);
+                    }
+                }
+
+                // Fallback: Alle Templates des Typs zurückgeben
                 return filtered;
+            }
+        };
+
+        // =====================================================
+        // MODUL 4b: LAYOUT RANKER (NEU)
+        // Wählt die besten Layouts INNERHALB eines Chart-Typs
+        // Verhindert redundante/unpassende Layouts
+        // =====================================================
+        const LayoutRanker = {
+            /**
+             * Rankt Layouts eines Chart-Typs basierend auf Daten-Profil
+             * @param {string} chartType - Der Chart-Typ (waterfall, bar, stacked_bar)
+             * @param {Object} profile - Daten-Profil vom DataProfiler
+             * @param {Array} templates - Verfügbare Templates des Typs
+             * @param {number} maxCount - Maximale Anzahl zu generierender Layouts
+             * @returns {Promise<Array>} Gerankte Templates
+             */
+            async rank(chartType, profile, templates, maxCount = 10) {
+                console.log(`LayoutRanker: Starte Ranking für ${chartType} (${templates.length} → max ${maxCount})`);
+
+                // Lade den Ranking-Prompt
+                const rankingPrompt = await PromptLoader.load('layout_ranking');
+                if (!rankingPrompt) {
+                    console.warn('LayoutRanker: Ranking-Prompt nicht verfügbar');
+                    return templates.slice(0, maxCount);
+                }
+
+                // Baue den API-Request
+                const templateList = templates.map(t => ({
+                    template_id: t.template_id,
+                    name: t.name,
+                    chart_type: t.chart_type,
+                    description: t.description || '',
+                    metadata: t.metadata || {}
+                }));
+
+                const userMessage = `
+## Chart-Typ
+${chartType}
+
+## Daten-Profil
+${JSON.stringify(profile, null, 2)}
+
+## Gewünschte Anzahl
+${maxCount}
+
+## Verfügbare Templates
+${JSON.stringify(templateList, null, 2)}
+
+Wähle die ${maxCount} besten ${chartType}-Layouts für diese Daten.
+Antworte NUR mit dem JSON-Objekt, keine Erklärungen.
+`;
+
+                try {
+                    const response = await APIClient.call(
+                        rankingPrompt,
+                        userMessage,
+                        4096  // Kleinere maxTokens für Ranking
+                    );
+
+                    // Parse die Antwort
+                    const result = this._parseRankingResponse(response);
+
+                    if (result && result.selected_layouts && result.selected_layouts.length > 0) {
+                        // Mappe die IDs zurück zu den vollständigen Templates
+                        const selectedIds = result.selected_layouts.map(l => l.template_id);
+                        const rankedTemplates = [];
+
+                        for (const id of selectedIds) {
+                            const template = templates.find(t => t.template_id === id);
+                            if (template) {
+                                rankedTemplates.push(template);
+                            }
+                        }
+
+                        console.log(`LayoutRanker: ${rankedTemplates.length} Templates ausgewählt:`, selectedIds);
+
+                        // Speichere Reasoning für Debug
+                        if (result.excluded_templates) {
+                            console.log('LayoutRanker: Ausgeschlossene Templates:', result.excluded_templates);
+                        }
+
+                        return rankedTemplates;
+                    }
+                } catch (error) {
+                    console.error('LayoutRanker: Fehler beim Ranking:', error.message);
+                }
+
+                // Fallback: Erste N Templates zurückgeben
+                console.log('LayoutRanker: Fallback - erste', maxCount, 'Templates');
+                return templates.slice(0, maxCount);
+            },
+
+            /**
+             * Parst die KI-Antwort für Ranking
+             */
+            _parseRankingResponse(response) {
+                try {
+                    // Versuche direkt zu parsen
+                    if (typeof response === 'object') {
+                        return response;
+                    }
+
+                    // String-Antwort: JSON extrahieren
+                    let jsonStr = response;
+
+                    // Entferne Markdown Code-Blöcke
+                    if (jsonStr.includes('```json')) {
+                        jsonStr = jsonStr.split('```json')[1].split('```')[0];
+                    } else if (jsonStr.includes('```')) {
+                        jsonStr = jsonStr.split('```')[1].split('```')[0];
+                    }
+
+                    return JSON.parse(jsonStr.trim());
+                } catch (error) {
+                    console.error('LayoutRanker: JSON Parse Fehler:', error.message);
+                    return null;
+                }
             }
         };
 
@@ -1741,13 +1884,13 @@ Befolge exakt das config-Format aus dem Prompt.`;
 
             // Mapping: Prompt-Name → Dateiname
             // HINWEIS: Nur noch die in charts.html benötigten Prompts
-            // - ranking_mix: entfernt (archiviert)
             // - color_schema: nur in colors.html benötigt
             promptFiles: {
                 'waterfall': 'WATERFALL-CHART-PROMPT.md',
                 'bar': 'BAR-CHART-PROMPT.md',
                 'stacked_bar': 'STACKED-BAR-CHART-PROMPT.md',
-                'field_mapping': 'FIELD-MAPPING-PROMPT.md'
+                'field_mapping': 'FIELD-MAPPING-PROMPT.md',
+                'layout_ranking': 'LAYOUT-RANKING-PROMPT.md'  // Intra-Typ Layout-Ranking
             },
 
             /**
@@ -2364,17 +2507,24 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
                         await TemplateLoader.load();
                         console.log('1/3: Template-Bibliothek geladen');
 
-                        // Wähle alle Templates des gewählten Typs
-                        console.log('2/3: Lade alle Templates für Typ:', chartType);
+                        // Wähle Templates des gewählten Typs (mit optionalem KI-Ranking)
+                        console.log('2/3: Lade Templates für Typ:', chartType);
                         const allowedTypes = [chartType.replace('-', '_')];
                         console.log('Erlaubte Chart-Typen:', allowedTypes);
                         const allTemplates = TemplateLoader.getAll();
                         console.log('Verfügbare Templates:', allTemplates.length);
+
+                        // KI-Ranking aktivieren wenn mehr Templates als gewünscht
+                        // Das spart API-Calls und Zeit bei der Generierung
+                        const useLayoutRanking = true;  // Feature-Flag
+                        console.log('Layout-Ranking:', useLayoutRanking ? 'AKTIVIERT' : 'deaktiviert');
+
                         const selectedTemplates = await ChartMixer.selectTemplates(
                             profile,
                             allTemplates,
                             chartCount,
-                            allowedTypes
+                            allowedTypes,
+                            useLayoutRanking  // Neuer Parameter
                         );
                         console.log('2/3: Templates ausgewählt:', selectedTemplates.map(t => t.template_id));
                         // Zeige Chart-Typ-Verteilung
@@ -4039,41 +4189,10 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             const profile = aiReasoningData.profile || {};
             const reasoning = aiReasoningData.reasoning || {};
 
-            // 1. ENTSCHEIDUNGSBEGRUENDUNG (NEU - Wichtigster Abschnitt)
+            // 1. DATENPROFIL - Überblick über die Quelldaten
             html += `
                 <div class="reasoning-section">
-                    <div class="reasoning-section-title">Entscheidungsbegruendung</div>
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">Warum diese Charts?</span>
-                        <span class="reasoning-value">${reasoning.chartTypeReason || 'Automatische Auswahl basierend auf Datenstruktur.'}</span>
-                    </div>
-                    ${reasoning.mixStrategy ? `
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">Mix-Strategie:</span>
-                        <span class="reasoning-value">${reasoning.mixStrategy}</span>
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-
-            // 2. DATEN-INSIGHTS (NEU)
-            if (reasoning.dataInsights && reasoning.dataInsights.length > 0) {
-                html += `
-                    <div class="reasoning-section">
-                        <div class="reasoning-section-title">Erkannte Datenmuster</div>
-                        ${reasoning.dataInsights.map(insight => `
-                            <div class="reasoning-item">
-                                <span class="reasoning-value">- ${insight}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // 3. Daten-Profil
-            html += `
-                <div class="reasoning-section">
-                    <div class="reasoning-section-title">Daten-Profil</div>
+                    <div class="reasoning-section-title">Datenprofil</div>
                     <div class="reasoning-item">
                         <span class="reasoning-label">Report-Typ:</span>
                         <span class="reasoning-value">${profile.report_type || 'Demo-Daten'}</span>
@@ -4090,8 +4209,39 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                         <span class="reasoning-label">Wertarten:</span>
                         <span class="reasoning-value">${(profile.available_value_types || []).join(', ') || 'IST'}</span>
                     </div>
-                    ${profile.has_budget ? '<div class="reasoning-item"><span class="reasoning-value">Budget-Daten verfuegbar</span></div>' : ''}
-                    ${profile.has_prior_year ? '<div class="reasoning-item"><span class="reasoning-value">Vorjahres-Daten verfuegbar</span></div>' : ''}
+                    ${profile.has_budget ? '<div class="reasoning-item"><span class="reasoning-value">✓ Budget-Daten verfügbar</span></div>' : ''}
+                    ${profile.has_prior_year ? '<div class="reasoning-item"><span class="reasoning-value">✓ Vorjahres-Daten verfügbar</span></div>' : ''}
+                </div>
+            `;
+
+            // 2. ERKANNTE DATENMUSTER - Was die KI in den Daten gefunden hat
+            if (reasoning.dataInsights && reasoning.dataInsights.length > 0) {
+                html += `
+                    <div class="reasoning-section">
+                        <div class="reasoning-section-title">Erkannte Datenmuster</div>
+                        <div class="reasoning-item" style="flex-direction: column; align-items: flex-start;">
+                            ${reasoning.dataInsights.map(insight => `
+                                <div style="margin-bottom: 4px;">• ${insight}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 3. ENTSCHEIDUNGSBEGRÜNDUNG - Warum diese Chart-Auswahl
+            html += `
+                <div class="reasoning-section">
+                    <div class="reasoning-section-title">Entscheidungsbegründung</div>
+                    <div class="reasoning-item">
+                        <span class="reasoning-label">Warum diese Charts?</span>
+                        <span class="reasoning-value">${reasoning.chartTypeReason || 'Automatische Auswahl basierend auf Datenstruktur.'}</span>
+                    </div>
+                    ${reasoning.mixStrategy ? `
+                    <div class="reasoning-item">
+                        <span class="reasoning-label">Mix-Strategie:</span>
+                        <span class="reasoning-value">${reasoning.mixStrategy}</span>
+                    </div>
+                    ` : ''}
                 </div>
             `;
 
@@ -4174,7 +4324,48 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                 </div>
             `;
 
-            // 5. Generierte Charts MIT BEGRUENDUNG - kompaktes Layout
+            // 5. VERWENDETE TEMPLATES - Welche Layouts wurden angewendet
+            if (aiReasoningData.selectedTemplates.length > 0) {
+                // Ermittle welche Templates tatsächlich zu Charts führten
+                // Normalisiere IDs: "WF-01" und "WF01" sollen matchen
+                const normalizeId = (id) => id ? id.toUpperCase().replace(/-/g, '') : '';
+
+                const usedTemplateIds = new Set(
+                    aiReasoningData.chartConfigs
+                        .map(c => normalizeId(c._layoutId || c.layoutId))
+                        .filter(id => id)
+                );
+
+                // Debug-Log
+                console.log('Template-Matching Debug:', {
+                    chartLayoutIds: aiReasoningData.chartConfigs.map(c => c._layoutId || c.layoutId),
+                    normalizedChartIds: [...usedTemplateIds],
+                    templateIds: aiReasoningData.selectedTemplates.map(t => t.template_id)
+                });
+
+                html += `
+                    <div class="reasoning-section">
+                        <div class="reasoning-section-title">Verwendete Templates</div>
+                        ${aiReasoningData.selectedTemplates.map((t, i) => {
+                            const templateId = t.template_id || '';
+                            const isUsed = usedTemplateIds.has(normalizeId(templateId));
+                            const itemStyle = isUsed
+                                ? 'border: 2px solid #22c55e; border-radius: 6px; padding: 6px 10px; background: #f0fdf4;'
+                                : 'padding: 6px 10px; opacity: 0.6;';
+                            const statusIcon = isUsed ? '✓' : '○';
+                            const statusColor = isUsed ? '#15803d' : '#9ca3af';
+                            return `
+                            <div class="reasoning-item" style="${itemStyle}">
+                                <span style="color: ${statusColor}; margin-right: 6px;">${statusIcon}</span>
+                                <span class="reasoning-label">${templateId || 'Unbekannt'}:</span>
+                                <span class="reasoning-value">${t.name || ''} (${t.chart_type || 'Unbekannt'})</span>
+                            </div>
+                        `}).join('')}
+                    </div>
+                `;
+            }
+
+            // 6. GENERIERTE CHARTS - Übersicht der erstellten Visualisierungen
             if (aiReasoningData.chartConfigs.length > 0) {
                 const templateReasons = reasoning.templateReasons || [];
 
@@ -4195,22 +4386,7 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                 `;
             }
 
-            // 6. KI-Templates (wenn vorhanden)
-            if (aiReasoningData.selectedTemplates.length > 0) {
-                html += `
-                    <div class="reasoning-section">
-                        <div class="reasoning-section-title">Verwendete Templates</div>
-                        ${aiReasoningData.selectedTemplates.map((t, i) => `
-                            <div class="reasoning-item">
-                                <span class="reasoning-label">${t.template_id || 'Unbekannt'}:</span>
-                                <span class="reasoning-value">${t.name || ''} (${t.chart_type || 'Unbekannt'})</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // 7. Geladene Prompts anzeigen (PromptLoader Tracking)
+            // 7. GELADENE PROMPTS - Technische Details zur KI-Generierung
             if (PromptLoader.loadedPrompts && PromptLoader.loadedPrompts.length > 0) {
                 const totalTokens = PromptLoader.loadedPrompts.reduce((sum, p) => sum + p.tokens, 0);
                 const totalSize = PromptLoader.loadedPrompts.reduce((sum, p) => sum + p.size, 0);
@@ -4220,7 +4396,7 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                 html += `
                     <div class="reasoning-section" style="background: #f0fdf4; border-left: 3px solid #22c55e;">
                         <div class="reasoning-section-title" style="color: #15803d;">
-                            📄 Geladene Prompts (${PromptLoader.loadedPrompts.length})
+                            Geladene Prompts (${PromptLoader.loadedPrompts.length})
                         </div>
                         ${PromptLoader.loadedPrompts.map(p => {
                             const wasExtracted = p.rawSize && p.rawSize !== p.size;
@@ -4387,25 +4563,27 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             }
 
             wrapper.innerHTML = configsToRender.map((config, index) => `
-                <div class="chart-container ${selectedChartsForExport.has(index) ? 'selected' : ''}" id="chartContainer${index}">
-                    <div class="chart-header">
-                        <div class="chart-select-checkbox">
-                            <input type="checkbox" id="chartSelect${index}" ${selectedChartsForExport.has(index) ? 'checked' : ''} onchange="toggleChartSelection(${index})">
-                            <label for="chartSelect${index}">Für Export auswählen</label>
-                        </div>
-                        <div class="chart-info">
-                            <div class="chart-title">${config.title || `Beispiel ${index + 1}`}</div>
-                            <div class="chart-subtitle">${config.subtitle || ''}</div>
-                        </div>
-                        <div class="chart-actions">
-                            <button class="btn-download btn-pptx" onclick="downloadPPTX(${index})" title="PowerPoint Export">PPTX</button>
-                            <button class="btn-download" onclick="downloadPNGHD(${index})" title="PNG in 4K Auflösung">PNG HD</button>
-                            <button class="btn-download" onclick="downloadSVG(${index})" title="Vektor-Grafik">SVG</button>
-                            <button class="btn-download" onclick="downloadPNG(${index})" title="Standard PNG">PNG</button>
-                            <button class="btn-download" onclick="downloadHTML(${index})" title="Standalone HTML">HTML</button>
-                        </div>
+                <div class="chart-wrapper">
+                    <div class="chart-select-row">
+                        <input type="checkbox" id="chartSelect${index}" ${selectedChartsForExport.has(index) ? 'checked' : ''} onchange="toggleChartSelection(${index})">
+                        <label for="chartSelect${index}">Für Export auswählen</label>
                     </div>
-                    <svg id="chart${index}" viewBox="0 0 1200 500"></svg>
+                    <div class="chart-container ${selectedChartsForExport.has(index) ? 'selected' : ''}" id="chartContainer${index}">
+                        <div class="chart-header">
+                            <div class="chart-info">
+                                <div class="chart-title">${config.title || `Beispiel ${index + 1}`}</div>
+                                <div class="chart-subtitle">${config.subtitle || ''}</div>
+                            </div>
+                            <div class="chart-actions">
+                                <button class="btn-download btn-pptx" onclick="downloadPPTX(${index})" title="PowerPoint Export">PPTX</button>
+                                <button class="btn-download" onclick="downloadPNGHD(${index})" title="PNG in 4K Auflösung">PNG HD</button>
+                                <button class="btn-download" onclick="downloadSVG(${index})" title="Vektor-Grafik">SVG</button>
+                                <button class="btn-download" onclick="downloadPNG(${index})" title="Standard PNG">PNG</button>
+                                <button class="btn-download" onclick="downloadHTML(${index})" title="Standalone HTML">HTML</button>
+                            </div>
+                        </div>
+                        <svg id="chart${index}" viewBox="0 0 1200 500"></svg>
+                    </div>
                 </div>
             `).join('');
 
@@ -4502,8 +4680,13 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             const chartHeight = height - margin.top - margin.bottom;
 
             const numBars = config.bars.length;
-            const barWidth = Math.min(70, (chartWidth / numBars) * 0.6);
-            const barGap = (chartWidth - numBars * barWidth) / (numBars + 1);
+
+            // WICHTIG: FESTE Balkenbreite für Konsistenz zwischen allen Charts!
+            const barWidth = 50;  // Feste Breite in Pixel - NICHT dynamisch berechnen!
+            const minBarGap = 15;
+
+            // Lücke zwischen Balken: gleichmäßig verteilt, aber mindestens minBarGap
+            const barGap = Math.max(minBarGap, (chartWidth - numBars * barWidth) / (numBars + 1));
 
             function getBarX(index) {
                 return margin.left + barGap + index * (barWidth + barGap);
@@ -4971,8 +5154,10 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
 
             const numPeriods = config.periods.length;
             const groupWidth = chartWidth / numCategories;
-            const barWidth = Math.min(50, (groupWidth - 60) / numPeriods - 8);
-            const barGap = 12;
+
+            // WICHTIG: FESTE Balkenbreite für Konsistenz zwischen allen Charts!
+            const barWidth = 35;  // Feste Breite in Pixel - NICHT dynamisch berechnen!
+            const barGap = 6;     // Fester Abstand zwischen Balken einer Gruppe
 
             const maxValue = Math.max(...config.categories.flatMap(c => c.values));
             const scale = chartHeight / (maxValue * 1.3);
@@ -5242,8 +5427,13 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             const chartHeight = height - margin.top - margin.bottom;
 
             const numCategories = config.categories.length;
-            const barWidth = Math.min(80, (chartWidth / numCategories) * 0.6);
-            const barGap = (chartWidth - (numCategories * barWidth)) / (numCategories + 1);
+
+            // WICHTIG: FESTE Balkenbreite für Konsistenz zwischen allen Charts!
+            const barWidth = 60;  // Feste Breite in Pixel - NICHT dynamisch berechnen!
+            const minBarGap = 20;
+
+            // Lücke zwischen Balken: gleichmäßig verteilt, aber mindestens minBarGap
+            const barGap = Math.max(minBarGap, (chartWidth - (numCategories * barWidth)) / (numCategories + 1));
 
             const categoryTotals = config.categories.map((_, catIndex) =>
                 config.segments.reduce((sum, seg) => sum + seg.values[catIndex], 0)
