@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Colors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafbfc;
+            color: #374151;
+            line-height: 1.6;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        h1 {
+            color: #1f2937;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 0.95rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Main Card */
+        .colors-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .optional-badge {
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .card-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Toggle Switch for Custom Colors */
+        .toggle-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .toggle-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .toggle-hint {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d1d5db;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #3b82f6;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Color Inputs Section */
+        .color-inputs-section {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .color-inputs-section.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Color Inputs Grid */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .color-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .color-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px 10px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-width: 0;
+        }
+
+        .color-input-wrapper:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .color-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            cursor: pointer;
+            padding: 0;
+            background: none;
+            flex-shrink: 0;
+        }
+
+        .color-swatch::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-swatch::-webkit-color-swatch {
+            border: none;
+            border-radius: 5px;
+        }
+
+        .color-hex-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: #374151;
+            text-transform: uppercase;
+            min-width: 0;
+            width: 100%;
+        }
+
+        .color-hex-input:focus {
+            outline: none;
+        }
+
+        .color-hex-input::placeholder {
+            color: #9ca3af;
+            text-transform: none;
+        }
+
+        .color-clear-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 2px 4px;
+            line-height: 1;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .color-clear-btn:hover {
+            color: #ef4444;
+            background: #fef2f2;
+        }
+
+        /* Preview Section */
+        .preview-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .preview-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .preview-bar {
+            display: flex;
+            height: 48px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .preview-color {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: flex 0.2s;
+        }
+
+        .preview-color:hover {
+            flex: 1.5;
+        }
+
+        .preview-color span {
+            font-size: 0.65rem;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .preview-color:hover span {
+            opacity: 1;
+        }
+
+        .preview-empty {
+            flex: 1;
+            background: repeating-linear-gradient(
+                45deg,
+                #f3f4f6,
+                #f3f4f6 10px,
+                #e5e7eb 10px,
+                #e5e7eb 20px
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        .preview-default {
+            flex: 1;
+            background: linear-gradient(90deg,
+                #1B4F72 0%, #1B4F72 16.66%,
+                #27AE60 16.66%, #27AE60 33.33%,
+                #E74C3C 33.33%, #E74C3C 50%,
+                #7F8C8D 50%, #7F8C8D 66.66%,
+                #3498DB 66.66%, #3498DB 83.33%,
+                #9B59B6 83.33%, #9B59B6 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-default-text {
+            background: rgba(255,255,255,0.9);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .info-icon {
+            color: #0284c7;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .info-text {
+            font-size: 0.8rem;
+            color: #0369a1;
+            line-height: 1.5;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-primary:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+
+        /* Demo Banner */
+        .demo-banner {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-banner-icon {
+            background: #3b82f6;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        .demo-banner span {
+            color: #1e40af;
+            font-size: 0.9rem;
+        }
+
+        /* Color Guide Section */
+        .color-guide {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .guide-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .guide-icon {
+            width: 32px;
+            height: 32px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .guide-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: #64748b;
+            fill: none;
+            stroke-width: 1.5;
+        }
+
+        .guide-header-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .guide-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .guide-subtitle {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .color-mapping {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .color-role {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .color-role:hover {
+            border-color: #cbd5e1;
+        }
+
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            flex-shrink: 0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .role-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .role-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .role-desc {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .guide-footer {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        /* Color Scheme Selection */
+        .color-scheme-section {
+            margin-bottom: 20px;
+        }
+
+        .scheme-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .scheme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .scheme-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .scheme-card:hover {
+            border-color: #93c5fd;
+            background: #f8fafc;
+        }
+
+        .scheme-card.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .scheme-card.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            color: #3b82f6;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .scheme-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .scheme-card.selected .scheme-name {
+            color: #1d4ed8;
+        }
+
+        /* Farbvorschau in den Schema-Karten (dynamisch generiert) */
+        .scheme-preview {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+
+        .scheme-preview > div {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+        }
+
+        .scheme-desc {
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .scheme-colors {
+            display: flex;
+            gap: 4px;
+        }
+
+        .scheme-color-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+        }
+
+        /* Collapsible Color Inputs */
+        .color-inputs-details {
+            margin-top: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+
+        .color-inputs-summary {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #6b7280;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-inputs-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .color-inputs-summary::before {
+            content: '>';
+            font-family: monospace;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+
+        .color-inputs-details[open] .color-inputs-summary::before {
+            transform: rotate(90deg);
+        }
+
+        .color-inputs-details[open] .color-inputs-summary {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .color-inputs-details .color-inputs-section {
+            padding: 16px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .color-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .color-mapping {
+                grid-template-columns: 1fr;
+            }
+
+            .action-bar {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .toggle-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Demo Banner (hidden by default) -->
+        <div class="demo-banner" id="demoBanner" style="display: none;">
+            <span class="demo-banner-icon">▶</span>
+            <span><strong>Demo-Modus:</strong> Wähle optionale Firmenfarben für die Beispiel-Charts.</span>
+        </div>
+
+        <header>
+            <h1>Company Colors</h1>
+            <p class="subtitle">Definiere Firmenfarben, die in den generierten Charts verwendet werden sollen.</p>
+        </header>
+
+        <div class="colors-card">
+            <div class="card-header">
+                <span class="card-title">Firmenfarben</span>
+                <span class="optional-badge">Optional</span>
+            </div>
+
+            <p class="card-description">
+                Aktiviere eigene Farben um deine Corporate Identity auf die Charts anzuwenden.
+                Ohne eigene Farben werden Standard-Farben automatisch gewählt.
+            </p>
+
+            <!-- Toggle for Custom Colors -->
+            <div class="toggle-section">
+                <div class="toggle-label">
+                    <span class="toggle-title">Eigene Farben verwenden</span>
+                    <span class="toggle-hint">Aktivieren, um individuelle Firmenfarben zu definieren</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="useCustomColors" onchange="toggleCustomColors()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- Color Scheme Selection -->
+            <div class="color-scheme-section">
+                <div class="scheme-label">Farbschema wählen</div>
+                <div class="scheme-grid">
+                    <div class="scheme-card selected" data-scheme="businessNeutral" onclick="selectScheme('businessNeutral')">
+                        <div class="scheme-name">Business Neutral</div>
+                        <div class="scheme-desc">Professionell, dezent</div>
+                        <div class="scheme-colors">
+                            <span class="scheme-color-dot" style="background: #1B4F72;"></span>
+                            <span class="scheme-color-dot" style="background: #27AE60;"></span>
+                            <span class="scheme-color-dot" style="background: #E74C3C;"></span>
+                            <span class="scheme-color-dot" style="background: #95A5A6;"></span>
+                            <span class="scheme-color-dot" style="background: #F39C12;"></span>
+                            <span class="scheme-color-dot" style="background: #3498DB;"></span>
+                        </div>
+                    </div>
+                    <div class="scheme-card" data-scheme="financeFocus" onclick="selectScheme('financeFocus')">
+                        <div class="scheme-name">Finance Focus</div>
+                        <div class="scheme-desc">GuV, Bilanz, Gewinn/Verlust</div>
+                        <div class="scheme-colors">
+                            <span class="scheme-color-dot" style="background: #1B4F72;"></span>
+                            <span class="scheme-color-dot" style="background: #2E86AB;"></span>
+                            <span class="scheme-color-dot" style="background: #E74C3C;"></span>
+                            <span class="scheme-color-dot" style="background: #27AE60;"></span>
+                            <span class="scheme-color-dot" style="background: #F4D03F;"></span>
+                            <span class="scheme-color-dot" style="background: #85929E;"></span>
+                        </div>
+                    </div>
+                    <div class="scheme-card" data-scheme="corporateMagenta" onclick="selectScheme('corporateMagenta')">
+                        <div class="scheme-name">Corporate Magenta</div>
+                        <div class="scheme-desc">Tech, Telco, Modern</div>
+                        <div class="scheme-colors">
+                            <span class="scheme-color-dot" style="background: #8E44AD;"></span>
+                            <span class="scheme-color-dot" style="background: #3498DB;"></span>
+                            <span class="scheme-color-dot" style="background: #E91E63;"></span>
+                            <span class="scheme-color-dot" style="background: #9B59B6;"></span>
+                            <span class="scheme-color-dot" style="background: #E74C3C;"></span>
+                            <span class="scheme-color-dot" style="background: #F39C12;"></span>
+                        </div>
+                    </div>
+                    <div class="scheme-card" data-scheme="monochrome" onclick="selectScheme('monochrome')">
+                        <div class="scheme-name">Monochrome</div>
+                        <div class="scheme-desc">Print, Formal, Minimalistisch</div>
+                        <div class="scheme-colors">
+                            <span class="scheme-color-dot" style="background: #2C3E50;"></span>
+                            <span class="scheme-color-dot" style="background: #566573;"></span>
+                            <span class="scheme-color-dot" style="background: #7F8C8D;"></span>
+                            <span class="scheme-color-dot" style="background: #95A5A6;"></span>
+                            <span class="scheme-color-dot" style="background: #BDC3C7;"></span>
+                            <span class="scheme-color-dot" style="background: #D5DBDB;"></span>
+                        </div>
+                    </div>
+                    <div class="scheme-card" data-scheme="trafficLight" onclick="selectScheme('trafficLight')">
+                        <div class="scheme-name">Traffic Light</div>
+                        <div class="scheme-desc">Ampel, Performance, Status</div>
+                        <div class="scheme-colors">
+                            <span class="scheme-color-dot" style="background: #27AE60;"></span>
+                            <span class="scheme-color-dot" style="background: #2ECC71;"></span>
+                            <span class="scheme-color-dot" style="background: #F39C12;"></span>
+                            <span class="scheme-color-dot" style="background: #E67E22;"></span>
+                            <span class="scheme-color-dot" style="background: #E74C3C;"></span>
+                            <span class="scheme-color-dot" style="background: #C0392B;"></span>
+                        </div>
+                    </div>
+                    <div class="scheme-card" data-scheme="custom" onclick="selectScheme('custom')">
+                        <div class="scheme-name">Eigene Farben</div>
+                        <div class="scheme-desc">Manuell definieren</div>
+                        <div class="scheme-colors" id="customSchemePreview">
+                            <span class="scheme-color-dot" style="background: #2E5A88;"></span>
+                            <span class="scheme-color-dot" style="background: #4A7C59;"></span>
+                            <span class="scheme-color-dot" style="background: #B85450;"></span>
+                            <span class="scheme-color-dot" style="background: #F5A623;"></span>
+                            <span class="scheme-color-dot" style="background: #6B8BAE;"></span>
+                            <span class="scheme-color-dot" style="background: #8B5CF6;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Inputs (collapsible, closed by default) -->
+            <details class="color-inputs-details" id="colorInputsDetails">
+                <summary class="color-inputs-summary">Farbcodes anzeigen / bearbeiten</summary>
+                <div class="color-inputs-section" id="colorInputsSection">
+                    <div class="color-grid">
+                    <div class="color-input-group">
+                        <label class="color-label">Farbe 1 (Primary)</label>
+                        <div class="color-input-wrapper">
+                            <input type="color" class="color-swatch" id="color1" value="#2E5A88">
+                            <input type="text" class="color-hex-input" id="color1Hex" placeholder="#2E5A88" maxlength="7">
+                            <button class="color-clear-btn" onclick="clearColor(1)" title="Farbe entfernen">&times;</button>
+                        </div>
+                    </div>
+
+                    <div class="color-input-group">
+                        <label class="color-label">Farbe 2 (Secondary)</label>
+                        <div class="color-input-wrapper">
+                            <input type="color" class="color-swatch" id="color2" value="#4A7C59">
+                            <input type="text" class="color-hex-input" id="color2Hex" placeholder="#4A7C59" maxlength="7">
+                            <button class="color-clear-btn" onclick="clearColor(2)" title="Farbe entfernen">&times;</button>
+                        </div>
+                    </div>
+
+                    <div class="color-input-group">
+                        <label class="color-label">Farbe 3 (Accent)</label>
+                        <div class="color-input-wrapper">
+                            <input type="color" class="color-swatch" id="color3" value="#B85450">
+                            <input type="text" class="color-hex-input" id="color3Hex" placeholder="#B85450" maxlength="7">
+                            <button class="color-clear-btn" onclick="clearColor(3)" title="Farbe entfernen">&times;</button>
+                        </div>
+                    </div>
+
+                    <div class="color-input-group">
+                        <label class="color-label">Farbe 4</label>
+                        <div class="color-input-wrapper">
+                            <input type="color" class="color-swatch" id="color4" value="#F5A623">
+                            <input type="text" class="color-hex-input" id="color4Hex" placeholder="#F5A623" maxlength="7">
+                            <button class="color-clear-btn" onclick="clearColor(4)" title="Farbe entfernen">&times;</button>
+                        </div>
+                    </div>
+
+                    <div class="color-input-group">
+                        <label class="color-label">Farbe 5</label>
+                        <div class="color-input-wrapper">
+                            <input type="color" class="color-swatch" id="color5" value="#6B8BAE">
+                            <input type="text" class="color-hex-input" id="color5Hex" placeholder="#6B8BAE" maxlength="7">
+                            <button class="color-clear-btn" onclick="clearColor(5)" title="Farbe entfernen">&times;</button>
+                        </div>
+                    </div>
+
+                    <div class="color-input-group">
+                        <label class="color-label">Farbe 6</label>
+                        <div class="color-input-wrapper">
+                            <input type="color" class="color-swatch" id="color6" value="#8B5CF6">
+                            <input type="text" class="color-hex-input" id="color6Hex" placeholder="#8B5CF6" maxlength="7">
+                            <button class="color-clear-btn" onclick="clearColor(6)" title="Farbe entfernen">&times;</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </details>
+
+            <div class="preview-section">
+                <div class="preview-label">Vorschau</div>
+                <div class="preview-bar" id="previewBar">
+                    <div class="preview-default">
+                        <span class="preview-default-text">Standard-Farbpalette</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Chart-Type Color Usage Guide -->
+            <div class="color-guide" id="colorGuide">
+                <!-- Content will be generated dynamically based on selected chart type -->
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <a href="results.html" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Zurück
+            </a>
+            <button class="btn btn-primary" onclick="generateCharts()">
+                Charts generieren
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+
+        <footer>
+            Company Colors &middot; <span id="currentDate"></span>
+        </footer>
+    </div>
+
+    <script>
+        // =====================================================
+        // MODULAR COLOR SCHEMES - Extern aus color-schemes.json geladen
+        // =====================================================
+
+        // Fallback-Farbschemas (werden verwendet wenn externe Datei nicht geladen werden kann)
+        const FALLBACK_COLOR_SCHEMES = {
+            businessNeutral: {
+                name: 'Business Neutral',
+                colors: ['#1B4F72', '#27AE60', '#E74C3C', '#95A5A6', '#F39C12', '#3498DB']
+            },
+            financeFocus: {
+                name: 'Finance Focus',
+                colors: ['#1B4F72', '#2E86AB', '#E74C3C', '#27AE60', '#F4D03F', '#85929E']
+            },
+            corporateMagenta: {
+                name: 'Corporate Magenta',
+                colors: ['#8E44AD', '#3498DB', '#E91E63', '#9B59B6', '#E74C3C', '#F39C12']
+            },
+            monochrome: {
+                name: 'Monochrome',
+                colors: ['#2C3E50', '#566573', '#7F8C8D', '#95A5A6', '#BDC3C7', '#D5DBDB']
+            },
+            trafficLight: {
+                name: 'Traffic Light',
+                colors: ['#27AE60', '#2ECC71', '#F39C12', '#E67E22', '#E74C3C', '#C0392B']
+            },
+            custom: {
+                name: 'Eigene Farben',
+                colors: ['#2E5A88', '#4A7C59', '#B85450', '#F5A623', '#6B8BAE', '#8B5CF6']
+            }
+        };
+
+        // Aktive Farbschemas (werden beim Laden aus externer Datei ersetzt)
+        let COLOR_SCHEMES = { ...FALLBACK_COLOR_SCHEMES };
+
+        // Flag ob externe Schemas geladen wurden
+        let externalSchemesLoaded = false;
+
+        // Currently selected scheme
+        let selectedScheme = 'businessNeutral';
+
+        // Default example colors (for custom)
+        const DEFAULT_COLORS = [
+            '#2E5A88', // Primary Blue
+            '#4A7C59', // Green
+            '#B85450', // Red
+            '#F5A623', // Orange
+            '#6B8BAE', // Light Blue
+            '#8B5CF6'  // Purple
+        ];
+
+        /**
+         * Lädt Farbschemas aus externer JSON-Datei
+         * Bei Fehler werden Fallback-Schemas verwendet
+         */
+        async function loadExternalColorSchemes() {
+            try {
+                const response = await fetch('../6. Bibliotheken/color-schemes.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+
+                if (data && data.schemes) {
+                    // Übertrage externe Schemas (behalte nur 'name' und 'colors' für Kompatibilität)
+                    for (const [key, scheme] of Object.entries(data.schemes)) {
+                        COLOR_SCHEMES[key] = {
+                            name: scheme.name,
+                            description: scheme.description || '',
+                            colors: scheme.colors,
+                            editable: scheme.editable || false,
+                            chart_mapping: scheme.chart_mapping || null
+                        };
+                    }
+                    externalSchemesLoaded = true;
+                    console.log('Color Schemes aus externer Datei geladen:', Object.keys(COLOR_SCHEMES).length, 'Schemas');
+                }
+            } catch (error) {
+                console.warn('Externe Farbschemas konnten nicht geladen werden, verwende Fallback:', error.message);
+                COLOR_SCHEMES = { ...FALLBACK_COLOR_SCHEMES };
+            }
+        }
+
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('de-DE');
+
+        // Chart type configurations for color guide (kann auch extern geladen werden)
+        let CHART_COLOR_GUIDES = {
+            waterfall: {
+                name: 'Waterfall Chart',
+                icon: `<svg viewBox="0 0 24 24"><rect x="2" y="4" width="4" height="16" rx="1"/><rect x="8" y="8" width="4" height="8" rx="1"/><rect x="14" y="6" width="4" height="10" rx="1"/><rect x="20" y="10" width="2" height="10" rx="1"/></svg>`,
+                colors: [
+                    { label: 'Farbe 1', desc: 'Start- & End-Balken', colorIndex: 0 },
+                    { label: 'Farbe 2', desc: 'Positive Veränderungen (+)', colorIndex: 1 },
+                    { label: 'Farbe 3', desc: 'Negative Veränderungen (−)', colorIndex: 2 },
+                    { label: 'Farbe 4', desc: 'Vergleichswert (optional)', colorIndex: 3 }
+                ],
+                footer: 'Tipp: Verwende kontrastreiche Farben für Plus/Minus'
+            },
+            bar: {
+                name: 'Bar Chart',
+                icon: `<svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="6" width="4" height="14" rx="1"/><rect x="17" y="9" width="4" height="11" rx="1"/></svg>`,
+                colors: [
+                    { label: 'Farbe 1', desc: '1. Zeitraum (z.B. Aktuell)', colorIndex: 0 },
+                    { label: 'Farbe 2', desc: '2. Zeitraum (z.B. Vorjahr)', colorIndex: 1 },
+                    { label: 'Farbe 3', desc: '3. Zeitraum (optional)', colorIndex: 2 }
+                ],
+                footer: 'Farben werden pro Zeitraum/Vergleichswert vergeben'
+            },
+            'stacked-bar': {
+                name: 'Stacked Bar Chart',
+                icon: `<svg viewBox="0 0 24 24"><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="4" y="8" width="6" height="5" rx="1"/><rect x="4" y="4" width="6" height="3" rx="1"/><rect x="14" y="10" width="6" height="10" rx="1"/><rect x="14" y="5" width="6" height="4" rx="1"/></svg>`,
+                colors: [
+                    { label: 'Farbe 1', desc: '1. Segment (unten)', colorIndex: 0 },
+                    { label: 'Farbe 2', desc: '2. Segment', colorIndex: 1 },
+                    { label: 'Farbe 3', desc: '3. Segment', colorIndex: 2 },
+                    { label: 'Farbe 4-6', desc: 'Weitere Segmente (nach oben)', colorIndex: 3 }
+                ],
+                footer: 'Alle 6 Farben werden für Segmente von unten nach oben verwendet'
+            }
+            // HINWEIS: Line-Charts wurden entfernt - nur 3 Chart-Typen werden unterstützt
+        };
+
+        // Detect selected chart type from analysis result
+        function getSelectedChartType() {
+            try {
+                const analysisResult = sessionStorage.getItem('analysisResult');
+                if (analysisResult) {
+                    const data = JSON.parse(analysisResult);
+                    const result = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
+                    return result?.recommendation?.selectedChart || 'waterfall';
+                }
+            } catch (e) {
+                console.log('Could not detect chart type:', e);
+            }
+            return 'waterfall'; // Default fallback
+        }
+
+        // Render color guide based on chart type
+        function renderColorGuide() {
+            const chartType = getSelectedChartType();
+            const guide = CHART_COLOR_GUIDES[chartType] || CHART_COLOR_GUIDES.waterfall;
+            const guideEl = document.getElementById('colorGuide');
+
+            // Get current scheme colors (not DEFAULT_COLORS)
+            const currentColors = getCurrentSchemeColors();
+
+            const colorsHtml = guide.colors.map(role => {
+                const color = currentColors[role.colorIndex] || '#808080';
+                return `
+                    <div class="color-role">
+                        <span class="color-dot" style="background: ${color};"></span>
+                        <div class="role-text">
+                            <span class="role-label">${role.label}</span>
+                            <span class="role-desc">${role.desc}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            guideEl.innerHTML = `
+                <div class="guide-header">
+                    <div class="guide-icon">${guide.icon}</div>
+                    <div class="guide-header-text">
+                        <span class="guide-title">Farbzuordnung: ${guide.name}</span>
+                        <span class="guide-subtitle">So werden deine Farben verwendet</span>
+                    </div>
+                </div>
+                <div class="color-mapping">
+                    ${colorsHtml}
+                </div>
+                <div class="guide-footer">${guide.footer}</div>
+            `;
+        }
+
+        function getCurrentSchemeColors() {
+            // If custom scheme is active, get colors from inputs
+            const useCustom = document.getElementById('useCustomColors')?.checked;
+            if (selectedScheme === 'custom' && useCustom) {
+                const colors = getDefinedColors();
+                if (colors.length > 0) return colors;
+            }
+            // Otherwise use the selected scheme colors
+            const scheme = COLOR_SCHEMES[selectedScheme] || COLOR_SCHEMES.businessNeutral;
+            return scheme.colors;
+        }
+
+        // Initialize color inputs
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Zuerst externe Farbschemas laden (modular)
+            await loadExternalColorSchemes();
+
+            // Check for Demo mode
+            if (sessionStorage.getItem('isDemo') === 'true') {
+                document.getElementById('demoBanner').style.display = 'flex';
+            }
+
+            // Render dynamic color guide
+            renderColorGuide();
+
+            // Render scheme cards dynamisch aus COLOR_SCHEMES
+            renderSchemeCards();
+
+            // Load saved state from localStorage
+            loadSavedState();
+
+            // Load current scheme colors into inputs (if not already filled by loadSavedState)
+            const firstHexInput = document.getElementById('color1Hex');
+            if (!firstHexInput.value) {
+                loadSchemeColors(selectedScheme);
+            }
+
+            // Set up event listeners for all color inputs
+            for (let i = 1; i <= 6; i++) {
+                setupColorInput(i);
+            }
+
+            updatePreview();
+        });
+
+        /**
+         * Rendert die Scheme-Karten dynamisch aus COLOR_SCHEMES
+         * Ermöglicht das Hinzufügen neuer Schemas ohne Code-Änderung
+         */
+        function renderSchemeCards() {
+            const container = document.querySelector('.scheme-grid');
+            if (!container) return;
+
+            // Leere vorhandene Karten (außer sie werden statisch im HTML behalten)
+            // Hier erstellen wir die Karten dynamisch
+            container.innerHTML = '';
+
+            for (const [schemeId, scheme] of Object.entries(COLOR_SCHEMES)) {
+                const card = document.createElement('div');
+                card.className = `scheme-card${schemeId === selectedScheme ? ' selected' : ''}`;
+                card.setAttribute('data-scheme', schemeId);
+                card.onclick = () => selectScheme(schemeId);
+
+                // Name
+                const name = document.createElement('div');
+                name.className = 'scheme-name';
+                name.textContent = scheme.name;
+                card.appendChild(name);
+
+                // Beschreibung (falls vorhanden)
+                if (scheme.description) {
+                    const desc = document.createElement('div');
+                    desc.className = 'scheme-desc';
+                    // Kürze die Beschreibung für die Karte
+                    const shortDesc = scheme.description.split(' ').slice(0, 3).join(' ');
+                    desc.textContent = shortDesc;
+                    card.appendChild(desc);
+                }
+
+                // Farbvorschau (mit gleicher Struktur wie statisches HTML)
+                const colorsDiv = document.createElement('div');
+                colorsDiv.className = 'scheme-colors';
+                scheme.colors.slice(0, 6).forEach(color => {
+                    const colorDot = document.createElement('span');
+                    colorDot.className = 'scheme-color-dot';
+                    colorDot.style.backgroundColor = color;
+                    colorsDiv.appendChild(colorDot);
+                });
+                card.appendChild(colorsDiv);
+
+                container.appendChild(card);
+            }
+
+            console.log('Scheme-Karten gerendert:', Object.keys(COLOR_SCHEMES).length);
+        }
+
+        function selectScheme(schemeId) {
+            selectedScheme = schemeId;
+
+            // Update visual selection
+            document.querySelectorAll('.scheme-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-scheme="${schemeId}"]`).classList.add('selected');
+
+            // If custom scheme selected, enable toggle automatically
+            const checkbox = document.getElementById('useCustomColors');
+            const section = document.getElementById('colorInputsSection');
+
+            if (schemeId === 'custom') {
+                checkbox.checked = true;
+                section.classList.add('enabled');
+                // Load default colors if empty
+                loadDefaultColors();
+            } else {
+                checkbox.checked = false;
+                section.classList.remove('enabled');
+            }
+
+            // Load scheme colors into input fields
+            loadSchemeColors(schemeId);
+
+            // Update color guide with new scheme colors
+            renderColorGuide();
+
+            updatePreview();
+            saveState();
+        }
+
+        function loadSchemeColors(schemeId) {
+            const scheme = COLOR_SCHEMES[schemeId];
+            if (scheme && scheme.colors) {
+                for (let i = 1; i <= 6; i++) {
+                    const hexInput = document.getElementById(`color${i}Hex`);
+                    const colorInput = document.getElementById(`color${i}`);
+                    if (hexInput && colorInput) {
+                        hexInput.value = scheme.colors[i - 1];
+                        colorInput.value = scheme.colors[i - 1];
+                    }
+                }
+            }
+        }
+
+        function toggleCustomColors() {
+            const checkbox = document.getElementById('useCustomColors');
+            const section = document.getElementById('colorInputsSection');
+
+            if (checkbox.checked) {
+                section.classList.add('enabled');
+                // Switch to custom scheme
+                selectScheme('custom');
+                // Load default colors into inputs if empty
+                loadDefaultColors();
+            } else {
+                section.classList.remove('enabled');
+                // Switch back to businessNeutral
+                selectScheme('businessNeutral');
+            }
+
+            updatePreview();
+            saveState();
+        }
+
+        function loadDefaultColors() {
+            for (let i = 1; i <= 6; i++) {
+                const hexInput = document.getElementById(`color${i}Hex`);
+                const colorInput = document.getElementById(`color${i}`);
+
+                // Only fill if empty
+                if (!hexInput.value) {
+                    hexInput.value = DEFAULT_COLORS[i - 1];
+                    colorInput.value = DEFAULT_COLORS[i - 1];
+                }
+            }
+            updatePreview();
+        }
+
+        function setupColorInput(index) {
+            const colorInput = document.getElementById(`color${index}`);
+            const hexInput = document.getElementById(`color${index}Hex`);
+
+            // Color picker changes
+            colorInput.addEventListener('input', (e) => {
+                hexInput.value = e.target.value.toUpperCase();
+                updatePreview();
+                renderColorGuide(); // Update color guide with new colors
+                saveState();
+            });
+
+            // Hex input changes
+            hexInput.addEventListener('input', (e) => {
+                let value = e.target.value.toUpperCase();
+
+                // Auto-add # if missing
+                if (value && !value.startsWith('#')) {
+                    value = '#' + value;
+                    e.target.value = value;
+                }
+
+                // Update color picker if valid hex
+                if (/^#[0-9A-F]{6}$/i.test(value)) {
+                    colorInput.value = value;
+                }
+
+                updatePreview();
+                renderColorGuide(); // Update color guide with new colors
+                saveState();
+            });
+
+            // Format on blur
+            hexInput.addEventListener('blur', (e) => {
+                let value = e.target.value.toUpperCase();
+                if (value && !value.startsWith('#')) {
+                    value = '#' + value;
+                }
+                if (/^#[0-9A-F]{6}$/i.test(value)) {
+                    e.target.value = value;
+                    colorInput.value = value;
+                } else if (value && value !== '#') {
+                    // Invalid - clear it
+                    e.target.value = '';
+                }
+                updatePreview();
+                saveState();
+            });
+        }
+
+        function clearColor(index) {
+            const colorInput = document.getElementById(`color${index}`);
+            const hexInput = document.getElementById(`color${index}Hex`);
+
+            hexInput.value = '';
+            colorInput.value = '#808080'; // Default gray for color picker
+
+            updatePreview();
+            saveState();
+        }
+
+        function getDefinedColors() {
+            const colors = [];
+            for (let i = 1; i <= 6; i++) {
+                const hexInput = document.getElementById(`color${i}Hex`);
+                const value = hexInput.value.trim().toUpperCase();
+                if (value && /^#[0-9A-F]{6}$/i.test(value)) {
+                    colors.push(value);
+                }
+            }
+            return colors;
+        }
+
+        function updatePreview() {
+            const useCustom = document.getElementById('useCustomColors').checked;
+            const previewBar = document.getElementById('previewBar');
+
+            let colors;
+            let schemeName;
+
+            if (selectedScheme === 'custom' && useCustom) {
+                colors = getDefinedColors();
+                schemeName = 'Eigene Farben';
+
+                if (colors.length === 0) {
+                    previewBar.innerHTML = '<div class="preview-empty">Keine Farben definiert</div>';
+                    return;
+                }
+            } else {
+                // Use predefined scheme colors
+                const scheme = COLOR_SCHEMES[selectedScheme] || COLOR_SCHEMES.businessNeutral;
+                colors = scheme.colors;
+                schemeName = scheme.name;
+            }
+
+            // Render color preview
+            previewBar.innerHTML = colors.map(color => `
+                <div class="preview-color" style="background: ${color}">
+                    <span>${color}</span>
+                </div>
+            `).join('') + `
+                <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+                            background: rgba(255,255,255,0.9); padding: 4px 12px; border-radius: 4px;
+                            font-size: 0.75rem; color: #374151; font-weight: 500; pointer-events: none;">
+                    ${schemeName}
+                </div>
+            `;
+
+            // Update custom scheme preview dots
+            if (selectedScheme === 'custom') {
+                updateCustomSchemePreview();
+            }
+        }
+
+        function updateCustomSchemePreview() {
+            const colors = getDefinedColors();
+            const previewDots = document.getElementById('customSchemePreview');
+            if (colors.length > 0 && previewDots) {
+                previewDots.innerHTML = colors.slice(0, 6).map(color =>
+                    `<span class="scheme-color-dot" style="background: ${color};"></span>`
+                ).join('');
+            }
+        }
+
+        function saveState() {
+            const useCustom = document.getElementById('useCustomColors').checked;
+            const colors = [];
+            for (let i = 1; i <= 6; i++) {
+                const hexInput = document.getElementById(`color${i}Hex`);
+                colors.push(hexInput.value.trim().toUpperCase());
+            }
+            localStorage.setItem('companyColors', JSON.stringify(colors));
+            localStorage.setItem('useCustomColors', useCustom);
+            localStorage.setItem('selectedScheme', selectedScheme);
+        }
+
+        function loadSavedState() {
+            // Load saved scheme
+            const savedScheme = localStorage.getItem('selectedScheme');
+            if (savedScheme && COLOR_SCHEMES[savedScheme]) {
+                selectedScheme = savedScheme;
+                // Update visual selection
+                document.querySelectorAll('.scheme-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                const schemeCard = document.querySelector(`[data-scheme="${savedScheme}"]`);
+                if (schemeCard) {
+                    schemeCard.classList.add('selected');
+                }
+            }
+
+            // Load toggle state
+            const useCustom = localStorage.getItem('useCustomColors') === 'true';
+            const checkbox = document.getElementById('useCustomColors');
+            const section = document.getElementById('colorInputsSection');
+
+            checkbox.checked = useCustom;
+            if (useCustom || selectedScheme === 'custom') {
+                section.classList.add('enabled');
+                checkbox.checked = true;
+            }
+
+            // Load saved colors
+            const saved = localStorage.getItem('companyColors');
+            if (saved) {
+                try {
+                    const colors = JSON.parse(saved);
+                    colors.forEach((color, index) => {
+                        if (index < 6 && color && /^#[0-9A-F]{6}$/i.test(color)) {
+                            const colorInput = document.getElementById(`color${index + 1}`);
+                            const hexInput = document.getElementById(`color${index + 1}Hex`);
+                            hexInput.value = color;
+                            colorInput.value = color;
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error loading saved colors:', e);
+                }
+            }
+        }
+
+        function generateCharts() {
+            const useCustom = document.getElementById('useCustomColors').checked;
+
+            // Save selected scheme
+            sessionStorage.setItem('selectedScheme', selectedScheme);
+
+            if (selectedScheme === 'custom' && useCustom) {
+                // Get only the defined (non-empty) custom colors
+                const companyColors = getDefinedColors();
+                sessionStorage.setItem('companyColors', JSON.stringify(companyColors));
+            } else {
+                // Use predefined scheme colors
+                const scheme = COLOR_SCHEMES[selectedScheme] || COLOR_SCHEMES.businessNeutral;
+                sessionStorage.setItem('companyColors', JSON.stringify(scheme.colors));
+            }
+
+            // Navigate to charts page
+            window.location.href = 'charts.html';
+        }
+    </script>
+</body>
+</html>

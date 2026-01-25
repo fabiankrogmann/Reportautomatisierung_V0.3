@@ -1,0 +1,240 @@
+{
+  "version": "1.0",
+  "description": "Beispiel-Konfigurationen für Chart-Generierung. Diese dienen als Trainingsbeispiele für die KI und können erweitert werden.",
+  "examples": {
+    "waterfall": [
+      {
+        "id": "pnl_bridge_de",
+        "language": "de",
+        "description": "P&L Bridge (Deutsch) - Umsatz zu Nettoergebnis",
+        "use_case": "Klassische GuV-Brücke für Executive Reporting",
+        "config": {
+          "title": "GuV Bridge 2023 → 2024",
+          "subtitle": "in Tsd. EUR",
+          "bars": [
+            { "type": "start", "label": "Umsatz\n2023", "value": 185, "displayValue": "185 T€" },
+            { "type": "increase", "label": "Preis-\nerhöhung", "value": 12, "displayValue": "+12 T€" },
+            { "type": "increase", "label": "Mengen-\neffekt", "value": 8, "displayValue": "+8 T€" },
+            { "type": "decrease", "label": "Material-\nkosten", "value": -28, "displayValue": "-28 T€" },
+            { "type": "decrease", "label": "Personal-\nkosten", "value": -15, "displayValue": "-15 T€" },
+            { "type": "end", "label": "Umsatz\n2024", "value": 162, "displayValue": "162 T€" }
+          ],
+          "bracket": { "show": true, "fromIndex": 0, "toIndex": 5, "label": "-12,4%" }
+        }
+      },
+      {
+        "id": "pnl_bridge_en",
+        "language": "en",
+        "description": "P&L Bridge (English) - Revenue to Net Income",
+        "use_case": "Standard P&L waterfall for international reporting",
+        "config": {
+          "title": "Cash Earnings Bridge FY23 → FY24",
+          "subtitle": "in million USD",
+          "bars": [
+            { "type": "start", "label": "FY23 Cash\nEarnings", "value": 6.5, "displayValue": "$6.5m" },
+            { "type": "increase", "label": "Sales\nIncome", "value": 1.1, "displayValue": "+$1.1m" },
+            { "type": "increase", "label": "Service\nRevenue", "value": 0.5, "displayValue": "+$0.5m" },
+            { "type": "decrease", "label": "Operating\nExpenses", "value": -0.5, "displayValue": "-$0.5m" },
+            { "type": "decrease", "label": "Investments", "value": -0.1, "displayValue": "-$0.1m" },
+            { "type": "end", "label": "FY24 Cash\nEarnings", "value": 7.5, "displayValue": "$7.5m" }
+          ],
+          "bracket": { "show": true, "fromIndex": 0, "toIndex": 5, "label": "+15.4%" }
+        }
+      },
+      {
+        "id": "variance_budget_actual_de",
+        "language": "de",
+        "description": "Budget vs. Actual Varianzanalyse",
+        "use_case": "Abweichungsanalyse für Controlling",
+        "config": {
+          "title": "Budget vs. Actual - Umsatz Varianzanalyse 2024",
+          "subtitle": "in Tsd. EUR",
+          "bars": [
+            { "type": "budget", "label": "Budget\n2024", "value": 1000, "displayValue": "1.000 T€" },
+            { "type": "increase", "label": "Volumen-\nvarianz", "value": 85, "displayValue": "+85 T€" },
+            { "type": "increase", "label": "Preis-\nvarianz", "value": 42, "displayValue": "+42 T€" },
+            { "type": "decrease", "label": "Kosten-\nvarianz", "value": -35, "displayValue": "-35 T€" },
+            { "type": "decrease", "label": "FX-\nvarianz", "value": -22, "displayValue": "-22 T€" },
+            { "type": "actual", "label": "Actual\n2024", "value": 1070, "displayValue": "1.070 T€" },
+            { "type": "target", "label": "Target\n2024", "value": 1100, "displayValue": "1.100 T€" }
+          ],
+          "bracket": { "show": true, "fromIndex": 0, "toIndex": 5, "label": "+7.0%" }
+        }
+      },
+      {
+        "id": "ebitda_bridge_de",
+        "language": "de",
+        "description": "EBITDA Bridge mit detaillierten Effekten",
+        "use_case": "Operative Ergebnisanalyse",
+        "config": {
+          "title": "EBITDA Bridge FY23 → FY24",
+          "subtitle": "in Mio. EUR",
+          "bars": [
+            { "type": "start", "label": "FY23\nEBITDA", "value": 245, "displayValue": "245 Mio" },
+            { "type": "increase", "label": "Umsatz-\nwachstum", "value": 38, "displayValue": "+38 Mio" },
+            { "type": "increase", "label": "Preis-\nerhöhung", "value": 22, "displayValue": "+22 Mio" },
+            { "type": "decrease", "label": "Material-\nkosten", "value": -28, "displayValue": "-28 Mio" },
+            { "type": "decrease", "label": "Personal-\nkosten", "value": -15, "displayValue": "-15 Mio" },
+            { "type": "increase", "label": "Effizienz-\nprogramm", "value": 18, "displayValue": "+18 Mio" },
+            { "type": "end", "label": "FY24\nEBITDA", "value": 280, "displayValue": "280 Mio" }
+          ],
+          "bracket": { "show": true, "fromIndex": 0, "toIndex": 6, "label": "+14.3%" }
+        }
+      }
+    ],
+    "bar": [
+      {
+        "id": "revenue_comparison_de",
+        "language": "de",
+        "description": "Mehrjähriger Umsatzvergleich",
+        "use_case": "Zeitreihenanalyse für Management Reporting",
+        "config": {
+          "title": "Umsatzentwicklung",
+          "subtitle": "in Mio. EUR",
+          "periods": [
+            { "label": "2022", "color": "#CCCCCC", "type": "IST" },
+            { "label": "2023", "color": "#999999", "type": "IST" },
+            { "label": "2024", "color": "#0066B1", "type": "IST" },
+            { "label": "2025", "color": "#0066B1", "type": "PLAN" }
+          ],
+          "categories": [
+            {
+              "name": "Umsatz",
+              "subtitle": "Gesamtumsatz",
+              "values": [1200, 1350, 1480, 1620]
+            }
+          ]
+        }
+      },
+      {
+        "id": "kpi_dashboard_en",
+        "language": "en",
+        "description": "Multi-KPI Dashboard",
+        "use_case": "Executive KPI overview",
+        "config": {
+          "title": "Key Performance Indicators",
+          "subtitle": "FY 2024",
+          "periods": [
+            { "label": "Actual", "color": "#2E5A88", "type": "IST" },
+            { "label": "Budget", "color": "#AAAAAA", "type": "BUD" },
+            { "label": "Prior Year", "color": "#666666", "type": "VJ" }
+          ],
+          "categories": [
+            { "name": "Revenue", "values": [1480, 1400, 1350] },
+            { "name": "EBITDA", "values": [280, 260, 245] },
+            { "name": "Net Income", "values": [145, 130, 120] }
+          ]
+        }
+      },
+      {
+        "id": "quarterly_comparison_de",
+        "language": "de",
+        "description": "Quartalsvergleich",
+        "use_case": "Quartalsweise Performance-Analyse",
+        "config": {
+          "title": "Quartalsvergleich 2024",
+          "subtitle": "in Tsd. EUR",
+          "periods": [
+            { "label": "Q1", "color": "#2E5A88", "type": "IST" },
+            { "label": "Q2", "color": "#4A7C99", "type": "IST" },
+            { "label": "Q3", "color": "#6B9BB0", "type": "IST" },
+            { "label": "Q4", "color": "#8CBBC7", "type": "FC" }
+          ],
+          "categories": [
+            { "name": "Umsatz", "values": [320, 380, 410, 450] },
+            { "name": "EBIT", "values": [45, 52, 58, 65] }
+          ]
+        }
+      }
+    ],
+    "stacked_bar": [
+      {
+        "id": "cost_structure_de",
+        "language": "de",
+        "description": "Kostenstruktur nach Standort",
+        "use_case": "Kostenanalyse mit Segmentierung",
+        "config": {
+          "title": "Kostenstruktur nach Standort",
+          "subtitle": "in Tausend Euro",
+          "categories": [
+            { "label": "Berlin", "sublabel": "" },
+            { "label": "München", "sublabel": "" },
+            { "label": "Hamburg", "sublabel": "" },
+            { "label": "Frankfurt", "sublabel": "" },
+            { "label": "Köln", "sublabel": "" }
+          ],
+          "segments": [
+            { "name": "Personal", "color": "#2E5A88", "values": [450, 520, 380, 410, 430] },
+            { "name": "Miete", "color": "#5B8DBE", "values": [180, 220, 150, 190, 160] },
+            { "name": "Material", "color": "#8BBDE0", "values": [120, 140, 100, 110, 95] },
+            { "name": "Sonstiges", "color": "#B8D4E8", "values": [85, 95, 70, 80, 75] }
+          ],
+          "options": {
+            "showValues": true,
+            "showTotals": true
+          }
+        }
+      },
+      {
+        "id": "revenue_mix_en",
+        "language": "en",
+        "description": "Revenue Mix by Region",
+        "use_case": "Regional revenue breakdown",
+        "config": {
+          "title": "Revenue Mix by Region",
+          "subtitle": "in million EUR",
+          "categories": [
+            { "label": "2022", "hatched": true, "isHistorical": true },
+            { "label": "2023", "hatched": true, "isHistorical": true },
+            { "label": "2024", "hatched": false },
+            { "label": "2025", "sublabel": "(Plan)", "hatched": false }
+          ],
+          "segments": [
+            { "name": "EMEA", "color": "#1E3A5F", "values": [280, 310, 345, 410] },
+            { "name": "Americas", "color": "#2E5A88", "values": [220, 250, 285, 340] },
+            { "name": "APAC", "color": "#5B8DBE", "values": [150, 180, 210, 260] },
+            { "name": "RoW", "color": "#8BBDE0", "values": [50, 60, 70, 90] }
+          ],
+          "options": {
+            "showValues": true,
+            "showTotals": true,
+            "brackets": [
+              { "fromCategory": 2, "toCategory": 3 }
+            ],
+            "bracketFormat": "both"
+          }
+        }
+      },
+      {
+        "id": "employee_structure_de",
+        "language": "de",
+        "description": "Mitarbeiterstruktur nach Abteilung",
+        "use_case": "HR-Reporting und Personalplanung",
+        "config": {
+          "title": "Mitarbeiterstruktur",
+          "subtitle": "Anzahl FTE",
+          "categories": [
+            { "label": "2022", "hatched": true, "isHistorical": true },
+            { "label": "2023", "hatched": true, "isHistorical": true },
+            { "label": "2024", "hatched": false },
+            { "label": "2025", "sublabel": "(Plan)", "isDashed": true }
+          ],
+          "segments": [
+            { "name": "Produktion", "color": "#1E3A5F", "values": [180, 195, 210, 225] },
+            { "name": "Vertrieb", "color": "#2E5A88", "values": [85, 92, 98, 110] },
+            { "name": "IT", "color": "#5B8DBE", "values": [45, 52, 58, 65] },
+            { "name": "Verwaltung", "color": "#8BBDE0", "values": [40, 42, 44, 50] }
+          ],
+          "options": {
+            "showValues": true,
+            "showTotals": true,
+            "brackets": [
+              { "fromCategory": 2, "toCategory": 3 }
+            ],
+            "bracketFormat": "both"
+          }
+        }
+      }
+    ]
+  }
+}

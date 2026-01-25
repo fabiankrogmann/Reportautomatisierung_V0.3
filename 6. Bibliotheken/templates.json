@@ -1,0 +1,731 @@
+{
+  "version": "1.0",
+  "description": "Template-Bibliothek für KI-gestützte Finanzvisualisierung",
+  "chart_types": ["waterfall", "stacked_bar", "bar"],
+  "total_templates": 30,
+
+  "templates": {
+    "waterfall": [
+      {
+        "template_id": "WF-01",
+        "name": "pnl_waterfall_summary",
+        "display_name": "P&L Executive Summary",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "summary",
+          "comparison_type": "single_period",
+          "perspective": "top_down",
+          "target_audience": "executive",
+          "analysis_perspective": "structure"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "revenue",
+          "end_point": "net_income",
+          "item_count": [5, 7],
+          "items": [
+            { "type": "start", "maps_to": "total_revenue", "label": "Umsatz" },
+            { "type": "negative", "maps_to": "total_cogs", "label": "Herstellkosten" },
+            { "type": "subtotal", "label": "Bruttoergebnis", "calculated": true },
+            { "type": "negative", "maps_to": "total_opex", "label": "Betriebskosten" },
+            { "type": "end", "label": "Nettoergebnis" }
+          ]
+        },
+        "styling": {
+          "color_positive": "{{increase}}",
+          "color_negative": "{{decrease}}",
+          "color_subtotal": "{{primary}}",
+          "color_start": "{{start}}",
+          "color_end": "{{end}}",
+          "show_connectors": true,
+          "show_value_labels": true
+        },
+        "best_for": ["monthly_business_review", "board_presentation", "executive_summary"]
+      },
+      {
+        "template_id": "WF-02",
+        "name": "pnl_waterfall_detail",
+        "display_name": "P&L Detailansicht",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "detail",
+          "comparison_type": "single_period",
+          "perspective": "top_down",
+          "target_audience": "finance",
+          "analysis_perspective": "structure"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "revenue",
+          "end_point": "net_income",
+          "item_count": [10, 18],
+          "items": [
+            { "type": "start", "maps_to": "total_revenue" },
+            { "type": "negative", "maps_to": "material_costs" },
+            { "type": "negative", "maps_to": "labor_costs" },
+            { "type": "subtotal", "label": "Bruttoergebnis" },
+            { "type": "negative", "maps_to": "personnel_costs" },
+            { "type": "negative", "maps_to": "other_opex" },
+            { "type": "subtotal", "label": "EBITDA" },
+            { "type": "negative", "maps_to": "depreciation" },
+            { "type": "subtotal", "label": "EBIT" },
+            { "type": "negative", "maps_to": "interest" },
+            { "type": "negative", "maps_to": "taxes" },
+            { "type": "end", "label": "Nettoergebnis" }
+          ]
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true
+        },
+        "best_for": ["finance_review", "detailed_analysis", "controller_report"]
+      },
+      {
+        "template_id": "WF-03",
+        "name": "pnl_waterfall_yoy_bridge",
+        "display_name": "YoY Bridge (PY → CY)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "bridge",
+          "target_audience": "executive",
+          "analysis_perspective": "variance"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "prior_year_value",
+          "end_point": "current_year_value",
+          "item_count": [4, 10],
+          "items": [
+            { "type": "start", "maps_to": "py_net_income", "label": "VJ Ergebnis" },
+            { "type": "delta", "maps_to": "revenue_delta", "label": "Δ Umsatz" },
+            { "type": "delta", "maps_to": "cost_delta", "label": "Δ Kosten" },
+            { "type": "end", "maps_to": "cy_net_income", "label": "CY Ergebnis" }
+          ]
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true,
+          "show_percent_change": true
+        },
+        "best_for": ["yoy_analysis", "variance_reporting", "management_review"]
+      },
+      {
+        "template_id": "WF-04",
+        "name": "pnl_waterfall_budget_bridge",
+        "display_name": "Budget Bridge (BUD → IST)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "bridge",
+          "target_audience": "finance",
+          "analysis_perspective": "variance"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "budget_value",
+          "end_point": "actual_value",
+          "item_count": [4, 10]
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true,
+          "show_percent_change": true
+        },
+        "best_for": ["budget_variance", "plan_ist_analysis", "controlling"]
+      },
+      {
+        "template_id": "WF-05",
+        "name": "pnl_waterfall_horizontal",
+        "display_name": "P&L Horizontal",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "summary",
+          "comparison_type": "single_period",
+          "perspective": "top_down",
+          "target_audience": "executive",
+          "analysis_perspective": "structure"
+        },
+        "structure": {
+          "orientation": "horizontal",
+          "start_point": "revenue",
+          "end_point": "net_income",
+          "item_count": [5, 8]
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true
+        },
+        "best_for": ["wide_presentations", "landscape_reports"]
+      },
+      {
+        "template_id": "WF-06",
+        "name": "cashflow_waterfall",
+        "display_name": "Cashflow Bridge",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "single_period",
+          "perspective": "top_down",
+          "target_audience": "finance",
+          "analysis_perspective": "structure"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "operating_cf",
+          "end_point": "ending_cash",
+          "item_count": [4, 8],
+          "items": [
+            { "type": "start", "maps_to": "operating_cf", "label": "Operating CF" },
+            { "type": "delta", "maps_to": "investing_cf", "label": "Investing CF" },
+            { "type": "delta", "maps_to": "financing_cf", "label": "Financing CF" },
+            { "type": "end", "label": "End Cash" }
+          ]
+        },
+        "best_for": ["cashflow_analysis", "liquidity_planning", "treasury"]
+      },
+      {
+        "template_id": "WF-07",
+        "name": "margin_bridge",
+        "display_name": "Margin Bridge",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "summary",
+          "comparison_type": "single_period",
+          "perspective": "bridge",
+          "target_audience": "executive",
+          "analysis_perspective": "structure"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "gross_margin",
+          "end_point": "net_margin",
+          "item_count": [3, 6]
+        },
+        "best_for": ["margin_analysis", "profitability_review"]
+      },
+      {
+        "template_id": "WF-08",
+        "name": "cost_variance_waterfall",
+        "display_name": "Kostenabweichungen",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "detail",
+          "comparison_type": "variance",
+          "perspective": "bottom_up",
+          "target_audience": "operational",
+          "analysis_perspective": "variance"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "item_count": [5, 12]
+        },
+        "best_for": ["cost_controlling", "variance_analysis", "operations_review"]
+      },
+      {
+        "template_id": "WF-09",
+        "name": "revenue_bridge",
+        "display_name": "Revenue Bridge",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "bridge",
+          "target_audience": "executive",
+          "analysis_perspective": "variance"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "prior_revenue",
+          "end_point": "current_revenue",
+          "item_count": [4, 8]
+        },
+        "best_for": ["revenue_analysis", "sales_review", "growth_analysis"]
+      },
+      {
+        "template_id": "WF-10",
+        "name": "segment_pnl_waterfall",
+        "display_name": "Segment P&L",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "single_period",
+          "perspective": "top_down",
+          "target_audience": "executive",
+          "analysis_perspective": "structure"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "item_count": [4, 10]
+        },
+        "best_for": ["segment_reporting", "division_analysis", "business_unit_review"]
+      },
+      {
+        "template_id": "WF-11",
+        "name": "quarterly_bridge",
+        "display_name": "Quartalsbrücke (Q1→Q4)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "summary",
+          "comparison_type": "period_comparison",
+          "perspective": "bridge",
+          "target_audience": "executive",
+          "analysis_perspective": "trend"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "q1_value",
+          "end_point": "q4_value",
+          "item_count": [4, 6]
+        },
+        "best_for": ["quarterly_review", "ytd_analysis"]
+      },
+      {
+        "template_id": "WF-12",
+        "name": "forecast_variance_bridge",
+        "display_name": "Forecast Variance Bridge",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "bridge",
+          "target_audience": "finance",
+          "analysis_perspective": "variance"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "forecast_value",
+          "end_point": "actual_value",
+          "item_count": [4, 8]
+        },
+        "best_for": ["forecast_accuracy", "rolling_forecast", "fc_ist_analysis"]
+      }
+    ],
+
+    "stacked_bar": [
+      {
+        "template_id": "SB-01",
+        "name": "cost_structure_absolute",
+        "display_name": "Kostenstruktur (absolut)",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "single_period",
+          "perspective": "composition",
+          "target_audience": "finance",
+          "analysis_perspective": "composition"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "stack_mode": "absolute",
+          "segment_count": [3, 8],
+          "period_count": [1, 4]
+        },
+        "styling": {
+          "show_totals": true,
+          "show_segment_labels": true
+        },
+        "best_for": ["cost_analysis", "expense_breakdown", "budget_review"]
+      },
+      {
+        "template_id": "SB-02",
+        "name": "cost_structure_percent",
+        "display_name": "Kostenstruktur (100%)",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "composition",
+          "target_audience": "executive",
+          "analysis_perspective": "composition"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "stack_mode": "percent",
+          "segment_count": [3, 6],
+          "period_count": [2, 5]
+        },
+        "styling": {
+          "show_percent_labels": true
+        },
+        "best_for": ["cost_mix_comparison", "structural_analysis"]
+      },
+      {
+        "template_id": "SB-03",
+        "name": "revenue_mix_trend_absolute",
+        "display_name": "Revenue Mix (absolut)",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "composition",
+          "target_audience": "executive",
+          "analysis_perspective": "trend"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "stack_mode": "absolute",
+          "segment_count": [2, 6],
+          "period_count": [3, 6]
+        },
+        "styling": {
+          "show_totals": true
+        },
+        "best_for": ["revenue_development", "product_mix_trend", "sales_analysis"]
+      },
+      {
+        "template_id": "SB-04",
+        "name": "revenue_mix_trend_percent",
+        "display_name": "Revenue Mix (100%)",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "composition",
+          "target_audience": "executive",
+          "analysis_perspective": "trend"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "stack_mode": "percent",
+          "segment_count": [2, 6],
+          "period_count": [3, 6]
+        },
+        "styling": {
+          "show_percent_labels": true
+        },
+        "best_for": ["market_share_evolution", "portfolio_mix"]
+      },
+      {
+        "template_id": "SB-05",
+        "name": "segment_comparison_stacked",
+        "display_name": "Segmentvergleich",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "segment_comparison",
+          "perspective": "composition",
+          "target_audience": "executive",
+          "analysis_perspective": "comparison"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "stack_mode": "absolute",
+          "segment_count": [2, 5],
+          "period_count": [2, 4]
+        },
+        "best_for": ["segment_reporting", "division_comparison", "regional_analysis"]
+      },
+      {
+        "template_id": "SB-06",
+        "name": "pnl_components_stacked",
+        "display_name": "P&L Komponenten",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "summary",
+          "comparison_type": "period_comparison",
+          "perspective": "composition",
+          "target_audience": "executive",
+          "analysis_perspective": "structure"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "stack_mode": "absolute",
+          "segment_count": [3, 6]
+        },
+        "best_for": ["pnl_overview", "income_composition"]
+      },
+      {
+        "template_id": "SB-07",
+        "name": "horizontal_cost_breakdown",
+        "display_name": "Kostenaufschlüsselung (horizontal)",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "detail",
+          "comparison_type": "single_period",
+          "perspective": "composition",
+          "target_audience": "operational",
+          "analysis_perspective": "composition"
+        },
+        "structure": {
+          "orientation": "horizontal",
+          "stack_mode": "absolute",
+          "segment_count": [3, 8]
+        },
+        "best_for": ["detailed_cost_analysis", "long_labels"]
+      },
+      {
+        "template_id": "SB-08",
+        "name": "budget_components_stacked",
+        "display_name": "Budget-Zusammensetzung",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "composition",
+          "target_audience": "finance",
+          "analysis_perspective": "comparison"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "stack_mode": "absolute",
+          "segment_count": [3, 6],
+          "categories": ["Budget", "IST", "Varianz"]
+        },
+        "best_for": ["budget_tracking", "plan_ist_comparison"]
+      }
+    ],
+
+    "bar": [
+      {
+        "template_id": "BC-01",
+        "name": "actual_vs_budget",
+        "display_name": "IST vs. Budget",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "comparison",
+          "target_audience": "finance",
+          "analysis_perspective": "comparison"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "grouping": "grouped",
+          "series_count": 2,
+          "series": ["IST", "BUD"]
+        },
+        "styling": {
+          "show_variance_labels": true
+        },
+        "best_for": ["budget_variance", "plan_ist_comparison", "controlling"]
+      },
+      {
+        "template_id": "BC-02",
+        "name": "actual_budget_forecast",
+        "display_name": "IST vs. BUD vs. FC",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "comparison",
+          "target_audience": "finance",
+          "analysis_perspective": "comparison"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "grouping": "grouped",
+          "series_count": 3,
+          "series": ["IST", "BUD", "FC"]
+        },
+        "best_for": ["three_way_comparison", "rolling_forecast"]
+      },
+      {
+        "template_id": "BC-03",
+        "name": "variance_bar_colored",
+        "display_name": "Varianz (farbcodiert)",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "variance",
+          "target_audience": "executive",
+          "analysis_perspective": "variance"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "grouping": "single",
+          "color_by_value": true
+        },
+        "styling": {
+          "positive_color": "{{positive}}",
+          "negative_color": "{{negative}}"
+        },
+        "best_for": ["variance_highlight", "performance_overview"]
+      },
+      {
+        "template_id": "BC-04",
+        "name": "ranking_horizontal",
+        "display_name": "Ranking (horizontal)",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "single_period",
+          "perspective": "ranking",
+          "target_audience": "executive",
+          "analysis_perspective": "ranking"
+        },
+        "structure": {
+          "orientation": "horizontal",
+          "grouping": "single",
+          "sorted": "descending",
+          "max_items": 10
+        },
+        "best_for": ["top_n_analysis", "cost_drivers", "revenue_drivers"]
+      },
+      {
+        "template_id": "BC-05",
+        "name": "monthly_trend",
+        "display_name": "Monatstrend",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "trend",
+          "target_audience": "executive",
+          "analysis_perspective": "trend"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "grouping": "single",
+          "period_count": 12
+        },
+        "best_for": ["monthly_reporting", "seasonal_analysis", "trend_visualization"]
+      },
+      {
+        "template_id": "BC-06",
+        "name": "category_comparison",
+        "display_name": "Kategorienvergleich",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "segment_comparison",
+          "perspective": "comparison",
+          "target_audience": "operational",
+          "analysis_perspective": "comparison"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "grouping": "single"
+        },
+        "best_for": ["category_analysis", "product_comparison"]
+      },
+      {
+        "template_id": "BC-07",
+        "name": "kpi_comparison_horizontal",
+        "display_name": "KPI Vergleich",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "summary",
+          "comparison_type": "kpi_comparison",
+          "perspective": "comparison",
+          "target_audience": "executive",
+          "analysis_perspective": "comparison"
+        },
+        "structure": {
+          "orientation": "horizontal",
+          "grouping": "grouped",
+          "max_items": 5
+        },
+        "best_for": ["kpi_dashboard", "scorecard", "performance_metrics"]
+      },
+      {
+        "template_id": "BC-08",
+        "name": "yoy_comparison_grouped",
+        "display_name": "YoY Vergleich",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "comparison",
+          "target_audience": "executive",
+          "analysis_perspective": "comparison"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "grouping": "grouped",
+          "series_count": 2,
+          "series": ["CY", "PY"]
+        },
+        "styling": {
+          "show_change_percent": true
+        },
+        "best_for": ["year_over_year", "annual_comparison"]
+      },
+      {
+        "template_id": "BC-09",
+        "name": "department_comparison",
+        "display_name": "Abteilungsvergleich",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "segment_comparison",
+          "perspective": "comparison",
+          "target_audience": "operational",
+          "analysis_perspective": "comparison"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "grouping": "grouped"
+        },
+        "best_for": ["departmental_review", "cost_center_analysis"]
+      },
+      {
+        "template_id": "BC-10",
+        "name": "quarterly_comparison",
+        "display_name": "Quartalsvergleich",
+        "chart_type": "bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "comparison",
+          "target_audience": "executive",
+          "analysis_perspective": "trend"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "grouping": "grouped",
+          "period_count": 4,
+          "categories": ["Q1", "Q2", "Q3", "Q4"]
+        },
+        "best_for": ["quarterly_review", "seasonal_comparison"]
+      }
+    ]
+  },
+
+  "perspective_matrix": {
+    "structure": {
+      "question": "Wie setzt sich das Ergebnis zusammen?",
+      "primary_charts": ["waterfall"],
+      "templates": ["WF-01", "WF-02", "WF-06", "WF-07"]
+    },
+    "variance": {
+      "question": "Wo weichen wir vom Plan ab?",
+      "primary_charts": ["waterfall", "bar"],
+      "templates": ["WF-03", "WF-04", "WF-08", "WF-12", "BC-03"]
+    },
+    "comparison": {
+      "question": "Wie stehen Perioden zueinander?",
+      "primary_charts": ["bar"],
+      "templates": ["BC-01", "BC-02", "BC-08", "BC-10"]
+    },
+    "composition": {
+      "question": "Wie verteilen sich die Anteile?",
+      "primary_charts": ["stacked_bar"],
+      "templates": ["SB-01", "SB-02", "SB-03", "SB-04"]
+    },
+    "trend": {
+      "question": "Wie entwickelt sich der Wert über Zeit?",
+      "primary_charts": ["bar"],
+      "templates": ["BC-05", "WF-11", "SB-03"]
+    },
+    "ranking": {
+      "question": "Was sind die größten Treiber?",
+      "primary_charts": ["bar"],
+      "templates": ["BC-04", "BC-07"]
+    }
+  },
+
+  "selection_rules": {
+    "max_per_type": 5,
+    "min_perspectives": 4,
+    "no_duplicates": true,
+    "audience_mix": {
+      "executive": [2, 3],
+      "finance": [3, 4],
+      "operational": [2, 3]
+    }
+  }
+}

@@ -1,0 +1,97 @@
+﻿Position;Zeitraum;Monat;Wertart;Wert
+Umsatzerlöse;SEL;DEZ;IST;185000
+Umsatzerlöse;SEL;DEZ;FC;190000
+Umsatzerlöse;SEL;DEZ;BUD;180000
+Umsatzerlöse;CUM;JAN-DEZ;IST;2195000
+Umsatzerlöse;CUM;JAN-DEZ;FC;2250000
+Umsatzerlöse;CUM;JAN-DEZ;BUD;2160000
+Bestandsveränderungen;SEL;DEZ;IST;2500
+Bestandsveränderungen;SEL;DEZ;FC;3000
+Bestandsveränderungen;SEL;DEZ;BUD;2000
+Bestandsveränderungen;CUM;JAN-DEZ;IST;28000
+Bestandsveränderungen;CUM;JAN-DEZ;FC;32000
+Bestandsveränderungen;CUM;JAN-DEZ;BUD;24000
+Aktivierte Eigenleistungen;SEL;DEZ;IST;1200
+Aktivierte Eigenleistungen;SEL;DEZ;FC;1500
+Aktivierte Eigenleistungen;SEL;DEZ;BUD;1000
+Aktivierte Eigenleistungen;CUM;JAN-DEZ;IST;14500
+Aktivierte Eigenleistungen;CUM;JAN-DEZ;FC;16000
+Aktivierte Eigenleistungen;CUM;JAN-DEZ;BUD;12000
+Sonstige betriebliche Erträge;SEL;DEZ;IST;3800
+Sonstige betriebliche Erträge;SEL;DEZ;FC;4000
+Sonstige betriebliche Erträge;SEL;DEZ;BUD;3500
+Sonstige betriebliche Erträge;CUM;JAN-DEZ;IST;45000
+Sonstige betriebliche Erträge;CUM;JAN-DEZ;FC;48000
+Sonstige betriebliche Erträge;CUM;JAN-DEZ;BUD;42000
+Gesamtleistung;SEL;DEZ;IST;192500
+Gesamtleistung;SEL;DEZ;FC;198500
+Gesamtleistung;SEL;DEZ;BUD;186500
+Gesamtleistung;CUM;JAN-DEZ;IST;2282500
+Gesamtleistung;CUM;JAN-DEZ;FC;2346000
+Gesamtleistung;CUM;JAN-DEZ;BUD;2238000
+Materialaufwand;SEL;DEZ;IST;-98500
+Materialaufwand;SEL;DEZ;FC;-101000
+Materialaufwand;SEL;DEZ;BUD;-96000
+Materialaufwand;CUM;JAN-DEZ;IST;-1168000
+Materialaufwand;CUM;JAN-DEZ;FC;-1195000
+Materialaufwand;CUM;JAN-DEZ;BUD;-1140000
+Personalaufwand;SEL;DEZ;IST;-52000
+Personalaufwand;SEL;DEZ;FC;-53500
+Personalaufwand;SEL;DEZ;BUD;-50000
+Personalaufwand;CUM;JAN-DEZ;IST;-618000
+Personalaufwand;CUM;JAN-DEZ;FC;-635000
+Personalaufwand;CUM;JAN-DEZ;BUD;-600000
+Abschreibungen;SEL;DEZ;IST;-8500
+Abschreibungen;SEL;DEZ;FC;-8800
+Abschreibungen;SEL;DEZ;BUD;-8200
+Abschreibungen;CUM;JAN-DEZ;IST;-101000
+Abschreibungen;CUM;JAN-DEZ;FC;-104000
+Abschreibungen;CUM;JAN-DEZ;BUD;-98000
+Sonstige betriebliche Aufwendungen;SEL;DEZ;IST;-18200
+Sonstige betriebliche Aufwendungen;SEL;DEZ;FC;-19000
+Sonstige betriebliche Aufwendungen;SEL;DEZ;BUD;-17500
+Sonstige betriebliche Aufwendungen;CUM;JAN-DEZ;IST;-216000
+Sonstige betriebliche Aufwendungen;CUM;JAN-DEZ;FC;-225000
+Sonstige betriebliche Aufwendungen;CUM;JAN-DEZ;BUD;-210000
+EBIT;SEL;DEZ;IST;15300
+EBIT;SEL;DEZ;FC;16200
+EBIT;SEL;DEZ;BUD;14800
+EBIT;CUM;JAN-DEZ;IST;179500
+EBIT;CUM;JAN-DEZ;FC;187000
+EBIT;CUM;JAN-DEZ;BUD;190000
+Zinserträge;SEL;DEZ;IST;120
+Zinserträge;SEL;DEZ;FC;150
+Zinserträge;SEL;DEZ;BUD;100
+Zinserträge;CUM;JAN-DEZ;IST;1450
+Zinserträge;CUM;JAN-DEZ;FC;1600
+Zinserträge;CUM;JAN-DEZ;BUD;1200
+Zinsaufwendungen;SEL;DEZ;IST;-2800
+Zinsaufwendungen;SEL;DEZ;FC;-2900
+Zinsaufwendungen;SEL;DEZ;BUD;-2700
+Zinsaufwendungen;CUM;JAN-DEZ;IST;-33500
+Zinsaufwendungen;CUM;JAN-DEZ;FC;-34000
+Zinsaufwendungen;CUM;JAN-DEZ;BUD;-32000
+Finanzergebnis;SEL;DEZ;IST;-2680
+Finanzergebnis;SEL;DEZ;FC;-2750
+Finanzergebnis;SEL;DEZ;BUD;-2600
+Finanzergebnis;CUM;JAN-DEZ;IST;-32050
+Finanzergebnis;CUM;JAN-DEZ;FC;-32400
+Finanzergebnis;CUM;JAN-DEZ;BUD;-30800
+EBT;SEL;DEZ;IST;12620
+EBT;SEL;DEZ;FC;13450
+EBT;SEL;DEZ;BUD;12200
+EBT;CUM;JAN-DEZ;IST;147450
+EBT;CUM;JAN-DEZ;FC;154600
+EBT;CUM;JAN-DEZ;BUD;159200
+Steuern vom Einkommen;SEL;DEZ;IST;-3785
+Steuern vom Einkommen;SEL;DEZ;FC;-4035
+Steuern vom Einkommen;SEL;DEZ;BUD;-3660
+Steuern vom Einkommen;CUM;JAN-DEZ;IST;-44235
+Steuern vom Einkommen;CUM;JAN-DEZ;FC;-46380
+Steuern vom Einkommen;CUM;JAN-DEZ;BUD;-47760
+Jahresüberschuss;SEL;DEZ;IST;8835
+Jahresüberschuss;SEL;DEZ;FC;9415
+Jahresüberschuss;SEL;DEZ;BUD;8540
+Jahresüberschuss;CUM;JAN-DEZ;IST;103215
+Jahresüberschuss;CUM;JAN-DEZ;FC;108220
+Jahresüberschuss;CUM;JAN-DEZ;BUD;111440

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stacked Bar Chart - Erweiterte Beispiele</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .chart-badge {
+            background: #2C3E50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .chart-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        svg { display: block; margin: 0 auto; }
+        .bar { transition: opacity 0.2s ease; }
+        .bar:hover { opacity: 0.85; cursor: pointer; }
+        .value-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .axis-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .bracket-bubble { fill: white; stroke: #333; stroke-width: 1.5; }
+        .bracket-line { stroke: #333; stroke-width: 1.5; fill: none; }
+        .bracket-line-dashed { stroke: #333; stroke-width: 1; stroke-dasharray: 4,3; fill: none; }
+        .arrow-head { fill: #333; }
+
+        /* Legend Styles */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #333;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+
+        /* Hatching pattern for historical data */
+        .hatch-pattern {
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(255,255,255,0.3) 2px,
+                rgba(255,255,255,0.3) 4px
+            );
+        }
+    </style>
+</head>
+<body>
+    <h1>Stacked Bar Chart - Erweiterte Beispiele</h1>
+
+    <!-- Beispiel 1: Anlageportfolio mit Schraffur für historische Daten -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title">Beispiel 1: Anlageportfolio-Entwicklung</div>
+            <div class="chart-badge">Schraffur + Paarweise Brackets</div>
+        </div>
+        <div class="chart-description">Zeitreihe mit schraffiertem Hintergrund für historische Daten und paarweisen Brackets zwischen aufeinanderfolgenden Jahren</div>
+        <svg id="chart1" viewBox="0 0 1100 550"></svg>
+        <div class="chart-legend" id="legend1"></div>
+    </div>
+
+    <!-- Beispiel 2: Kostenstruktur nach Standort -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title">Beispiel 2: Kostenstruktur nach Standort</div>
+            <div class="chart-badge">Kategorien-Vergleich + Brackets</div>
+        </div>
+        <div class="chart-description">Vergleich verschiedener Standorte mit selektiven Brackets zwischen ausgewählten Kategorien</div>
+        <svg id="chart2" viewBox="0 0 1100 550"></svg>
+        <div class="chart-legend" id="legend2"></div>
+    </div>
+
+    <!-- Beispiel 3: Umsatz nach Regionen mit Zeitreihe -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title">Beispiel 3: Umsatz nach Regionen</div>
+            <div class="chart-badge">Schraffur + Absolut/Prozent</div>
+        </div>
+        <div class="chart-description">Regionale Umsatzentwicklung mit konsekutiven Brackets (absolut + prozentual)</div>
+        <svg id="chart3" viewBox="0 0 1100 550"></svg>
+        <div class="chart-legend" id="legend3"></div>
+    </div>
+
+    <!-- Beispiel 4: Produktportfolio -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title">Beispiel 4: Produktportfolio</div>
+            <div class="chart-badge">Brackets: Absolut</div>
+        </div>
+        <div class="chart-description">Umsatzanteile nach Produktsegmenten mit absoluten Differenz-Brackets</div>
+        <svg id="chart4" viewBox="0 0 1100 550"></svg>
+        <div class="chart-legend" id="legend4"></div>
+    </div>
+
+    <!-- Beispiel 5: Mitarbeiterstruktur mit Plan-Vergleich -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title">Beispiel 5: Mitarbeiterstruktur nach Abteilung</div>
+            <div class="chart-badge">IST vs. PLAN + Gestrichelt</div>
+        </div>
+        <div class="chart-description">Headcount-Entwicklung mit gestricheltem PLAN-Balken und Bracket zum Zielwert</div>
+        <svg id="chart5" viewBox="0 0 1100 550"></svg>
+        <div class="chart-legend" id="legend5"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // SVG HATCHING PATTERN DEFINITION
+        // ============================================
+        function createHatchPattern(svgId, patternId, color) {
+            return `
+                <defs>
+                    <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+                        <rect width="6" height="6" fill="${color}"/>
+                        <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+                    </pattern>
+                </defs>
+            `;
+        }
+
+        // ============================================
+        // ADVANCED STACKED BAR CHART RENDERER
+        // ============================================
+        function renderAdvancedStackedBarChart(svgId, config) {
+            const svg = document.getElementById(svgId);
+            const width = 1100;
+            const height = 550;
+            const margin = { top: 100, right: 50, bottom: 100, left: 70 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const numBars = config.categories.length;
+            const barWidth = Math.min(90, (chartWidth / numBars) * 0.55);
+            const barGap = (chartWidth - numBars * barWidth) / (numBars + 1);
+
+            function getBarX(index) {
+                return margin.left + barGap * (index + 1) + barWidth * index;
+            }
+
+            // Calculate max value for Y scale
+            let maxTotal = 0;
+            config.categories.forEach(cat => {
+                const total = cat.segments.reduce((sum, seg) => sum + seg.value, 0);
+                if (total > maxTotal) maxTotal = total;
+            });
+            maxTotal *= 1.2; // Headroom for labels and brackets
+
+            function yScale(value) {
+                return margin.top + chartHeight - (value / maxTotal) * chartHeight;
+            }
+
+            const baselineY = yScale(0);
+            let svgContent = '';
+
+            // Add hatching patterns if needed
+            if (config.useHatching) {
+                config.segments.forEach((seg, idx) => {
+                    svgContent += createHatchPattern(svgId, `hatch-${svgId}-${idx}`, seg.color);
+                });
+            }
+
+            // Title
+            svgContent += `<text x="${width/2}" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a1a">${config.title}</text>`;
+            if (config.subtitle) {
+                svgContent += `<text x="${width/2}" y="58" text-anchor="middle" font-size="13" fill="#666">${config.subtitle}</text>`;
+            }
+            if (config.subtitleNote) {
+                svgContent += `<text x="${width/2}" y="75" text-anchor="middle" font-size="11" fill="#999">(${config.subtitleNote})</text>`;
+            }
+
+            // Baseline
+            svgContent += `<line x1="${margin.left}" y1="${baselineY}" x2="${margin.left + chartWidth}" y2="${baselineY}" stroke="#ccc" stroke-width="1"/>`;
+
+            // Calculate bar data
+            const barData = [];
+            config.categories.forEach((cat, catIndex) => {
+                const barX = getBarX(catIndex);
+                const barCenterX = barX + barWidth / 2;
+                let cumY = baselineY;
+                const total = cat.segments.reduce((sum, seg) => sum + seg.value, 0);
+                const topY = yScale(total);
+
+                const segmentData = [];
+                cat.segments.forEach((seg, segIndex) => {
+                    const segHeight = (seg.value / maxTotal) * chartHeight;
+                    const segY = cumY - segHeight;
+
+                    segmentData.push({
+                        ...seg,
+                        x: barX,
+                        y: segY,
+                        height: segHeight,
+                        centerY: segY + segHeight / 2
+                    });
+
+                    cumY = segY;
+                });
+
+                barData.push({
+                    ...cat,
+                    barX,
+                    barCenterX,
+                    topY,
+                    total,
+                    segments: segmentData
+                });
+            });
+
+            // Render bars
+            barData.forEach((bar, barIndex) => {
+                const isHistorical = config.useHatching && bar.isHistorical;
+
+                bar.segments.forEach((seg, segIndex) => {
+                    const segmentDef = config.segments[segIndex];
+                    const fillColor = segmentDef.color;
+
+                    if (isHistorical) {
+                        // Hatched pattern for historical
+                        svgContent += `<rect class="bar" x="${seg.x}" y="${seg.y}" width="${barWidth}" height="${seg.height}" fill="url(#hatch-${svgId}-${segIndex})" rx="0"/>`;
+                    } else if (bar.isDashed) {
+                        // Dashed border for PLAN/Forecast
+                        svgContent += `<rect class="bar" x="${seg.x}" y="${seg.y}" width="${barWidth}" height="${seg.height}" fill="${fillColor}" fill-opacity="0.25" stroke="${fillColor}" stroke-width="2" stroke-dasharray="4,2" rx="0"/>`;
+                    } else {
+                        // Normal solid bar
+                        svgContent += `<rect class="bar" x="${seg.x}" y="${seg.y}" width="${barWidth}" height="${seg.height}" fill="${fillColor}" rx="0"/>`;
+                    }
+
+                    // Segment value label (inside)
+                    if (seg.height >= 25) {
+                        svgContent += `<text x="${bar.barCenterX}" y="${seg.centerY + 1}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="bold" fill="white">${seg.value}</text>`;
+                    }
+                });
+
+                // Total label above bar
+                svgContent += `<text class="value-label" x="${bar.barCenterX}" y="${bar.topY - 12}" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a1a1a">${bar.total}</text>`;
+
+                // Category label below
+                const labelLines = bar.label.split('\n');
+                labelLines.forEach((line, i) => {
+                    svgContent += `<text class="axis-label" x="${bar.barCenterX}" y="${baselineY + 25 + i * 16}" text-anchor="middle" font-size="13" fill="#333">${line}</text>`;
+                });
+
+                // Sublabel (e.g., year or "(Plan)")
+                if (bar.sublabel) {
+                    svgContent += `<text class="axis-label" x="${bar.barCenterX}" y="${baselineY + 25 + labelLines.length * 16}" text-anchor="middle" font-size="11" fill="#888">${bar.sublabel}</text>`;
+                }
+            });
+
+            // Render brackets
+            if (config.brackets && config.brackets.length > 0) {
+                config.brackets.forEach(bracket => {
+                    const startBar = barData[bracket.fromIndex];
+                    const endBar = barData[bracket.toIndex];
+                    const startX = startBar.barCenterX;
+                    const endX = endBar.barCenterX;
+                    const centerX = (startX + endX) / 2;
+
+                    // Find highest point between brackets
+                    let highestY = Infinity;
+                    for (let i = bracket.fromIndex; i <= bracket.toIndex; i++) {
+                        if (barData[i].topY < highestY) highestY = barData[i].topY;
+                    }
+
+                    const valueLabelGap = 30;
+                    const bracketY = highestY - valueLabelGap - 30;
+                    const bubbleWidth = bracket.label.length > 8 ? 90 : 70;
+                    const bubbleHeight = 22;
+
+                    // Start vertical line
+                    svgContent += `<line class="bracket-line" x1="${startX}" y1="${startBar.topY - valueLabelGap}" x2="${startX}" y2="${bracketY}"/>`;
+                    // Horizontal line to bubble
+                    svgContent += `<line class="bracket-line-dashed" x1="${startX}" y1="${bracketY}" x2="${centerX - bubbleWidth/2 - 5}" y2="${bracketY}"/>`;
+                    // Bubble
+                    svgContent += `<ellipse class="bracket-bubble" cx="${centerX}" cy="${bracketY}" rx="${bubbleWidth/2}" ry="${bubbleHeight/2}"/>`;
+                    svgContent += `<text x="${centerX}" y="${bracketY + 1}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="bold" fill="#1a1a1a">${bracket.label}</text>`;
+                    // Horizontal line from bubble
+                    svgContent += `<line class="bracket-line-dashed" x1="${centerX + bubbleWidth/2 + 5}" y1="${bracketY}" x2="${endX}" y2="${bracketY}"/>`;
+                    // End vertical line with arrow
+                    svgContent += `<line class="bracket-line" x1="${endX}" y1="${bracketY}" x2="${endX}" y2="${endBar.topY - valueLabelGap - 5}"/>`;
+                    svgContent += `<polygon class="arrow-head" points="${endX},${endBar.topY - valueLabelGap + 3} ${endX-5},${endBar.topY - valueLabelGap - 5} ${endX+5},${endBar.topY - valueLabelGap - 5}"/>`;
+                });
+            }
+
+            svg.innerHTML = svgContent;
+        }
+
+        // Legend renderer
+        function renderStackedLegend(legendId, config) {
+            const container = document.getElementById(legendId);
+            let legendHTML = '';
+
+            config.segments.forEach(seg => {
+                legendHTML += `<div class="legend-item"><div class="legend-color" style="background: ${seg.color}"></div><span>${seg.name}</span></div>`;
+            });
+
+            container.innerHTML = legendHTML;
+        }
+
+        // ============================================
+        // BEISPIEL-KONFIGURATIONEN
+        // ============================================
+
+        // Beispiel 1: Anlageportfolio mit Schraffur
+        const config1 = {
+            title: 'Anlageportfolio-Entwicklung',
+            subtitle: 'in Tausend Euro',
+            subtitleNote: 'schraffiert = historische Daten',
+            useHatching: true,
+            segments: [
+                { name: 'Aktien', color: '#1B5E4F' },
+                { name: 'Anleihen', color: '#2E8B6E' },
+                { name: 'Immobilien', color: '#4CAF8C' },
+                { name: 'Rohstoffe', color: '#7ECBA7' },
+                { name: 'Liquidität', color: '#B8E6CC' }
+            ],
+            categories: [
+                { label: '2021', isHistorical: true, segments: [
+                    { value: 180 }, { value: 220 }, { value: 150 }, { value: 80 }, { value: 70 }
+                ]},
+                { label: '2022', isHistorical: true, segments: [
+                    { value: 210 }, { value: 200 }, { value: 160 }, { value: 95 }, { value: 55 }
+                ]},
+                { label: '2023', isHistorical: true, segments: [
+                    { value: 195 }, { value: 230 }, { value: 175 }, { value: 85 }, { value: 65 }
+                ]},
+                { label: '2024', isHistorical: false, segments: [
+                    { value: 240 }, { value: 210 }, { value: 190 }, { value: 100 }, { value: 60 }
+                ]},
+                { label: '2025', sublabel: '(Plan)', isHistorical: false, segments: [
+                    { value: 280 }, { value: 190 }, { value: 210 }, { value: 120 }, { value: 50 }
+                ]}
+            ],
+            brackets: [
+                { fromIndex: 2, toIndex: 3, label: '+50 (+7%)' },
+                { fromIndex: 3, toIndex: 4, label: '+50 (+6%)' }
+            ]
+        };
+        renderAdvancedStackedBarChart('chart1', config1);
+        renderStackedLegend('legend1', config1);
+
+        // Beispiel 2: Kostenstruktur nach Standort
+        const config2 = {
+            title: 'Kostenstruktur nach Standort',
+            subtitle: 'in Tausend Euro',
+            useHatching: false,
+            segments: [
+                { name: 'Personal', color: '#1A3A5C' },
+                { name: 'Miete', color: '#2E5A88' },
+                { name: 'Material', color: '#5B8DBE' },
+                { name: 'Sonstiges', color: '#A8C5E2' }
+            ],
+            categories: [
+                { label: 'Berlin', sublabel: '2024', segments: [
+                    { value: 450 }, { value: 180 }, { value: 120 }, { value: 50 }
+                ]},
+                { label: 'München', sublabel: '2024', segments: [
+                    { value: 520 }, { value: 280 }, { value: 95 }, { value: 45 }
+                ]},
+                { label: 'Hamburg', sublabel: '2024', segments: [
+                    { value: 380 }, { value: 150 }, { value: 140 }, { value: 30 }
+                ]},
+                { label: 'Frankfurt', sublabel: '2024', segments: [
+                    { value: 410 }, { value: 220 }, { value: 110 }, { value: 40 }
+                ]}
+            ],
+            brackets: [
+                { fromIndex: 0, toIndex: 1, label: '+18%' },
+                { fromIndex: 1, toIndex: 2, label: '-26%' },
+                { fromIndex: 2, toIndex: 3, label: '+11%' }
+            ]
+        };
+        renderAdvancedStackedBarChart('chart2', config2);
+        renderStackedLegend('legend2', config2);
+
+        // Beispiel 3: Umsatz nach Regionen
+        const config3 = {
+            title: 'Umsatz nach Regionen',
+            subtitle: 'in Millionen Euro',
+            useHatching: true,
+            segments: [
+                { name: 'EMEA', color: '#1B5E4F' },
+                { name: 'Americas', color: '#3D9970' },
+                { name: 'APAC', color: '#7ECBA7' }
+            ],
+            categories: [
+                { label: '2021', isHistorical: true, segments: [
+                    { value: 120 }, { value: 200 }, { value: 80 }
+                ]},
+                { label: '2022', isHistorical: true, segments: [
+                    { value: 135 }, { value: 225 }, { value: 105 }
+                ]},
+                { label: '2023', isHistorical: true, segments: [
+                    { value: 155 }, { value: 260 }, { value: 140 }
+                ]},
+                { label: '2024', isHistorical: false, segments: [
+                    { value: 180 }, { value: 310 }, { value: 185 }
+                ]}
+            ],
+            brackets: [
+                { fromIndex: 0, toIndex: 1, label: '+65 (+16%)' },
+                { fromIndex: 1, toIndex: 2, label: '+90 (+19%)' },
+                { fromIndex: 2, toIndex: 3, label: '+120 (+22%)' }
+            ]
+        };
+        renderAdvancedStackedBarChart('chart3', config3);
+        renderStackedLegend('legend3', config3);
+
+        // Beispiel 4: Produktportfolio
+        const config4 = {
+            title: 'Produktportfolio',
+            subtitle: 'Umsatzanteile',
+            useHatching: false,
+            segments: [
+                { name: 'Lizenzen', color: '#8B5A2B' },
+                { name: 'Support', color: '#CD853F' },
+                { name: 'Services', color: '#DEB887' }
+            ],
+            categories: [
+                { label: 'Standard', segments: [
+                    { value: 45 }, { value: 25 }, { value: 10 }
+                ]},
+                { label: 'Premium', segments: [
+                    { value: 85 }, { value: 55 }, { value: 40 }
+                ]},
+                { label: 'Enterprise', segments: [
+                    { value: 180 }, { value: 120 }, { value: 80 }
+                ]}
+            ],
+            brackets: [
+                { fromIndex: 0, toIndex: 1, label: '+100' },
+                { fromIndex: 1, toIndex: 2, label: '+200' }
+            ]
+        };
+        renderAdvancedStackedBarChart('chart4', config4);
+        renderStackedLegend('legend4', config4);
+
+        // Beispiel 5: Mitarbeiterstruktur mit Plan
+        const config5 = {
+            title: 'Mitarbeiterstruktur nach Abteilung',
+            subtitle: 'Anzahl Mitarbeiter (FTE)',
+            useHatching: false,
+            segments: [
+                { name: 'Entwicklung', color: '#2C3E50' },
+                { name: 'Vertrieb', color: '#34495E' },
+                { name: 'Operations', color: '#5D6D7E' },
+                { name: 'Admin', color: '#85929E' }
+            ],
+            categories: [
+                { label: '2022', segments: [
+                    { value: 85 }, { value: 45 }, { value: 60 }, { value: 30 }
+                ]},
+                { label: '2023', segments: [
+                    { value: 105 }, { value: 55 }, { value: 70 }, { value: 35 }
+                ]},
+                { label: '2024', segments: [
+                    { value: 125 }, { value: 65 }, { value: 85 }, { value: 40 }
+                ]},
+                { label: '2025', sublabel: '(Plan)', isDashed: true, segments: [
+                    { value: 150 }, { value: 80 }, { value: 100 }, { value: 45 }
+                ]}
+            ],
+            brackets: [
+                { fromIndex: 2, toIndex: 3, label: '+60 (+19%)' }
+            ]
+        };
+        renderAdvancedStackedBarChart('chart5', config5);
+        renderStackedLegend('legend5', config5);
+    </script>
+</body>
+</html>

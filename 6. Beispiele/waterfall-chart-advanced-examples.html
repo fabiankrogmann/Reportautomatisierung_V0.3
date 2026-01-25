@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waterfall Chart - Erweiterte Beispiele</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .chart-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        svg { display: block; margin: 0 auto; }
+        .bar { transition: opacity 0.2s ease; }
+        .bar:hover { opacity: 0.8; cursor: pointer; }
+        .connector-line { stroke: #333; stroke-width: 1; stroke-dasharray: 4,3; }
+        .value-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .value-label-inside { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .axis-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .bracket-bubble { fill: white; stroke: #333; stroke-width: 1.5; }
+        .bracket-line { stroke: #333; stroke-width: 1.5; fill: none; }
+        .bracket-line-dashed { stroke: #333; stroke-width: 1; stroke-dasharray: 4,3; fill: none; }
+        .arrow-head { fill: #333; }
+
+        /* Legend Styles */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #333;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Waterfall Chart - Erweiterte Beispiele</h1>
+
+    <!-- Beispiel 1: Budget vs. Actual Varianzanalyse -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 1: Budget vs. Actual - Umsatz Varianzanalyse 2024</div>
+        <div class="chart-description">Detaillierte Varianzanalyse mit Volumen-, Preis-, Mix-, Kosten- und FX-Effekten plus Target-Vergleich</div>
+        <svg id="chart1" viewBox="0 0 1000 500"></svg>
+        <div class="chart-legend" id="legend1"></div>
+    </div>
+
+    <!-- Beispiel 2: EBITDA Bridge mit positiven und negativen Effekten -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 2: EBITDA Bridge FY23 → FY24</div>
+        <div class="chart-description">Operative Verbesserungen vs. Einmaleffekte mit detaillierter Aufschlüsselung</div>
+        <svg id="chart2" viewBox="0 0 1000 500"></svg>
+        <div class="chart-legend" id="legend2"></div>
+    </div>
+
+    <!-- Beispiel 3: Working Capital Bridge -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 3: Working Capital Bridge Q4 2024</div>
+        <div class="chart-description">Detaillierte Analyse der Working Capital Veränderungen</div>
+        <svg id="chart3" viewBox="0 0 1000 500"></svg>
+        <div class="chart-legend" id="legend3"></div>
+    </div>
+
+    <!-- Beispiel 4: Marktanteils-Bridge -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 4: Marktanteils-Entwicklung 2022 → 2024</div>
+        <div class="chart-description">Analyse der Marktanteilsveränderungen nach Segment mit Wettbewerber-Benchmark</div>
+        <svg id="chart4" viewBox="0 0 1000 500"></svg>
+        <div class="chart-legend" id="legend4"></div>
+    </div>
+
+    <!-- Beispiel 5: Headcount & Kosten Bridge kombiniert -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 5: Personalkosten-Bridge 2024</div>
+        <div class="chart-description">Kombinierte Analyse aus Headcount-Änderungen und Gehaltseffekten vs. Budget</div>
+        <svg id="chart5" viewBox="0 0 1000 500"></svg>
+        <div class="chart-legend" id="legend5"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // ERWEITERTE RENDERING-FUNKTIONEN
+        // ============================================
+
+        function renderAdvancedWaterfallChart(svgId, config) {
+            const svg = document.getElementById(svgId);
+            const width = 1000;
+            const height = 500;
+            const margin = { top: 90, right: 50, bottom: 100, left: 70 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Kumulative Werte berechnen
+            const allValues = [];
+            let cumulative = 0;
+            config.bars.forEach(bar => {
+                if (bar.type === 'start' || bar.type === 'budget') {
+                    cumulative = bar.value;
+                    allValues.push(cumulative);
+                } else if (bar.type === 'increase' || bar.type === 'decrease') {
+                    allValues.push(cumulative);
+                    cumulative += bar.value;
+                    allValues.push(cumulative);
+                } else if (bar.type === 'end' || bar.type === 'actual' || bar.type === 'compare' || bar.type === 'target') {
+                    allValues.push(bar.value);
+                }
+            });
+
+            const maxValue = Math.max(...allValues) * 1.2;
+            const minValue = Math.min(0, ...allValues) * 1.1;
+
+            // Balken-Layout
+            const numBars = config.bars.length;
+            const barWidth = Math.min(65, (chartWidth / numBars) * 0.55);
+            const barGap = (chartWidth - numBars * barWidth) / (numBars + 1);
+
+            function getBarX(index) {
+                return margin.left + barGap * (index + 1) + barWidth * index;
+            }
+
+            function yScale(value) {
+                return margin.top + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+            }
+
+            const baselineY = yScale(0);
+            let svgContent = '';
+
+            // Titel
+            svgContent += `<text x="${width/2}" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a1a1a">${config.title}</text>`;
+            if (config.subtitle) {
+                svgContent += `<text x="${width/2}" y="52" text-anchor="middle" font-size="13" fill="#666">${config.subtitle}</text>`;
+            }
+
+            // Baseline
+            svgContent += `<line x1="${margin.left}" y1="${baselineY}" x2="${margin.left + chartWidth}" y2="${baselineY}" stroke="#333" stroke-width="1"/>`;
+
+            // Balken berechnen
+            cumulative = 0;
+            const barData = [];
+            config.bars.forEach((bar, index) => {
+                let barY, barHeight, connectorY;
+                const barX = getBarX(index);
+
+                if (bar.type === 'start' || bar.type === 'budget') {
+                    cumulative = bar.value;
+                    barY = yScale(bar.value);
+                    barHeight = baselineY - barY;
+                    connectorY = barY;
+                } else if (bar.type === 'increase') {
+                    barY = yScale(cumulative + bar.value);
+                    barHeight = yScale(cumulative) - barY;
+                    connectorY = barY;
+                    cumulative += bar.value;
+                } else if (bar.type === 'decrease') {
+                    barY = yScale(cumulative);
+                    barHeight = yScale(cumulative + bar.value) - barY;
+                    connectorY = yScale(cumulative + bar.value);
+                    cumulative += bar.value;
+                } else if (bar.type === 'end' || bar.type === 'actual') {
+                    const endValue = bar.value !== undefined ? bar.value : cumulative;
+                    barY = yScale(endValue);
+                    barHeight = baselineY - barY;
+                    connectorY = barY;
+                } else if (bar.type === 'compare' || bar.type === 'target') {
+                    barY = yScale(bar.value);
+                    barHeight = baselineY - barY;
+                    connectorY = null;
+                }
+
+                barData.push({ ...bar, barX, barY, barHeight, connectorY, barCenterX: barX + barWidth / 2 });
+            });
+
+            // Connector-Linien (nur zwischen zusammenhängenden Balken)
+            barData.forEach((bar, index) => {
+                if (index < barData.length - 1 && bar.connectorY !== null) {
+                    const nextBar = barData[index + 1];
+                    // Keine Connector-Linie vor compare/target Balken
+                    if (nextBar.type !== 'compare' && nextBar.type !== 'target') {
+                        svgContent += `<line class="connector-line" x1="${bar.barX + barWidth}" y1="${bar.connectorY}" x2="${nextBar.barX}" y2="${bar.connectorY}"/>`;
+                    }
+                }
+            });
+
+            // Balken und Labels
+            barData.forEach((bar, index) => {
+                let color;
+                if (bar.type === 'start' || bar.type === 'budget') color = config.colors?.budget || '#2C3E50';
+                else if (bar.type === 'end' || bar.type === 'actual') color = config.colors?.actual || '#2C3E50';
+                else if (bar.type === 'increase') color = config.colors?.positive || '#00A5A5';
+                else if (bar.type === 'decrease') color = config.colors?.negative || '#E74C3C';
+                else if (bar.type === 'compare' || bar.type === 'target') color = config.colors?.target || '#7F8C8D';
+
+                // Balken rendern
+                svgContent += `<rect class="bar" x="${bar.barX}" y="${bar.barY}" width="${barWidth}" height="${bar.barHeight}" fill="${color}" rx="2"/>`;
+
+                // Wert-Label
+                const minHeight = 30;
+                const labelColor = bar.type === 'increase' || bar.type === 'decrease' ? '#1a1a1a' : (bar.barHeight >= minHeight ? 'white' : '#1a1a1a');
+
+                if ((bar.type === 'increase' || bar.type === 'decrease')) {
+                    // Schwebende Labels über/unter dem Balken
+                    const labelY = bar.type === 'increase' ? bar.barY - 8 : bar.barY + bar.barHeight + 16;
+                    svgContent += `<text class="value-label" x="${bar.barCenterX}" y="${labelY}" text-anchor="middle" font-size="12" font-weight="bold" fill="${bar.type === 'increase' ? config.colors?.positive || '#00A5A5' : config.colors?.negative || '#E74C3C'}">${bar.displayValue}</text>`;
+                } else if (bar.barHeight >= minHeight) {
+                    // Label im Balken
+                    const labelY = bar.barY + 20;
+                    svgContent += `<text class="value-label-inside" x="${bar.barCenterX}" y="${labelY}" text-anchor="middle" font-size="12" font-weight="bold" fill="white">${bar.displayValue}</text>`;
+                } else {
+                    // Label über dem Balken
+                    svgContent += `<text class="value-label" x="${bar.barCenterX}" y="${bar.barY - 8}" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a1a1a">${bar.displayValue}</text>`;
+                }
+
+                // X-Achsen-Label
+                const lines = bar.label.split('\n');
+                lines.forEach((line, i) => {
+                    svgContent += `<text class="axis-label" x="${bar.barCenterX}" y="${baselineY + 20 + i * 14}" text-anchor="middle" font-size="11" fill="#333">${line}</text>`;
+                });
+            });
+
+            // Bracket mit ausreichend Abstand
+            if (config.bracket && config.bracket.show) {
+                const startBar = barData[config.bracket.fromIndex];
+                const endBar = barData[config.bracket.toIndex];
+                const startX = startBar.barCenterX;
+                const endX = endBar.barCenterX;
+                const centerX = (startX + endX) / 2;
+
+                let highestBarY = Infinity;
+                for (let i = config.bracket.fromIndex; i <= config.bracket.toIndex; i++) {
+                    if (barData[i].barY < highestBarY) highestBarY = barData[i].barY;
+                }
+
+                const valueLabelGap = 35;
+                const bracketY = highestBarY - 55;
+                const bubbleWidth = 70;
+                const bubbleHeight = 24;
+
+                svgContent += `<line class="bracket-line" x1="${startX}" y1="${startBar.barY - valueLabelGap}" x2="${startX}" y2="${bracketY}"/>`;
+                svgContent += `<line class="bracket-line-dashed" x1="${startX}" y1="${bracketY}" x2="${centerX - bubbleWidth/2 - 5}" y2="${bracketY}"/>`;
+                svgContent += `<ellipse class="bracket-bubble" cx="${centerX}" cy="${bracketY}" rx="${bubbleWidth/2}" ry="${bubbleHeight/2}"/>`;
+                svgContent += `<text x="${centerX}" y="${bracketY + 1}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="bold" fill="#1a1a1a">${config.bracket.label}</text>`;
+                svgContent += `<line class="bracket-line-dashed" x1="${centerX + bubbleWidth/2 + 5}" y1="${bracketY}" x2="${endX}" y2="${bracketY}"/>`;
+                svgContent += `<line class="bracket-line" x1="${endX}" y1="${bracketY}" x2="${endX}" y2="${endBar.barY - valueLabelGap - 5}"/>`;
+                svgContent += `<polygon class="arrow-head" points="${endX},${endBar.barY - valueLabelGap + 3} ${endX-5},${endBar.barY - valueLabelGap - 5} ${endX+5},${endBar.barY - valueLabelGap - 5}"/>`;
+            }
+
+            svg.innerHTML = svgContent;
+        }
+
+        // Legende rendern
+        function renderAdvancedLegend(legendId, config) {
+            const legendContainer = document.getElementById(legendId);
+            const colors = {
+                budget: config.colors?.budget || '#2C3E50',
+                actual: config.colors?.actual || '#2C3E50',
+                positive: config.colors?.positive || '#00A5A5',
+                negative: config.colors?.negative || '#E74C3C',
+                target: config.colors?.target || '#7F8C8D'
+            };
+
+            const types = new Set(config.bars.map(b => b.type));
+            let legendHTML = '';
+
+            if (types.has('budget') || types.has('actual') || types.has('start') || types.has('end')) {
+                legendHTML += `<div class="legend-item"><div class="legend-color" style="background: ${colors.budget}"></div><span>Budget / Actual</span></div>`;
+            }
+            if (types.has('increase')) {
+                legendHTML += `<div class="legend-item"><div class="legend-color" style="background: ${colors.positive}"></div><span>Positive Varianz</span></div>`;
+            }
+            if (types.has('decrease')) {
+                legendHTML += `<div class="legend-item"><div class="legend-color" style="background: ${colors.negative}"></div><span>Negative Varianz</span></div>`;
+            }
+            if (types.has('compare') || types.has('target')) {
+                legendHTML += `<div class="legend-item"><div class="legend-color" style="background: ${colors.target}"></div><span>Target</span></div>`;
+            }
+
+            legendContainer.innerHTML = legendHTML;
+        }
+
+        // ============================================
+        // BEISPIEL-KONFIGURATIONEN
+        // ============================================
+
+        // Beispiel 1: Budget vs. Actual Varianzanalyse (wie im Screenshot)
+        const config1 = {
+            title: 'Budget vs. Actual - Umsatz Varianzanalyse 2024',
+            subtitle: 'in Tsd. EUR',
+            bars: [
+                { type: 'budget', label: 'Budget\n2024', value: 1000, displayValue: '€1.000k' },
+                { type: 'increase', label: 'Volumen-\nvarianz', value: 85, displayValue: '+€85k' },
+                { type: 'increase', label: 'Preis-\nvarianz', value: 42, displayValue: '+€42k' },
+                { type: 'increase', label: 'Mix-\nvarianz', value: 28, displayValue: '+€28k' },
+                { type: 'decrease', label: 'Kosten-\nvarianz', value: -35, displayValue: '-€35k' },
+                { type: 'decrease', label: 'FX-\nvarianz', value: -22, displayValue: '-€22k' },
+                { type: 'actual', label: 'Actual\n2024', value: 1098, displayValue: '€1.098k' },
+                { type: 'target', label: 'Target\n2024', value: 1100, displayValue: '€1.100k' }
+            ],
+            colors: {
+                budget: '#2C3E50',
+                actual: '#2C3E50',
+                positive: '#00A5A5',
+                negative: '#E74C3C',
+                target: '#7F8C8D'
+            },
+            bracket: { show: true, fromIndex: 0, toIndex: 6, label: '+9.8%' }
+        };
+        renderAdvancedWaterfallChart('chart1', config1);
+        renderAdvancedLegend('legend1', config1);
+
+        // Beispiel 2: EBITDA Bridge mit detaillierten Effekten
+        const config2 = {
+            title: 'EBITDA Bridge FY23 → FY24',
+            subtitle: 'in Mio. EUR',
+            bars: [
+                { type: 'start', label: 'FY23\nEBITDA', value: 245, displayValue: '245' },
+                { type: 'increase', label: 'Umsatz-\nwachstum', value: 38, displayValue: '+38' },
+                { type: 'increase', label: 'Preis-\nerhöhung', value: 22, displayValue: '+22' },
+                { type: 'decrease', label: 'Material-\nkosten', value: -28, displayValue: '-28' },
+                { type: 'decrease', label: 'Personal-\nkosten', value: -15, displayValue: '-15' },
+                { type: 'increase', label: 'Effizienz-\nprogramm', value: 18, displayValue: '+18' },
+                { type: 'decrease', label: 'Einmal-\neffekte', value: -12, displayValue: '-12' },
+                { type: 'end', label: 'FY24\nEBITDA', value: 268, displayValue: '268' },
+                { type: 'compare', label: 'Guidance\nFY24', value: 275, displayValue: '275' }
+            ],
+            colors: {
+                budget: '#1B4F72',
+                actual: '#1B4F72',
+                positive: '#27AE60',
+                negative: '#C0392B',
+                target: '#95A5A6'
+            },
+            bracket: { show: true, fromIndex: 0, toIndex: 7, label: '+9.4%' }
+        };
+        renderAdvancedWaterfallChart('chart2', config2);
+        renderAdvancedLegend('legend2', config2);
+
+        // Beispiel 3: Working Capital Bridge
+        const config3 = {
+            title: 'Working Capital Bridge Q4 2024',
+            subtitle: 'in Mio. EUR',
+            bars: [
+                { type: 'start', label: 'WC\nQ3 2024', value: 180, displayValue: '180' },
+                { type: 'decrease', label: 'Vorräte\n(Abbau)', value: -25, displayValue: '-25' },
+                { type: 'increase', label: 'Forderungen\n(Anstieg)', value: 42, displayValue: '+42' },
+                { type: 'decrease', label: 'Verbindlich-\nkeiten', value: -18, displayValue: '-18' },
+                { type: 'increase', label: 'Sonstige\nAssets', value: 8, displayValue: '+8' },
+                { type: 'decrease', label: 'Rück-\nstellungen', value: -15, displayValue: '-15' },
+                { type: 'end', label: 'WC\nQ4 2024', value: 172, displayValue: '172' },
+                { type: 'target', label: 'Target\nWC', value: 165, displayValue: '165' }
+            ],
+            colors: {
+                budget: '#2980B9',
+                actual: '#2980B9',
+                positive: '#16A085',
+                negative: '#E67E22',
+                target: '#7F8C8D'
+            },
+            bracket: { show: true, fromIndex: 0, toIndex: 6, label: '-4.4%' }
+        };
+        renderAdvancedWaterfallChart('chart3', config3);
+        renderAdvancedLegend('legend3', config3);
+
+        // Beispiel 4: Marktanteils-Bridge
+        const config4 = {
+            title: 'Marktanteils-Entwicklung 2022 → 2024',
+            subtitle: 'in Prozentpunkten',
+            bars: [
+                { type: 'start', label: 'Marktanteil\n2022', value: 18.5, displayValue: '18.5%' },
+                { type: 'increase', label: 'Premium-\nSegment', value: 2.8, displayValue: '+2.8pp' },
+                { type: 'increase', label: 'Digital\nChannels', value: 1.5, displayValue: '+1.5pp' },
+                { type: 'decrease', label: 'Budget-\nSegment', value: -1.2, displayValue: '-1.2pp' },
+                { type: 'increase', label: 'Neue\nMärkte', value: 0.9, displayValue: '+0.9pp' },
+                { type: 'decrease', label: 'Wettbewerbs-\ndruck', value: -0.8, displayValue: '-0.8pp' },
+                { type: 'end', label: 'Marktanteil\n2024', value: 21.7, displayValue: '21.7%' },
+                { type: 'compare', label: 'Benchmark\n(Top 3)', value: 24.2, displayValue: '24.2%' }
+            ],
+            colors: {
+                budget: '#8E44AD',
+                actual: '#8E44AD',
+                positive: '#2ECC71',
+                negative: '#E74C3C',
+                target: '#BDC3C7'
+            },
+            bracket: { show: true, fromIndex: 0, toIndex: 6, label: '+3.2pp' }
+        };
+        renderAdvancedWaterfallChart('chart4', config4);
+        renderAdvancedLegend('legend4', config4);
+
+        // Beispiel 5: Personalkosten-Bridge
+        const config5 = {
+            title: 'Personalkosten-Bridge 2024',
+            subtitle: 'in Mio. EUR',
+            bars: [
+                { type: 'budget', label: 'Budget\n2024', value: 85, displayValue: '85' },
+                { type: 'increase', label: 'Neuein-\nstellungen', value: 8.5, displayValue: '+8.5' },
+                { type: 'increase', label: 'Tarif-\nerhöhung', value: 4.2, displayValue: '+4.2' },
+                { type: 'increase', label: 'Bonus/\nVP', value: 3.8, displayValue: '+3.8' },
+                { type: 'decrease', label: 'Fluktuation', value: -5.5, displayValue: '-5.5' },
+                { type: 'decrease', label: 'Effizienz-\nmaßnahmen', value: -3.2, displayValue: '-3.2' },
+                { type: 'decrease', label: 'Outsourcing', value: -2.8, displayValue: '-2.8' },
+                { type: 'actual', label: 'Actual\n2024', value: 90, displayValue: '90' },
+                { type: 'target', label: 'Plan\n2025', value: 88, displayValue: '88' }
+            ],
+            colors: {
+                budget: '#34495E',
+                actual: '#34495E',
+                positive: '#00A5A5',
+                negative: '#E74C3C',
+                target: '#95A5A6'
+            },
+            bracket: { show: true, fromIndex: 0, toIndex: 7, label: '+5.9%' }
+        };
+        renderAdvancedWaterfallChart('chart5', config5);
+        renderAdvancedLegend('legend5', config5);
+    </script>
+</body>
+</html>

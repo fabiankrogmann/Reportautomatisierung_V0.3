@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Chart Beispiele - Think-Cell Style</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .chart-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        svg { display: block; margin: 0 auto; }
+        .line-path {
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke-width 0.2s ease;
+        }
+        .line-path:hover { stroke-width: 4; }
+        .data-point {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .data-point:hover { transform: scale(1.3); }
+        .area-fill { pointer-events: none; }
+        .axis-line { stroke: #333; stroke-width: 1; }
+        .tick-mark { stroke: #333; stroke-width: 1; }
+        .grid-line { stroke: #e0e0e0; stroke-width: 1; }
+        .x-axis-label, .y-axis-label {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 11px;
+            fill: #666;
+        }
+        .axis-title {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 12px;
+            fill: #333;
+            font-weight: 500;
+        }
+        .legend-text {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 11px;
+            fill: #333;
+        }
+        .bracket-line { stroke: #333; stroke-width: 1.5; fill: none; }
+        .bracket-bubble { fill: white; stroke: #333; stroke-width: 1.5; }
+        .bracket-label {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 11px;
+            font-weight: bold;
+            fill: #333;
+        }
+        .arrow-head { fill: #333; }
+        .chart-title-svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .threshold-line { stroke-width: 1.5; }
+        .threshold-label {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        .range-highlight { opacity: 0.3; }
+        .range-label {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 10px;
+            fill: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Line Chart Beispiele - Think-Cell Style</h1>
+
+    <!-- Beispiel 1: Revenue Development -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 1: Revenue Development 2022-2023</div>
+        <div class="chart-description">Einfaches Liniendiagramm mit Datenpunkten und Bracket-Annotation</div>
+        <svg id="chart1" viewBox="0 0 900 450"></svg>
+    </div>
+
+    <!-- Beispiel 2: Actual vs Target -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 2: Actual vs. Target Performance</div>
+        <div class="chart-description">Vergleich mit durchgezogener und gestrichelter Linie</div>
+        <svg id="chart2" viewBox="0 0 900 450"></svg>
+    </div>
+
+    <!-- Beispiel 3: Multiple Regions -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 3: Revenue by Region</div>
+        <div class="chart-description">Mehrere Linien mit gefüllten Flächen (Area)</div>
+        <svg id="chart3" viewBox="0 0 900 450"></svg>
+    </div>
+
+    <!-- Beispiel 4: KPI Performance mit Threshold -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 4: KPI Performance mit Threshold</div>
+        <div class="chart-description">Mit horizontaler Referenzlinie und Range-Highlight</div>
+        <svg id="chart4" viewBox="0 0 900 450"></svg>
+    </div>
+
+    <!-- Beispiel 5: Produktvergleich -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 5: Produktvergleich mit verschiedenen Stilen</div>
+        <div class="chart-description">Verschiedene Linienstile und Datenpunkt-Formen</div>
+        <svg id="chart5" viewBox="0 0 900 450"></svg>
+    </div>
+
+    <script>
+        // ============================================
+        // RENDERING-FUNKTIONEN
+        // ============================================
+
+        const lineStyles = {
+            solid: 'none',
+            dashed: '8,4',
+            dotted: '2,4'
+        };
+
+        function renderLineChart(svgId, config) {
+            const svg = document.getElementById(svgId);
+            const width = 900;
+            const height = 450;
+            const margin = { top: 60, right: 60, bottom: 80, left: 70 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Min/Max berechnen
+            const allValues = config.series.flatMap(s => s.values);
+            const dataMin = Math.min(...allValues);
+            const dataMax = Math.max(...allValues);
+            const minValue = config.yAxis?.min !== undefined ? config.yAxis.min : dataMin * 0.9;
+            const maxValue = config.yAxis?.max !== undefined ? config.yAxis.max : dataMax * 1.1;
+
+            // Skalen
+            function xScale(index) {
+                const step = chartWidth / (config.xAxis.categories.length - 1);
+                return margin.left + index * step;
+            }
+
+            function yScale(value) {
+                return margin.top + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+            }
+
+            const chartBottom = margin.top + chartHeight;
+
+            let svgContent = '';
+
+            // Titel
+            svgContent += `<text class="chart-title-svg" x="${width/2}" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a1a">${config.title}</text>`;
+            if (config.subtitle) {
+                svgContent += `<text x="${width/2}" y="45" text-anchor="middle" font-size="12" fill="#666">${config.subtitle}</text>`;
+            }
+
+            // Range-Annotations (zuerst, im Hintergrund)
+            if (config.options?.annotations) {
+                config.options.annotations.filter(a => a.type === 'range').forEach(anno => {
+                    const x1 = xScale(anno.fromIndex);
+                    const x2 = xScale(anno.toIndex);
+                    svgContent += `<rect class="range-highlight" x="${x1}" y="${margin.top}" width="${x2 - x1}" height="${chartHeight}" fill="${anno.color}"/>`;
+                    if (anno.label) {
+                        svgContent += `<text class="range-label" x="${(x1 + x2) / 2}" y="${margin.top + 15}" text-anchor="middle">${anno.label}</text>`;
+                    }
+                });
+            }
+
+            // Gridlines
+            if (config.yAxis?.gridLines !== false) {
+                const tickCount = config.yAxis?.tickCount || 5;
+                const step = (maxValue - minValue) / (tickCount - 1);
+                for (let i = 1; i < tickCount; i++) {
+                    const value = minValue + i * step;
+                    const y = yScale(value);
+                    svgContent += `<line class="grid-line" x1="${margin.left}" y1="${y}" x2="${margin.left + chartWidth}" y2="${y}"/>`;
+                }
+            }
+
+            // Y-Achse
+            svgContent += `<line class="axis-line" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${chartBottom}"/>`;
+            const yTickCount = config.yAxis?.tickCount || 5;
+            const yStep = (maxValue - minValue) / (yTickCount - 1);
+            for (let i = 0; i < yTickCount; i++) {
+                const value = minValue + i * yStep;
+                const y = yScale(value);
+                svgContent += `<line class="tick-mark" x1="${margin.left - 6}" y1="${y}" x2="${margin.left}" y2="${y}"/>`;
+                svgContent += `<text class="y-axis-label" x="${margin.left - 10}" y="${y}" text-anchor="end" dominant-baseline="middle">${Math.round(value)}</text>`;
+            }
+
+            // X-Achse
+            svgContent += `<line class="axis-line" x1="${margin.left}" y1="${chartBottom}" x2="${margin.left + chartWidth}" y2="${chartBottom}"/>`;
+            config.xAxis.categories.forEach((label, index) => {
+                const x = xScale(index);
+                svgContent += `<line class="tick-mark" x1="${x}" y1="${chartBottom}" x2="${x}" y2="${chartBottom + 6}"/>`;
+                svgContent += `<text class="x-axis-label" x="${x}" y="${chartBottom + 20}" text-anchor="middle">${label}</text>`;
+            });
+
+            // Threshold-Lines (Annotations)
+            if (config.options?.annotations) {
+                config.options.annotations.filter(a => a.type === 'line').forEach(anno => {
+                    const y = yScale(anno.value);
+                    svgContent += `<line class="threshold-line" x1="${margin.left}" y1="${y}" x2="${margin.left + chartWidth}" y2="${y}" stroke="${anno.color}" stroke-dasharray="${lineStyles[anno.lineStyle] || 'none'}"/>`;
+                    if (anno.label) {
+                        const labelX = anno.labelPosition === 'right' ? margin.left + chartWidth + 5 : margin.left - 5;
+                        const textAnchor = anno.labelPosition === 'right' ? 'start' : 'end';
+                        svgContent += `<text class="threshold-label" x="${labelX}" y="${y}" text-anchor="${textAnchor}" dominant-baseline="middle" fill="${anno.color}">${anno.label}</text>`;
+                    }
+                });
+            }
+
+            // Areas (vor Linien für korrekten Z-Index)
+            config.series.forEach((series, seriesIndex) => {
+                if (series.showArea) {
+                    const points = series.values.map((value, index) => ({ x: xScale(index), y: yScale(value) }));
+                    let areaPath = `M ${points[0].x} ${chartBottom}`;
+                    points.forEach(point => {
+                        areaPath += ` L ${point.x} ${point.y}`;
+                    });
+                    areaPath += ` L ${points[points.length - 1].x} ${chartBottom} Z`;
+                    svgContent += `<path class="area-fill" d="${areaPath}" fill="${series.color}" fill-opacity="${series.areaOpacity || 0.2}"/>`;
+                }
+            });
+
+            // Linien
+            config.series.forEach((series, seriesIndex) => {
+                const points = series.values.map((value, index) => ({ x: xScale(index), y: yScale(value) }));
+                let pathData;
+
+                if (config.options?.smoothCurve) {
+                    // Bezier-Kurven für geglättete Linien
+                    pathData = `M ${points[0].x} ${points[0].y}`;
+                    for (let i = 0; i < points.length - 1; i++) {
+                        const current = points[i];
+                        const next = points[i + 1];
+                        const cpx1 = current.x + (next.x - current.x) / 3;
+                        const cpy1 = current.y;
+                        const cpx2 = current.x + 2 * (next.x - current.x) / 3;
+                        const cpy2 = next.y;
+                        pathData += ` C ${cpx1} ${cpy1}, ${cpx2} ${cpy2}, ${next.x} ${next.y}`;
+                    }
+                } else {
+                    pathData = `M ${points[0].x} ${points[0].y}`;
+                    for (let i = 1; i < points.length; i++) {
+                        pathData += ` L ${points[i].x} ${points[i].y}`;
+                    }
+                }
+
+                svgContent += `<path class="line-path" d="${pathData}" stroke="${series.color}" stroke-width="${series.lineWidth || 2}" stroke-dasharray="${lineStyles[series.lineStyle] || 'none'}" fill="none"/>`;
+            });
+
+            // Datenpunkte
+            config.series.forEach((series, seriesIndex) => {
+                if (series.showDataPoints !== false) {
+                    const size = series.dataPointSize || 6;
+                    series.values.forEach((value, index) => {
+                        const x = xScale(index);
+                        const y = yScale(value);
+
+                        switch (series.dataPointStyle || 'circle') {
+                            case 'circle':
+                                svgContent += `<circle class="data-point" cx="${x}" cy="${y}" r="${size/2}" fill="${series.color}" stroke="white" stroke-width="2"/>`;
+                                break;
+                            case 'square':
+                                svgContent += `<rect class="data-point" x="${x - size/2}" y="${y - size/2}" width="${size}" height="${size}" fill="${series.color}" stroke="white" stroke-width="2"/>`;
+                                break;
+                            case 'diamond':
+                                svgContent += `<polygon class="data-point" points="${x},${y-size/2} ${x+size/2},${y} ${x},${y+size/2} ${x-size/2},${y}" fill="${series.color}" stroke="white" stroke-width="2"/>`;
+                                break;
+                            case 'triangle':
+                                const h = size * 0.866;
+                                svgContent += `<polygon class="data-point" points="${x},${y-h/2} ${x+size/2},${y+h/2} ${x-size/2},${y+h/2}" fill="${series.color}" stroke="white" stroke-width="2"/>`;
+                                break;
+                        }
+                    });
+                }
+            });
+
+            // Brackets
+            if (config.options?.brackets) {
+                config.options.brackets.forEach(bracket => {
+                    const series = config.series[bracket.seriesIndex];
+                    const x1 = xScale(bracket.fromIndex);
+                    const x2 = xScale(bracket.toIndex);
+                    const y1 = yScale(series.values[bracket.fromIndex]);
+                    const y2 = yScale(series.values[bracket.toIndex]);
+
+                    const centerX = (x1 + x2) / 2;
+                    const bracketY = bracket.position === 'above'
+                        ? Math.min(y1, y2) - 40
+                        : Math.max(y1, y2) + 40;
+
+                    // Linke vertikale Linie
+                    svgContent += `<line class="bracket-line" x1="${x1}" y1="${y1 - 10}" x2="${x1}" y2="${bracketY}"/>`;
+
+                    // Horizontale Linien
+                    const bubbleWidth = bracket.label.length * 8 + 16;
+                    svgContent += `<line class="bracket-line" x1="${x1}" y1="${bracketY}" x2="${centerX - bubbleWidth/2}" y2="${bracketY}"/>`;
+                    svgContent += `<line class="bracket-line" x1="${centerX + bubbleWidth/2}" y1="${bracketY}" x2="${x2}" y2="${bracketY}"/>`;
+
+                    // Bubble
+                    svgContent += `<rect class="bracket-bubble" x="${centerX - bubbleWidth/2}" y="${bracketY - 10}" width="${bubbleWidth}" height="20" rx="10"/>`;
+                    svgContent += `<text class="bracket-label" x="${centerX}" y="${bracketY}" text-anchor="middle" dominant-baseline="middle">${bracket.label}</text>`;
+
+                    // Rechte vertikale Linie + Pfeil
+                    svgContent += `<line class="bracket-line" x1="${x2}" y1="${bracketY}" x2="${x2}" y2="${y2 - 15}"/>`;
+                    svgContent += `<polygon class="arrow-head" points="${x2},${y2 - 8} ${x2 - 4},${y2 - 15} ${x2 + 4},${y2 - 15}"/>`;
+                });
+            }
+
+            // Legende
+            if (config.options?.showLegend !== false) {
+                const itemWidth = 140;
+                const totalWidth = config.series.length * itemWidth;
+                const startX = (width - totalWidth) / 2;
+                const legendY = height - 25;
+
+                config.series.forEach((series, index) => {
+                    const x = startX + index * itemWidth;
+
+                    // Linien-Symbol
+                    svgContent += `<line x1="${x}" y1="${legendY}" x2="${x + 25}" y2="${legendY}" stroke="${series.color}" stroke-width="${series.lineWidth || 2}" stroke-dasharray="${lineStyles[series.lineStyle] || 'none'}"/>`;
+
+                    // Datenpunkt-Symbol
+                    if (series.showDataPoints !== false) {
+                        svgContent += `<circle cx="${x + 12.5}" cy="${legendY}" r="3" fill="${series.color}"/>`;
+                    }
+
+                    // Text
+                    svgContent += `<text class="legend-text" x="${x + 32}" y="${legendY}" dominant-baseline="middle">${series.name}</text>`;
+                });
+            }
+
+            svg.innerHTML = svgContent;
+        }
+
+        // ============================================
+        // BEISPIEL-KONFIGURATIONEN
+        // ============================================
+
+        // Beispiel 1: Revenue Development
+        renderLineChart('chart1', {
+            title: 'Revenue Development 2022-2023',
+            subtitle: 'in million euros',
+            xAxis: {
+                categories: ['Q1 22', 'Q2 22', 'Q3 22', 'Q4 22', 'Q1 23', 'Q2 23', 'Q3 23', 'Q4 23']
+            },
+            yAxis: {
+                gridLines: true,
+                tickCount: 6
+            },
+            series: [
+                {
+                    name: 'Revenue',
+                    color: '#E20074',
+                    lineWidth: 2.5,
+                    lineStyle: 'solid',
+                    values: [100, 115, 125, 140, 135, 150, 165, 180],
+                    showDataPoints: true,
+                    dataPointStyle: 'circle',
+                    dataPointSize: 6
+                }
+            ],
+            options: {
+                showLegend: true,
+                brackets: [
+                    { seriesIndex: 0, fromIndex: 0, toIndex: 7, label: '+80%', position: 'above' }
+                ]
+            }
+        });
+
+        // Beispiel 2: Actual vs Target
+        renderLineChart('chart2', {
+            title: 'Actual vs. Target Performance',
+            subtitle: 'Index (Basis: Q1 = 100)',
+            xAxis: {
+                categories: ['Q1', 'Q2', 'Q3', 'Q4', 'Q1', 'Q2']
+            },
+            yAxis: {
+                gridLines: true,
+                tickCount: 5
+            },
+            series: [
+                {
+                    name: 'Actual',
+                    color: '#1B4F72',
+                    lineWidth: 2.5,
+                    lineStyle: 'solid',
+                    values: [100, 108, 115, 122, 130, 142],
+                    showDataPoints: true,
+                    dataPointStyle: 'circle',
+                    dataPointSize: 6
+                },
+                {
+                    name: 'Target',
+                    color: '#E74C3C',
+                    lineWidth: 1.5,
+                    lineStyle: 'dashed',
+                    values: [100, 110, 120, 130, 140, 150],
+                    showDataPoints: false
+                }
+            ],
+            options: {
+                showLegend: true
+            }
+        });
+
+        // Beispiel 3: Multiple Regions mit Area
+        renderLineChart('chart3', {
+            title: 'Revenue by Region',
+            subtitle: 'in million euros',
+            xAxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+            },
+            yAxis: {
+                gridLines: true,
+                tickCount: 5
+            },
+            series: [
+                {
+                    name: 'EMEA',
+                    color: '#2E86AB',
+                    lineWidth: 2,
+                    values: [50, 55, 60, 65, 70, 75],
+                    showDataPoints: true,
+                    dataPointStyle: 'circle',
+                    dataPointSize: 5,
+                    showArea: true,
+                    areaOpacity: 0.15
+                },
+                {
+                    name: 'Americas',
+                    color: '#A23B72',
+                    lineWidth: 2,
+                    values: [80, 85, 90, 100, 105, 115],
+                    showDataPoints: true,
+                    dataPointStyle: 'square',
+                    dataPointSize: 5,
+                    showArea: true,
+                    areaOpacity: 0.15
+                },
+                {
+                    name: 'APAC',
+                    color: '#F18F01',
+                    lineWidth: 2,
+                    values: [30, 35, 40, 48, 55, 60],
+                    showDataPoints: true,
+                    dataPointStyle: 'diamond',
+                    dataPointSize: 6,
+                    showArea: true,
+                    areaOpacity: 0.15
+                }
+            ],
+            options: {
+                showLegend: true
+            }
+        });
+
+        // Beispiel 4: KPI Performance mit Threshold
+        renderLineChart('chart4', {
+            title: 'KPI Performance',
+            subtitle: 'in Prozent',
+            xAxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
+            },
+            yAxis: {
+                min: 60,
+                max: 120,
+                gridLines: true,
+                tickCount: 5
+            },
+            series: [
+                {
+                    name: 'Performance',
+                    color: '#27AE60',
+                    lineWidth: 2.5,
+                    values: [85, 78, 92, 88, 95, 102, 108, 115],
+                    showDataPoints: true,
+                    dataPointStyle: 'circle',
+                    dataPointSize: 6
+                }
+            ],
+            options: {
+                showLegend: true,
+                annotations: [
+                    {
+                        type: 'line',
+                        value: 100,
+                        color: '#C0392B',
+                        lineStyle: 'dashed',
+                        label: 'Target',
+                        labelPosition: 'right'
+                    },
+                    {
+                        type: 'range',
+                        fromIndex: 0,
+                        toIndex: 2,
+                        color: '#FFEBEE',
+                        label: 'Below Target'
+                    }
+                ]
+            }
+        });
+
+        // Beispiel 5: Produktvergleich mit verschiedenen Stilen
+        renderLineChart('chart5', {
+            title: 'Produktvergleich 2024',
+            subtitle: 'Verkaufszahlen in Tsd. Stück',
+            xAxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+            },
+            yAxis: {
+                gridLines: true,
+                tickCount: 5
+            },
+            series: [
+                {
+                    name: 'Produkt A',
+                    color: '#E20074',
+                    lineWidth: 2.5,
+                    lineStyle: 'solid',
+                    values: [120, 135, 142, 158, 175, 190],
+                    showDataPoints: true,
+                    dataPointStyle: 'circle',
+                    dataPointSize: 6
+                },
+                {
+                    name: 'Produkt B',
+                    color: '#666666',
+                    lineWidth: 2,
+                    lineStyle: 'dashed',
+                    values: [100, 110, 125, 130, 145, 155],
+                    showDataPoints: true,
+                    dataPointStyle: 'square',
+                    dataPointSize: 5
+                },
+                {
+                    name: 'Produkt C',
+                    color: '#3498DB',
+                    lineWidth: 2,
+                    lineStyle: 'dotted',
+                    values: [80, 95, 88, 102, 115, 128],
+                    showDataPoints: true,
+                    dataPointStyle: 'triangle',
+                    dataPointSize: 6
+                }
+            ],
+            options: {
+                showLegend: true,
+                brackets: [
+                    { seriesIndex: 0, fromIndex: 0, toIndex: 5, label: '+58%', position: 'above' }
+                ]
+            }
+        });
+    </script>
+</body>
+</html>

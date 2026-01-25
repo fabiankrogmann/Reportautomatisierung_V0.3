@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Chart Advanced Examples - Think-Cell Style</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .chart-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .feature-list {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        .feature-list li {
+            margin-bottom: 4px;
+        }
+        svg { display: block; margin: 0 auto; }
+
+        /* Line Styles */
+        .line-path {
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke-width 0.2s ease;
+        }
+        .line-path:hover { stroke-width: 4; }
+
+        /* Area Styles */
+        .area-fill { pointer-events: none; }
+
+        /* Data Points */
+        .data-point {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .data-point:hover { transform: scale(1.3); }
+
+        /* Axis and Grid */
+        .axis-line { stroke: #e0e0e0; stroke-width: 1; }
+        .tick-mark { stroke: #333; stroke-width: 1; }
+        .grid-line { stroke: #f0f0f0; stroke-width: 1; }
+        .x-axis-label, .y-axis-label {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 12px;
+            fill: #666;
+        }
+
+        /* Legend */
+        .legend-text {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 12px;
+            fill: #333;
+        }
+        .legend-circle {
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        /* Badges */
+        .change-badge {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .change-badge-bg {
+            rx: 4;
+            ry: 4;
+        }
+
+        /* Value Labels */
+        .value-label {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: bold;
+        }
+
+        /* Title */
+        .chart-title-svg {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Line Chart Advanced Examples - Geglättete Kurven & Area Charts</h1>
+
+    <!-- Beispiel 1: Website Traffic Analysis mit Stacked Areas -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 1: Website Traffic Analysis</div>
+        <div class="chart-description">Stacked Area Chart mit geglätteten Bézier-Kurven - Überlappende transparente Flächen</div>
+        <ul class="feature-list">
+            <li>Geglättete Linien mit Catmull-Rom Splines</li>
+            <li>Überlappende Areas mit Transparenz</li>
+            <li>Hover-Interaktion auf Datenpunkten</li>
+            <li>Legende mit farbigen Kreisen</li>
+        </ul>
+        <svg id="chart1" viewBox="0 0 1000 500"></svg>
+    </div>
+
+    <!-- Beispiel 2: Quarterly Revenue mit Badge -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 2: Quarterly Revenue</div>
+        <div class="chart-description">Einfache geglättete Linie mit Start/End-Labels und Change-Badge</div>
+        <ul class="feature-list">
+            <li>Einzelne geglättete Linie (monotone Interpolation)</li>
+            <li>Wert-Labels nur am Start und Ende</li>
+            <li>Prozentuale Änderung als Badge im Header</li>
+            <li>Minimalistisches Design ohne Y-Achse</li>
+        </ul>
+        <svg id="chart2" viewBox="0 0 1000 400"></svg>
+    </div>
+
+    <!-- Beispiel 3: Multi-Series Performance mit Gradients -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 3: Multi-Series Performance Comparison</div>
+        <div class="chart-description">Mehrere geglättete Linien mit unterschiedlichen Stilen und Gradient-Areas</div>
+        <ul class="feature-list">
+            <li>Drei Datenreihen mit verschiedenen Farben</li>
+            <li>Linien-Gradient von oben nach unten</li>
+            <li>End-Labels direkt an der Linie</li>
+            <li>Geglättete Übergänge zwischen Datenpunkten</li>
+        </ul>
+        <svg id="chart3" viewBox="0 0 1000 500"></svg>
+    </div>
+
+    <!-- Beispiel 4: Forecast mit Confidence Band -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 4: Revenue Forecast mit Confidence Band</div>
+        <div class="chart-description">Historische Daten + Forecast mit Unsicherheitsbereich</div>
+        <ul class="feature-list">
+            <li>Durchgezogene Linie für historische Daten</li>
+            <li>Gestrichelte Linie für Forecast</li>
+            <li>Confidence Band als halbtransparente Fläche</li>
+            <li>Vertikale Trennlinie zwischen IST und Forecast</li>
+        </ul>
+        <svg id="chart4" viewBox="0 0 1000 500"></svg>
+    </div>
+
+    <!-- Beispiel 5: YoY Comparison mit Annotations -->
+    <div class="chart-container">
+        <div class="chart-title">Beispiel 5: Year-over-Year Comparison</div>
+        <div class="chart-description">Zwei Jahre im direkten Vergleich mit Differenz-Highlighting</div>
+        <ul class="feature-list">
+            <li>Vorjahr als hellere/gestrichelte Linie</li>
+            <li>Aktuelles Jahr als kräftige Linie</li>
+            <li>Differenz-Fläche zwischen den Linien</li>
+            <li>Peak-Annotation mit Callout</li>
+        </ul>
+        <svg id="chart5" viewBox="0 0 1000 500"></svg>
+    </div>
+
+    <script>
+        // ============================================
+        // HILFSFUNKTIONEN FÜR GEGLÄTTETE KURVEN
+        // ============================================
+
+        // Catmull-Rom Spline zu Bézier-Kurven konvertieren
+        function catmullRomToBezier(points, tension = 0.5) {
+            if (points.length < 2) return '';
+
+            let path = `M ${points[0].x} ${points[0].y}`;
+
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[Math.max(0, i - 1)];
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const p3 = points[Math.min(points.length - 1, i + 2)];
+
+                // Kontrollpunkte berechnen
+                const cp1x = p1.x + (p2.x - p0.x) / 6 * tension;
+                const cp1y = p1.y + (p2.y - p0.y) / 6 * tension;
+                const cp2x = p2.x - (p3.x - p1.x) / 6 * tension;
+                const cp2y = p2.y - (p3.y - p1.y) / 6 * tension;
+
+                path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+            }
+
+            return path;
+        }
+
+        // Monotone Cubic Interpolation (verhindert Überschwinger)
+        function monotoneCubic(points) {
+            if (points.length < 2) return '';
+            if (points.length === 2) {
+                return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+            }
+
+            let path = `M ${points[0].x} ${points[0].y}`;
+
+            // Steigungen berechnen
+            const n = points.length;
+            const dx = [], dy = [], m = [], slope = [];
+
+            for (let i = 0; i < n - 1; i++) {
+                dx[i] = points[i + 1].x - points[i].x;
+                dy[i] = points[i + 1].y - points[i].y;
+                slope[i] = dy[i] / dx[i];
+            }
+
+            // Tangenten für monotone Interpolation
+            m[0] = slope[0];
+            m[n - 1] = slope[n - 2];
+
+            for (let i = 1; i < n - 1; i++) {
+                if (slope[i - 1] * slope[i] <= 0) {
+                    m[i] = 0;
+                } else {
+                    m[i] = (slope[i - 1] + slope[i]) / 2;
+                }
+            }
+
+            // Bézier-Kurven erstellen
+            for (let i = 0; i < n - 1; i++) {
+                const cp1x = points[i].x + dx[i] / 3;
+                const cp1y = points[i].y + m[i] * dx[i] / 3;
+                const cp2x = points[i + 1].x - dx[i] / 3;
+                const cp2y = points[i + 1].y - m[i + 1] * dx[i] / 3;
+
+                path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${points[i + 1].x} ${points[i + 1].y}`;
+            }
+
+            return path;
+        }
+
+        // Closed Area Path erstellen
+        function createAreaPath(linePath, chartBottom, firstX, lastX) {
+            return `${linePath} L ${lastX} ${chartBottom} L ${firstX} ${chartBottom} Z`;
+        }
+
+        // ============================================
+        // BEISPIEL 1: Website Traffic Analysis
+        // ============================================
+
+        function renderChart1() {
+            const svg = document.getElementById('chart1');
+            const width = 1000, height = 500;
+            const margin = { top: 100, right: 40, bottom: 60, left: 60 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Daten
+            const categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const series = [
+                { name: 'Direct Traffic', color: '#E20074', values: [45, 52, 48, 65, 58, 42, 38, 35, 48, 62, 72, 68, 55, 48] },
+                { name: 'Organic Search', color: '#0077B6', values: [35, 38, 42, 48, 45, 38, 32, 28, 35, 45, 52, 48, 42, 35] },
+                { name: 'Social Media', color: '#2DC653', values: [15, 22, 28, 32, 35, 45, 42, 18, 25, 35, 42, 48, 52, 45] }
+            ];
+
+            const maxValue = Math.max(...series.flatMap(s => s.values)) * 1.1;
+
+            function xScale(index) {
+                return margin.left + (index / (categories.length - 1)) * chartWidth;
+            }
+            function yScale(value) {
+                return margin.top + chartHeight - (value / maxValue) * chartHeight;
+            }
+
+            const chartBottom = margin.top + chartHeight;
+            let svgContent = '';
+
+            // Gradient Definitions
+            svgContent += `<defs>`;
+            series.forEach((s, i) => {
+                svgContent += `
+                    <linearGradient id="gradient${i}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:${s.color};stop-opacity:0.4"/>
+                        <stop offset="100%" style="stop-color:${s.color};stop-opacity:0.05"/>
+                    </linearGradient>`;
+            });
+            svgContent += `</defs>`;
+
+            // Titel
+            svgContent += `<text class="chart-title-svg" x="${width/2}" y="30" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a1a">Website Traffic Analysis</text>`;
+            svgContent += `<text x="${width/2}" y="52" text-anchor="middle" font-size="13" fill="#666">Daily visitors in thousands, Last 14 days</text>`;
+
+            // Legende (oben)
+            const legendY = 75;
+            const legendStartX = width / 2 - 220;
+            series.forEach((s, i) => {
+                const x = legendStartX + i * 150;
+                svgContent += `<circle class="legend-circle" cx="${x}" cy="${legendY}" r="6" fill="${s.color}"/>`;
+                svgContent += `<text class="legend-text" x="${x + 14}" y="${legendY + 4}">${s.name}</text>`;
+            });
+
+            // X-Achsen-Labels
+            categories.forEach((label, index) => {
+                const x = xScale(index);
+                svgContent += `<text class="x-axis-label" x="${x}" y="${chartBottom + 25}" text-anchor="middle">${label}</text>`;
+            });
+
+            // Areas und Linien (von hinten nach vorne)
+            [...series].reverse().forEach((s, reverseIndex) => {
+                const i = series.length - 1 - reverseIndex;
+                const points = s.values.map((v, idx) => ({ x: xScale(idx), y: yScale(v) }));
+
+                // Geglättete Linie
+                const linePath = catmullRomToBezier(points, 3);
+
+                // Area
+                const areaPath = createAreaPath(linePath, chartBottom, points[0].x, points[points.length - 1].x);
+                svgContent += `<path class="area-fill" d="${areaPath}" fill="url(#gradient${i})"/>`;
+
+                // Linie
+                svgContent += `<path class="line-path" d="${linePath}" stroke="${s.color}" stroke-width="2.5"/>`;
+            });
+
+            svg.innerHTML = svgContent;
+        }
+
+        // ============================================
+        // BEISPIEL 2: Quarterly Revenue (Minimal Style)
+        // ============================================
+
+        function renderChart2() {
+            const svg = document.getElementById('chart2');
+            const width = 1000, height = 400;
+            const margin = { top: 80, right: 80, bottom: 60, left: 80 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Daten
+            const categories = ['Q1 2022', '', '', '', '', '', '', 'Q4 2023'];
+            const values = [120, 128, 135, 142, 138, 152, 168, 175, 182, 198];
+
+            const minValue = Math.min(...values) * 0.85;
+            const maxValue = Math.max(...values) * 1.1;
+
+            function xScale(index) {
+                return margin.left + (index / (values.length - 1)) * chartWidth;
+            }
+            function yScale(value) {
+                return margin.top + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+            }
+
+            const chartBottom = margin.top + chartHeight;
+            let svgContent = '';
+
+            // Titel
+            svgContent += `<text class="chart-title-svg" x="${width/2}" y="30" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a1a">Quarterly Revenue</text>`;
+            svgContent += `<text x="${width/2}" y="50" text-anchor="middle" font-size="13" fill="#888" font-style="italic">in million euros</text>`;
+
+            // Change Badge
+            const changePercent = Math.round(((values[values.length - 1] - values[0]) / values[0]) * 100);
+            const badgeX = width / 2;
+            const badgeY = 72;
+            const badgeWidth = 60;
+            const badgeHeight = 24;
+            svgContent += `<rect class="change-badge-bg" x="${badgeX - badgeWidth/2}" y="${badgeY - badgeHeight/2}" width="${badgeWidth}" height="${badgeHeight}" fill="#2DC653"/>`;
+            svgContent += `<text class="change-badge" x="${badgeX}" y="${badgeY + 5}" text-anchor="middle" fill="white">+${changePercent}%</text>`;
+
+            // X-Achsen-Labels (nur Start und Ende)
+            svgContent += `<text class="x-axis-label" x="${xScale(0)}" y="${chartBottom + 25}" text-anchor="middle">Q1 2022</text>`;
+            svgContent += `<text class="x-axis-label" x="${xScale(values.length - 1)}" y="${chartBottom + 25}" text-anchor="middle">Q4 2023</text>`;
+
+            // Punkte für die Kurve
+            const points = values.map((v, idx) => ({ x: xScale(idx), y: yScale(v) }));
+
+            // Geglättete Linie
+            const linePath = monotoneCubic(points);
+            svgContent += `<path class="line-path" d="${linePath}" stroke="#E20074" stroke-width="3"/>`;
+
+            // Datenpunkte
+            points.forEach((p, i) => {
+                svgContent += `<circle class="data-point" cx="${p.x}" cy="${p.y}" r="5" fill="#E20074" stroke="white" stroke-width="2"/>`;
+            });
+
+            // Wert-Labels (Start und Ende)
+            svgContent += `<text class="value-label" x="${points[0].x - 15}" y="${points[0].y + 5}" text-anchor="end" font-size="16" fill="#1a1a1a">${values[0]}</text>`;
+            svgContent += `<text class="value-label" x="${points[points.length - 1].x + 15}" y="${points[points.length - 1].y + 5}" text-anchor="start" font-size="18" fill="#E20074">${values[values.length - 1]}</text>`;
+
+            svg.innerHTML = svgContent;
+        }
+
+        // ============================================
+        // BEISPIEL 3: Multi-Series mit End-Labels
+        // ============================================
+
+        function renderChart3() {
+            const svg = document.getElementById('chart3');
+            const width = 1000, height = 500;
+            const margin = { top: 60, right: 100, bottom: 60, left: 60 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Daten
+            const categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const series = [
+                { name: 'Product A', color: '#E20074', values: [85, 92, 88, 95, 102, 98, 108, 115, 122, 128, 135, 142] },
+                { name: 'Product B', color: '#0077B6', values: [65, 68, 72, 78, 82, 88, 92, 98, 102, 108, 112, 118] },
+                { name: 'Product C', color: '#2DC653', values: [45, 48, 52, 55, 58, 62, 68, 72, 78, 82, 88, 95] }
+            ];
+
+            const allValues = series.flatMap(s => s.values);
+            const minValue = Math.min(...allValues) * 0.9;
+            const maxValue = Math.max(...allValues) * 1.05;
+
+            function xScale(index) {
+                return margin.left + (index / (categories.length - 1)) * chartWidth;
+            }
+            function yScale(value) {
+                return margin.top + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+            }
+
+            const chartBottom = margin.top + chartHeight;
+            let svgContent = '';
+
+            // Gradient Definitions
+            svgContent += `<defs>`;
+            series.forEach((s, i) => {
+                svgContent += `
+                    <linearGradient id="grad3_${i}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:${s.color};stop-opacity:0.25"/>
+                        <stop offset="100%" style="stop-color:${s.color};stop-opacity:0"/>
+                    </linearGradient>`;
+            });
+            svgContent += `</defs>`;
+
+            // Titel
+            svgContent += `<text class="chart-title-svg" x="${width/2}" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a1a1a">Multi-Series Performance Comparison</text>`;
+            svgContent += `<text x="${width/2}" y="50" text-anchor="middle" font-size="12" fill="#666">Monthly sales in thousands</text>`;
+
+            // Gridlines
+            const yTicks = 5;
+            const yStep = (maxValue - minValue) / (yTicks - 1);
+            for (let i = 0; i < yTicks; i++) {
+                const value = minValue + i * yStep;
+                const y = yScale(value);
+                svgContent += `<line class="grid-line" x1="${margin.left}" y1="${y}" x2="${margin.left + chartWidth}" y2="${y}"/>`;
+                svgContent += `<text class="y-axis-label" x="${margin.left - 10}" y="${y}" text-anchor="end" dominant-baseline="middle">${Math.round(value)}</text>`;
+            }
+
+            // X-Achsen-Labels
+            categories.forEach((label, index) => {
+                const x = xScale(index);
+                svgContent += `<text class="x-axis-label" x="${x}" y="${chartBottom + 25}" text-anchor="middle">${label}</text>`;
+            });
+
+            // Serien zeichnen
+            series.forEach((s, i) => {
+                const points = s.values.map((v, idx) => ({ x: xScale(idx), y: yScale(v) }));
+                const linePath = catmullRomToBezier(points, 2.5);
+
+                // Area
+                const areaPath = createAreaPath(linePath, chartBottom, points[0].x, points[points.length - 1].x);
+                svgContent += `<path class="area-fill" d="${areaPath}" fill="url(#grad3_${i})"/>`;
+
+                // Linie
+                svgContent += `<path class="line-path" d="${linePath}" stroke="${s.color}" stroke-width="2.5"/>`;
+
+                // Datenpunkte
+                points.forEach(p => {
+                    svgContent += `<circle class="data-point" cx="${p.x}" cy="${p.y}" r="4" fill="${s.color}" stroke="white" stroke-width="2"/>`;
+                });
+
+                // End-Label
+                const lastPoint = points[points.length - 1];
+                const lastValue = s.values[s.values.length - 1];
+                svgContent += `<text class="value-label" x="${lastPoint.x + 12}" y="${lastPoint.y + 4}" text-anchor="start" font-size="13" fill="${s.color}" font-weight="bold">${lastValue} - ${s.name}</text>`;
+            });
+
+            svg.innerHTML = svgContent;
+        }
+
+        // ============================================
+        // BEISPIEL 4: Forecast mit Confidence Band
+        // ============================================
+
+        function renderChart4() {
+            const svg = document.getElementById('chart4');
+            const width = 1000, height = 500;
+            const margin = { top: 60, right: 60, bottom: 80, left: 70 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Daten
+            const categories = ['Q1 22', 'Q2 22', 'Q3 22', 'Q4 22', 'Q1 23', 'Q2 23', 'Q3 23', 'Q4 23', 'Q1 24', 'Q2 24', 'Q3 24', 'Q4 24'];
+            const actualValues = [120, 135, 142, 155, 148, 162, 175, 188, null, null, null, null];
+            const forecastValues = [null, null, null, null, null, null, null, 188, 195, 208, 218, 235];
+            const confidenceUpper = [null, null, null, null, null, null, null, 188, 205, 225, 245, 270];
+            const confidenceLower = [null, null, null, null, null, null, null, 188, 185, 192, 195, 200];
+
+            const splitIndex = 7; // Wo Actual endet und Forecast beginnt
+
+            const allValues = [...actualValues, ...forecastValues, ...confidenceUpper, ...confidenceLower].filter(v => v !== null);
+            const minValue = Math.min(...allValues) * 0.9;
+            const maxValue = Math.max(...allValues) * 1.05;
+
+            function xScale(index) {
+                return margin.left + (index / (categories.length - 1)) * chartWidth;
+            }
+            function yScale(value) {
+                return margin.top + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+            }
+
+            const chartBottom = margin.top + chartHeight;
+            let svgContent = '';
+
+            // Titel
+            svgContent += `<text class="chart-title-svg" x="${width/2}" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a1a1a">Revenue Forecast mit Confidence Band</text>`;
+            svgContent += `<text x="${width/2}" y="50" text-anchor="middle" font-size="12" fill="#666">in million euros</text>`;
+
+            // Gridlines
+            const yTicks = 6;
+            const yStep = (maxValue - minValue) / (yTicks - 1);
+            for (let i = 0; i < yTicks; i++) {
+                const value = minValue + i * yStep;
+                const y = yScale(value);
+                svgContent += `<line class="grid-line" x1="${margin.left}" y1="${y}" x2="${margin.left + chartWidth}" y2="${y}"/>`;
+                svgContent += `<text class="y-axis-label" x="${margin.left - 10}" y="${y}" text-anchor="end" dominant-baseline="middle">${Math.round(value)}</text>`;
+            }
+
+            // X-Achsen-Labels
+            categories.forEach((label, index) => {
+                const x = xScale(index);
+                svgContent += `<text class="x-axis-label" x="${x}" y="${chartBottom + 25}" text-anchor="middle">${label}</text>`;
+            });
+
+            // Vertikale Trennlinie (IST / Forecast)
+            const splitX = xScale(splitIndex);
+            svgContent += `<line x1="${splitX}" y1="${margin.top}" x2="${splitX}" y2="${chartBottom}" stroke="#999" stroke-width="1" stroke-dasharray="4,4"/>`;
+            svgContent += `<text x="${splitX - 10}" y="${margin.top - 10}" text-anchor="end" font-size="11" fill="#666">Actual</text>`;
+            svgContent += `<text x="${splitX + 10}" y="${margin.top - 10}" text-anchor="start" font-size="11" fill="#666">Forecast</text>`;
+
+            // Confidence Band
+            const confPoints = [];
+            for (let i = splitIndex; i < categories.length; i++) {
+                if (confidenceUpper[i] !== null) {
+                    confPoints.push({ x: xScale(i), upper: yScale(confidenceUpper[i]), lower: yScale(confidenceLower[i]) });
+                }
+            }
+
+            if (confPoints.length > 0) {
+                let bandPath = `M ${confPoints[0].x} ${confPoints[0].upper}`;
+                // Obere Linie
+                for (let i = 1; i < confPoints.length; i++) {
+                    bandPath += ` L ${confPoints[i].x} ${confPoints[i].upper}`;
+                }
+                // Untere Linie (rückwärts)
+                for (let i = confPoints.length - 1; i >= 0; i--) {
+                    bandPath += ` L ${confPoints[i].x} ${confPoints[i].lower}`;
+                }
+                bandPath += ' Z';
+                svgContent += `<path d="${bandPath}" fill="#E20074" fill-opacity="0.15"/>`;
+            }
+
+            // Actual Line
+            const actualPoints = actualValues
+                .map((v, i) => v !== null ? { x: xScale(i), y: yScale(v) } : null)
+                .filter(p => p !== null);
+
+            if (actualPoints.length > 0) {
+                const actualPath = catmullRomToBezier(actualPoints, 2);
+                svgContent += `<path class="line-path" d="${actualPath}" stroke="#1B4F72" stroke-width="3"/>`;
+                actualPoints.forEach(p => {
+                    svgContent += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#1B4F72" stroke="white" stroke-width="2"/>`;
+                });
+            }
+
+            // Forecast Line
+            const forecastPoints = forecastValues
+                .map((v, i) => v !== null ? { x: xScale(i), y: yScale(v) } : null)
+                .filter(p => p !== null);
+
+            if (forecastPoints.length > 0) {
+                const forecastPath = catmullRomToBezier(forecastPoints, 2);
+                svgContent += `<path class="line-path" d="${forecastPath}" stroke="#E20074" stroke-width="3" stroke-dasharray="8,4"/>`;
+                forecastPoints.forEach(p => {
+                    svgContent += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#E20074" stroke="white" stroke-width="2"/>`;
+                });
+            }
+
+            // Legende
+            const legendY = height - 25;
+            svgContent += `<line x1="${width/2 - 150}" y1="${legendY}" x2="${width/2 - 120}" y2="${legendY}" stroke="#1B4F72" stroke-width="3"/>`;
+            svgContent += `<text x="${width/2 - 115}" y="${legendY + 4}" font-size="12" fill="#333">Actual</text>`;
+
+            svgContent += `<line x1="${width/2 - 30}" y1="${legendY}" x2="${width/2}" y2="${legendY}" stroke="#E20074" stroke-width="3" stroke-dasharray="8,4"/>`;
+            svgContent += `<text x="${width/2 + 5}" y="${legendY + 4}" font-size="12" fill="#333">Forecast</text>`;
+
+            svgContent += `<rect x="${width/2 + 80}" y="${legendY - 6}" width="20" height="12" fill="#E20074" fill-opacity="0.15"/>`;
+            svgContent += `<text x="${width/2 + 105}" y="${legendY + 4}" font-size="12" fill="#333">Confidence Band</text>`;
+
+            svg.innerHTML = svgContent;
+        }
+
+        // ============================================
+        // BEISPIEL 5: YoY Comparison
+        // ============================================
+
+        function renderChart5() {
+            const svg = document.getElementById('chart5');
+            const width = 1000, height = 500;
+            const margin = { top: 60, right: 80, bottom: 80, left: 70 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Daten
+            const categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const currentYear = [85, 92, 98, 105, 118, 125, 135, 142, 138, 145, 152, 165];
+            const previousYear = [72, 78, 82, 88, 95, 102, 108, 115, 112, 118, 125, 132];
+
+            const allValues = [...currentYear, ...previousYear];
+            const minValue = Math.min(...allValues) * 0.9;
+            const maxValue = Math.max(...allValues) * 1.1;
+
+            function xScale(index) {
+                return margin.left + (index / (categories.length - 1)) * chartWidth;
+            }
+            function yScale(value) {
+                return margin.top + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+            }
+
+            const chartBottom = margin.top + chartHeight;
+            let svgContent = '';
+
+            // Titel
+            svgContent += `<text class="chart-title-svg" x="${width/2}" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a1a1a">Year-over-Year Comparison</text>`;
+            svgContent += `<text x="${width/2}" y="50" text-anchor="middle" font-size="12" fill="#666">Monthly revenue in million euros</text>`;
+
+            // Gridlines
+            const yTicks = 6;
+            const yStep = (maxValue - minValue) / (yTicks - 1);
+            for (let i = 0; i < yTicks; i++) {
+                const value = minValue + i * yStep;
+                const y = yScale(value);
+                svgContent += `<line class="grid-line" x1="${margin.left}" y1="${y}" x2="${margin.left + chartWidth}" y2="${y}"/>`;
+                svgContent += `<text class="y-axis-label" x="${margin.left - 10}" y="${y}" text-anchor="end" dominant-baseline="middle">${Math.round(value)}</text>`;
+            }
+
+            // X-Achsen-Labels
+            categories.forEach((label, index) => {
+                const x = xScale(index);
+                svgContent += `<text class="x-axis-label" x="${x}" y="${chartBottom + 25}" text-anchor="middle">${label}</text>`;
+            });
+
+            // Differenz-Fläche
+            const currentPoints = currentYear.map((v, i) => ({ x: xScale(i), y: yScale(v) }));
+            const previousPoints = previousYear.map((v, i) => ({ x: xScale(i), y: yScale(v) }));
+
+            // Area zwischen den Linien
+            let diffPath = `M ${currentPoints[0].x} ${currentPoints[0].y}`;
+            for (let i = 1; i < currentPoints.length; i++) {
+                const p0 = currentPoints[Math.max(0, i - 1)];
+                const p1 = currentPoints[i];
+                const cpx1 = p0.x + (p1.x - currentPoints[Math.max(0, i - 2)].x) / 6 * 2;
+                const cpy1 = p0.y + (p1.y - currentPoints[Math.max(0, i - 2)].y) / 6 * 2;
+                const cpx2 = p1.x - (currentPoints[Math.min(currentPoints.length - 1, i + 1)].x - p0.x) / 6 * 2;
+                const cpy2 = p1.y - (currentPoints[Math.min(currentPoints.length - 1, i + 1)].y - p0.y) / 6 * 2;
+                diffPath += ` C ${cpx1} ${cpy1}, ${cpx2} ${cpy2}, ${p1.x} ${p1.y}`;
+            }
+            // Zurück über die Previous-Linie
+            for (let i = previousPoints.length - 1; i >= 0; i--) {
+                diffPath += ` L ${previousPoints[i].x} ${previousPoints[i].y}`;
+            }
+            diffPath += ' Z';
+            svgContent += `<path d="${diffPath}" fill="#2DC653" fill-opacity="0.2"/>`;
+
+            // Previous Year Line (heller/gestrichelt)
+            const prevPath = catmullRomToBezier(previousPoints, 2.5);
+            svgContent += `<path class="line-path" d="${prevPath}" stroke="#999" stroke-width="2" stroke-dasharray="6,3"/>`;
+
+            // Current Year Line
+            const currPath = catmullRomToBezier(currentPoints, 2.5);
+            svgContent += `<path class="line-path" d="${currPath}" stroke="#E20074" stroke-width="3"/>`;
+
+            // Datenpunkte Current Year
+            currentPoints.forEach((p, i) => {
+                svgContent += `<circle class="data-point" cx="${p.x}" cy="${p.y}" r="5" fill="#E20074" stroke="white" stroke-width="2"/>`;
+            });
+
+            // Peak Annotation
+            const peakIndex = currentYear.indexOf(Math.max(...currentYear));
+            const peakPoint = currentPoints[peakIndex];
+            const peakValue = currentYear[peakIndex];
+
+            svgContent += `<line x1="${peakPoint.x}" y1="${peakPoint.y - 10}" x2="${peakPoint.x}" y2="${peakPoint.y - 35}" stroke="#333" stroke-width="1"/>`;
+            svgContent += `<rect x="${peakPoint.x - 30}" y="${peakPoint.y - 55}" width="60" height="20" rx="4" fill="#333"/>`;
+            svgContent += `<text x="${peakPoint.x}" y="${peakPoint.y - 41}" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Peak: ${peakValue}</text>`;
+
+            // End-Labels
+            const lastCurrent = currentPoints[currentPoints.length - 1];
+            const lastPrev = previousPoints[previousPoints.length - 1];
+            svgContent += `<text x="${lastCurrent.x + 12}" y="${lastCurrent.y}" text-anchor="start" font-size="13" font-weight="bold" fill="#E20074">${currentYear[currentYear.length - 1]} (2024)</text>`;
+            svgContent += `<text x="${lastPrev.x + 12}" y="${lastPrev.y}" text-anchor="start" font-size="12" fill="#999">${previousYear[previousYear.length - 1]} (2023)</text>`;
+
+            // Legende
+            const legendY = height - 25;
+            svgContent += `<line x1="${width/2 - 120}" y1="${legendY}" x2="${width/2 - 90}" y2="${legendY}" stroke="#E20074" stroke-width="3"/>`;
+            svgContent += `<circle cx="${width/2 - 105}" cy="${legendY}" r="4" fill="#E20074"/>`;
+            svgContent += `<text x="${width/2 - 82}" y="${legendY + 4}" font-size="12" fill="#333">2024 (Current)</text>`;
+
+            svgContent += `<line x1="${width/2 + 40}" y1="${legendY}" x2="${width/2 + 70}" y2="${legendY}" stroke="#999" stroke-width="2" stroke-dasharray="6,3"/>`;
+            svgContent += `<text x="${width/2 + 78}" y="${legendY + 4}" font-size="12" fill="#333">2023 (Previous)</text>`;
+
+            svg.innerHTML = svgContent;
+        }
+
+        // ============================================
+        // ALLE CHARTS RENDERN
+        // ============================================
+
+        renderChart1();
+        renderChart2();
+        renderChart3();
+        renderChart4();
+        renderChart5();
+    </script>
+</body>
+</html>

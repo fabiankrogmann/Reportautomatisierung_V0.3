@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DATA-ANALYZER Ergebnisse</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafbfc;
+            color: #374151;
+            line-height: 1.6;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        h1 {
+            color: #1f2937;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .empty-state-icon {
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-text {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-link {
+            display: inline-block;
+            padding: 10px 24px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .empty-state-link:hover {
+            background: #2563eb;
+        }
+
+        /* Result Card */
+        .result-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .result-header {
+            padding: 20px 24px;
+            background: linear-gradient(to right, #f9fafb, #f3f4f6);
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-name {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: #1f2937;
+            background: linear-gradient(to bottom, #fef08a 60%, #fde047 100%);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .sheet-name {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 3px 8px;
+            border-radius: 3px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .quality-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 6px 14px;
+            border-radius: 6px;
+        }
+
+        .quality-badge.high {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .quality-badge.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .quality-badge.low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .result-content {
+            padding: 24px;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        /* Data Grid */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .data-item {
+            padding: 14px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .data-label {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+
+        .data-value {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .data-hint {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        /* Recommendation */
+        .recommendation {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation.changed {
+            background: #fefce8;
+            border-color: #fde047;
+        }
+
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-label {
+            font-size: 0.75rem;
+            color: #166534;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        .recommendation.changed .recommendation-label {
+            color: #a16207;
+        }
+
+        .recommendation-chart {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #166534;
+            transition: color 0.3s ease;
+        }
+
+        .recommendation.changed .recommendation-chart {
+            color: #a16207;
+        }
+
+        .recommendation-text {
+            font-size: 0.9rem;
+            color: #15803d;
+            margin-bottom: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .recommendation.changed .recommendation-text {
+            color: #ca8a04;
+        }
+
+        /* Chart Type Selection */
+        .chart-type-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chart-type-btn {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #6b7280;
+        }
+
+        .chart-type-btn:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+        }
+
+        .chart-type-btn.selected {
+            border-color: #3b82f6;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Wenn nicht-empfohlener Chart ausgewählt: Gelb statt Blau */
+        .chart-type-btn.selected.changed-selection {
+            border-color: #f59e0b;
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .chart-type-btn.recommended {
+            border-color: #10b981;
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .chart-type-btn.recommended.selected {
+            border-color: #059669;
+            background: #a7f3d0;
+            color: #064e3b;
+        }
+
+        /* Empfohlener Button wenn anderer Chart ausgewählt: Grün deaktivieren */
+        .chart-type-btn.recommended.inactive {
+            border-color: #d1d5db;
+            background: white;
+            color: #6b7280;
+        }
+
+        .chart-type-btn .recommended-tag {
+            font-size: 0.65rem;
+            margin-left: 4px;
+            opacity: 0.8;
+        }
+
+        /* Chart Count Slider */
+        .chart-count-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .chart-count-container {
+            max-width: 280px;
+        }
+
+        .chart-count-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .chart-count-label span {
+            font-size: 0.85rem;
+            color: #4b5563;
+        }
+
+        .chart-count-value {
+            font-weight: 600;
+            color: #1f2937;
+            background: #f3f4f6;
+            padding: 2px 10px;
+            border-radius: 4px;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .chart-count-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e5e7eb;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .chart-count-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .chart-count-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            background: #2563eb;
+        }
+
+        .chart-count-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 0.7rem;
+            color: #9ca3af;
+            padding: 0 2px;
+        }
+
+        /* Positions Tags */
+        .tag-section {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tag-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .tag-group-title {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 8px;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .tag.summary { background: #fef3c7; color: #92400e; }
+        .tag.expense { background: #fee2e2; color: #991b1b; }
+        .tag.income { background: #d1fae5; color: #065f46; }
+        .tag.neutral { background: #e5e7eb; color: #4b5563; }
+        .tag.group { background: #dbeafe; color: #1e40af; }
+        .tag.detail { background: #f3e8ff; color: #7c3aed; }
+
+        .hierarchy-hint {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #6b7280;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        /* Config Preview */
+        .config-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: 1px solid #e5e7eb;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #6b7280;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .config-toggle:hover {
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        .config-toggle .arrow {
+            transition: transform 0.2s;
+        }
+
+        .config-toggle.open .arrow {
+            transform: rotate(90deg);
+        }
+
+        .config-content {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .config-content.open {
+            display: block;
+        }
+
+        .config-preview {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .config-preview .key { color: #67e8f9; }
+        .config-preview .string { color: #a5f3fc; }
+        .config-preview .number { color: #fcd34d; }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        /* Demo Banner */
+        .demo-banner {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: #1e40af;
+        }
+
+        .demo-banner-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+
+        /* Data Table */
+        .data-table-section {
+            margin-top: 24px;
+        }
+
+        .data-table-container {
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .data-table th {
+            background: #f9fafb;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #4b5563;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .data-table .numeric {
+            text-align: right;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .data-table .negative {
+            color: #dc2626;
+        }
+
+        .data-table .positive {
+            color: #16a34a;
+        }
+
+        .show-more-btn {
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .show-more-btn:hover {
+            background: #e5e7eb;
+        }
+
+        /* Data Quality */
+        .quality-details {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .quality-issues,
+        .quality-assumptions {
+            margin-bottom: 12px;
+        }
+
+        .quality-issues:last-child,
+        .quality-assumptions:last-child {
+            margin-bottom: 0;
+        }
+
+        .quality-icon {
+            margin-right: 6px;
+        }
+
+        .quality-details ul {
+            margin: 8px 0 0 24px;
+            padding: 0;
+        }
+
+        .quality-details li {
+            font-size: 0.85rem;
+            color: #92400e;
+            margin-bottom: 4px;
+        }
+
+        /* Editable Fields */
+        .data-value-editable {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .data-value-editable .value-text {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .data-value-editable .value-text.placeholder {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .data-value-editable .edit-btn {
+            background: none;
+            border: none;
+            padding: 2px 6px;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .data-value-editable .edit-btn:hover {
+            background: #f3f4f6;
+            color: #3b82f6;
+        }
+
+        .data-value-editable .edit-input {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 120px;
+        }
+
+        .data-value-editable .edit-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .data-value-editable .edit-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .data-value-editable .edit-actions button {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .data-value-editable .save-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .data-value-editable .cancel-btn {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        /* Extended Grid for 3 columns */
+        .data-grid-extended {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .data-grid-extended {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+            .action-bar {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DATA-ANALYZER Ergebnisse</h1>
+            <p class="subtitle" id="subtitle">Analyse wird geladen...</p>
+        </header>
+
+        <!-- Demo Banner -->
+        <div class="demo-banner" id="demoBanner" style="display: none;">
+            <span class="demo-banner-icon">▶</span>
+            <span><strong>Demo-Modus:</strong> Du siehst Beispieldaten einer GuV-Analyse.</span>
+        </div>
+
+        <div id="results-container">
+            <!-- Result will be dynamically inserted here -->
+        </div>
+
+        <div class="action-bar" id="action-bar" style="display: none;">
+            <a href="upload.html" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Neue Analyse
+            </a>
+            <button class="btn btn-primary" onclick="goToColors()">
+                Farben wählen
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+
+        <footer>
+            DATA-ANALYZER Ergebnisse &middot; <span id="currentDate"></span>
+        </footer>
+    </div>
+
+    <script>
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('de-DE');
+
+        // Global storage for the parsed result
+        let analysisResult = null;
+        let selectedChartType = null;
+        let recommendedChartType = null;
+        let selectedChartCount = 5; // Default: 5 Charts generieren
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadResult();
+
+            // Zeige Demo-Banner wenn im Demo-Modus
+            if (sessionStorage.getItem('isDemo') === 'true') {
+                document.getElementById('demoBanner').style.display = 'flex';
+            }
+        });
+
+        function loadResult() {
+            // Read from singular key 'analysisResult' (not 'analysisResults')
+            const resultJson = sessionStorage.getItem('analysisResult');
+
+            if (!resultJson) {
+                showEmptyState();
+                return;
+            }
+
+            try {
+                const result = JSON.parse(resultJson);
+                if (!result) {
+                    showEmptyState();
+                    return;
+                }
+
+                // Parse the API response
+                const parsed = parseApiResponse(result.result);
+
+                analysisResult = {
+                    ...result,
+                    parsed: parsed
+                };
+
+                // Set initial selected chart type and store recommended type
+                // Chart-Mix ist IMMER die Standard-Auswahl auf dieser Seite
+                // Der User kann einen anderen Typ wählen, aber der Default ist immer Chart-Mix
+                recommendedChartType = 'chart-mix';
+
+                // WICHTIG: Wir setzen selectedChartType IMMER auf chart-mix als Default
+                // AUSSER der User hat auf DIESER Seite explizit einen anderen Typ gewählt
+                // (erkennbar am Flag _userSelectedChart)
+
+                // Stelle sicher, dass parsed.recommendation existiert
+                if (!parsed.recommendation) {
+                    parsed.recommendation = {};
+                }
+
+                const wasUserSelected = parsed.recommendation._userSelectedChart === true;
+
+                console.log('=== CHART-TYPE DEBUG (results.html) ===');
+                console.log('parsed.recommendation:', parsed.recommendation);
+                console.log('_userSelectedChart flag:', parsed.recommendation?._userSelectedChart);
+                console.log('wasUserSelected:', wasUserSelected);
+
+                if (wasUserSelected && parsed.recommendation?.selectedChart) {
+                    // User hat auf dieser Seite explizit gewählt - diese Auswahl behalten
+                    selectedChartType = parsed.recommendation.selectedChart;
+                    console.log('User-Auswahl beibehalten:', selectedChartType);
+                } else {
+                    // Noch keine User-Auswahl ODER neue Session - Default auf chart-mix setzen
+                    selectedChartType = 'chart-mix';
+                    parsed.recommendation.selectedChart = 'chart-mix';
+                    // Lösche das Flag, da wir neu starten
+                    delete parsed.recommendation._userSelectedChart;
+                    console.log('selectedChart auf chart-mix gesetzt (Default)');
+                }
+                console.log('Finaler selectedChartType:', selectedChartType);
+                console.log('=== END DEBUG ===');
+
+                // Restore chart count if previously set
+                if (parsed.recommendation?.chartCount) {
+                    selectedChartCount = parsed.recommendation.chartCount;
+                } else {
+                    // Setze auch chartCount auf Default
+                    parsed.recommendation.chartCount = selectedChartCount;
+                }
+
+                // Update subtitle
+                document.getElementById('subtitle').textContent = `Automatische Analyse von "${result.fileName}"`;
+
+                // Speichere die aktualisierten Defaults sofort in sessionStorage
+                // Damit sie auch bei direkter Navigation zu charts.html verfügbar sind
+                const updatedResult = {
+                    fileName: analysisResult.fileName,
+                    sheetName: analysisResult.sheetName,
+                    displayName: analysisResult.displayName,
+                    csvData: analysisResult.csvData,  // WICHTIG: csvData behalten
+                    rawData: analysisResult.rawData,  // Falls rawData verwendet wird
+                    result: JSON.stringify(parsed)
+                };
+                sessionStorage.setItem('analysisResult', JSON.stringify(updatedResult));
+                console.log('analysisResult mit Defaults gespeichert:', parsed.recommendation);
+
+                // Render the result
+                renderResult(analysisResult);
+                document.getElementById('action-bar').style.display = 'flex';
+
+            } catch (error) {
+                console.error('Error parsing result:', error);
+                showErrorState(error.message);
+            }
+        }
+
+        function parseApiResponse(responseText) {
+            try {
+                return JSON.parse(responseText);
+            } catch (e) {
+                // Try to find JSON in markdown code fence
+                const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/);
+                if (jsonMatch) {
+                    try {
+                        return JSON.parse(jsonMatch[1].trim());
+                    } catch (e2) {}
+                }
+
+                // Try to find raw JSON object
+                const objectMatch = responseText.match(/\{[\s\S]*\}/);
+                if (objectMatch) {
+                    try {
+                        return JSON.parse(objectMatch[0]);
+                    } catch (e3) {}
+                }
+
+                // Return default structure
+                return {
+                    analysis: { dataFormat: 'unknown' },
+                    recommendation: { primaryChart: 'bar' },
+                    configs: {},
+                    metadata: {}
+                };
+            }
+        }
+
+        function renderResult(item) {
+            const { parsed, fileName, sheetName } = item;
+            const analysis = parsed.analysis || {};
+            const recommendation = parsed.recommendation || {};
+            const configs = parsed.configs || {};
+
+            // Berechne Datenqualität basierend auf konkreten Kriterien
+            const qualityResult = calculateDataQuality(analysis, parsed.metadata);
+            const quality = qualityResult.level;
+            const qualityLabel = qualityResult.label;
+
+            const container = document.getElementById('results-container');
+            container.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <h2>
+                            <span class="file-name">${escapeHtml(fileName)}</span>
+                            ${sheetName ? `<span class="sheet-name">${escapeHtml(sheetName)}</span>` : ''}
+                        </h2>
+                        <span class="quality-badge ${quality}" title="Score: ${Math.round(qualityResult.percentage)}%&#10;${qualityResult.details.join('&#10;')}">Datenqualität: ${qualityLabel}</span>
+                    </div>
+                    <div class="result-content">
+                        ${renderStructureSection(analysis)}
+                        ${renderPositionsSection(analysis)}
+                        ${renderDataQualitySection(analysis.dataQuality)}
+                        ${renderConfigSection(configs)}
+                        ${renderRecommendationSection(recommendation)}
+                        ${renderDataTableSection(item.csvData)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStructureSection(analysis) {
+            const format = analysis.dataFormat || 'unbekannt';
+            const formatLabels = {
+                'matrix-simple': 'Einfache Matrix',
+                'matrix-complex': 'Hierarchisch / Verschachtelt',
+                'fact-table': 'Faktentabelle',
+                'unknown': 'Unbekannt'
+            };
+            const formatDescriptions = {
+                'matrix-simple': 'Zeilen = Positionen, Spalten = Wertarten',
+                'matrix-complex': 'Mehrzeilige Header, verschachtelte Struktur',
+                'fact-table': 'Eine Zeile pro Datenpunkt',
+                'unknown': ''
+            };
+            const formatLabel = formatLabels[format] || format;
+            const formatDescription = formatDescriptions[format] || '';
+
+            // Zeitraum-Label erstellen
+            const timeRange = analysis.timeRange || {};
+            const timeRangeLabel = getTimeRangeLabel(timeRange);
+            const yearValue = getYearValue(timeRange);
+
+            // Einheit: Platzhalter filtern
+            const unitValue = analysis.detectedUnit && !isPlaceholder(analysis.detectedUnit)
+                ? analysis.detectedUnit
+                : '';
+
+            return `
+                <div class="section">
+                    <div class="section-title">Erkannte Struktur</div>
+                    <div class="data-grid-extended">
+                        <div class="data-item">
+                            <div class="data-label">Format</div>
+                            <div class="data-value">${escapeHtml(formatLabel)}${formatDescription ? `<div class="data-hint">${escapeHtml(formatDescription)}</div>` : ''}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Zeilen / Spalten</div>
+                            <div class="data-value">${analysis.rowCount || '-'} / ${analysis.columnCount || '-'}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Einheit</div>
+                            <div class="data-value-editable" id="edit-unit">
+                                <span class="value-text ${!unitValue ? 'placeholder' : ''}">${escapeHtml(unitValue) || '-'}</span>
+                                <button class="edit-btn" onclick="startEdit('unit', '${escapeHtml(unitValue)}')">✎</button>
+                            </div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Wertarten</div>
+                            <div class="data-value">${escapeHtml(analysis.valueTypes?.join(', ') || '-')}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Zeitraum</div>
+                            <div class="data-value-editable" id="edit-timerange">
+                                <span class="value-text ${!timeRangeLabel ? 'placeholder' : ''}">${escapeHtml(timeRangeLabel) || '-'}</span>
+                                <button class="edit-btn" onclick="startEdit('timerange', '${escapeHtml(timeRangeLabel)}')">✎</button>
+                            </div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Jahr</div>
+                            <div class="data-value-editable" id="edit-year">
+                                <span class="value-text ${!yearValue ? 'placeholder' : ''}">${escapeHtml(yearValue) || '-'}</span>
+                                <button class="edit-btn" onclick="startEdit('year', '${escapeHtml(yearValue)}')">✎</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Berechnet die Datenqualität basierend auf konkreten Kriterien
+         *
+         * Kriterien für HOCH (alle müssen erfüllt sein):
+         * - Format erkannt (nicht "unknown")
+         * - Mindestens 2 Wertarten erkannt (z.B. IST, FC)
+         * - Mindestens 1 Summenzeile erkannt
+         * - Mindestens 1 Aufwands- ODER Ertragsposition erkannt
+         * - Keine kritischen Issues
+         *
+         * Kriterien für MITTEL:
+         * - Format erkannt
+         * - Mindestens 1 Wertart erkannt
+         * - Einige Positionen erkannt
+         *
+         * Kriterien für NIEDRIG:
+         * - Wenige oder keine Strukturen erkannt
+         * - Kritische Issues vorhanden
+         */
+        function calculateDataQuality(analysis, metadata) {
+            let score = 0;
+            const maxScore = 10;
+            const details = [];
+
+            // 1. Format erkannt? (0-2 Punkte)
+            const format = analysis.dataFormat || 'unknown';
+            if (format !== 'unknown' && format !== 'unbekannt') {
+                score += 2;
+                details.push('Format erkannt');
+            }
+
+            // 2. Wertarten erkannt? (0-2 Punkte)
+            const valueTypes = analysis.valueTypes || [];
+            if (valueTypes.length >= 2) {
+                score += 2;
+                details.push(`${valueTypes.length} Wertarten`);
+            } else if (valueTypes.length === 1) {
+                score += 1;
+                details.push('1 Wertart');
+            }
+
+            // 3. Positionen erkannt? (0-3 Punkte)
+            const positions = analysis.positions || {};
+            const summaryCount = (positions.summary || []).length;
+            const expenseCount = (positions.expenses || []).length;
+            const incomeCount = (positions.income || []).length;
+
+            if (summaryCount > 0) {
+                score += 1;
+                details.push(`${summaryCount} Summenzeilen`);
+            }
+            if (expenseCount > 0) {
+                score += 1;
+                details.push(`${expenseCount} Aufwand`);
+            }
+            if (incomeCount > 0) {
+                score += 1;
+                details.push(`${incomeCount} Ertrag`);
+            }
+
+            // 4. Zeitraum/Jahr erkannt? (0-1 Punkt)
+            const timeRange = analysis.timeRange || {};
+            if (timeRange.year && !isPlaceholder(timeRange.year)) {
+                score += 0.5;
+            }
+            if (timeRange.type && !isPlaceholder(timeRange.type)) {
+                score += 0.5;
+            }
+
+            // 5. Abzüge für Issues (-1 pro Issue, max -2)
+            const issues = analysis.dataQuality?.issues || [];
+            score -= Math.min(issues.length, 2);
+
+            // Normalisiere Score
+            score = Math.max(0, Math.min(maxScore, score));
+            const percentage = (score / maxScore) * 100;
+
+            // Bestimme Level
+            let level, label;
+            if (percentage >= 70) {
+                level = 'high';
+                label = 'Hoch';
+            } else if (percentage >= 40) {
+                level = 'medium';
+                label = 'Mittel';
+            } else {
+                level = 'low';
+                label = 'Niedrig';
+            }
+
+            return { level, label, score, percentage, details };
+        }
+
+        // Hilfsfunktion: Prüft ob ein Wert ein Platzhalter ist
+        function isPlaceholder(value) {
+            if (!value) return true;
+            const placeholders = ['current', 'unknown', 'n/a', 'none', '-', 'null', 'undefined'];
+            return placeholders.includes(String(value).toLowerCase().trim());
+        }
+
+        function getTimeRangeLabel(timeRange) {
+            // Keine Zeitraum-Info vorhanden
+            if (!timeRange) return '';
+
+            // Prüfe ob tatsächlich Zeitraum-Informationen existieren
+            const hasType = timeRange.type && !isPlaceholder(timeRange.type);
+            const hasPeriods = timeRange.periods && timeRange.periods.length > 0 &&
+                              !timeRange.periods.every(p => isPlaceholder(p));
+            const hasYear = timeRange.year && !isPlaceholder(timeRange.year);
+
+            // Wenn weder Typ noch Perioden noch Jahr vorhanden, zeige leeren String
+            if (!hasType && !hasPeriods && !hasYear) return '';
+
+            const typeLabels = {
+                'single': 'Einzelmonat',
+                'cumulative': 'Kumuliert',
+                'both': 'Einzel + Kumuliert',
+                'multi-period': 'Mehrere Perioden'
+            };
+
+            const typeLabel = hasType ? (typeLabels[timeRange.type] || timeRange.type) : '';
+            const periods = hasPeriods ? timeRange.periods.filter(p => !isPlaceholder(p)).join(', ') : '';
+
+            if (typeLabel && periods) {
+                return `${typeLabel} (${periods})`;
+            } else if (typeLabel) {
+                return typeLabel;
+            } else if (periods) {
+                return periods;
+            }
+            return '';
+        }
+
+        function getYearValue(timeRange) {
+            if (!timeRange || !timeRange.year || isPlaceholder(timeRange.year)) {
+                return '';
+            }
+            return timeRange.year;
+        }
+
+        // Überschriebene Werte speichern
+        let userOverrides = {
+            unit: null,
+            timerange: null,
+            year: null
+        };
+
+        function startEdit(field, currentValue) {
+            const container = document.getElementById(`edit-${field}`);
+            const placeholder = getPlaceholderText(field);
+
+            container.innerHTML = `
+                <input type="text" class="edit-input" value="${escapeHtml(currentValue)}"
+                       placeholder="${placeholder}" id="input-${field}"
+                       onkeydown="handleEditKeydown(event, '${field}')">
+                <div class="edit-actions">
+                    <button class="save-btn" onclick="saveEdit('${field}')">OK</button>
+                    <button class="cancel-btn" onclick="cancelEdit('${field}', '${escapeHtml(currentValue)}')">✕</button>
+                </div>
+            `;
+
+            // Focus und Text selektieren
+            const input = document.getElementById(`input-${field}`);
+            input.focus();
+            input.select();
+        }
+
+        function getPlaceholderText(field) {
+            const placeholders = {
+                'unit': 'z.B. TEUR, Mio €',
+                'timerange': 'z.B. JAN-DEZ, Q1-Q4',
+                'year': 'z.B. 2025'
+            };
+            return placeholders[field] || '';
+        }
+
+        function handleEditKeydown(event, field) {
+            if (event.key === 'Enter') {
+                saveEdit(field);
+            } else if (event.key === 'Escape') {
+                const originalValue = userOverrides[field] !== null ? userOverrides[field] : getOriginalValue(field);
+                cancelEdit(field, originalValue);
+            }
+        }
+
+        function getOriginalValue(field) {
+            if (!analysisResult?.parsed?.analysis) return '';
+
+            const analysis = analysisResult.parsed.analysis;
+            switch (field) {
+                case 'unit':
+                    const unit = analysis.detectedUnit;
+                    return (unit && !isPlaceholder(unit)) ? unit : '';
+                case 'timerange':
+                    return getTimeRangeLabel(analysis.timeRange || {});
+                case 'year':
+                    return getYearValue(analysis.timeRange || {});
+                default:
+                    return '';
+            }
+        }
+
+        function saveEdit(field) {
+            const input = document.getElementById(`input-${field}`);
+            const newValue = input.value.trim();
+
+            // Speichere den neuen Wert
+            userOverrides[field] = newValue;
+
+            // Update die Anzeige
+            updateEditDisplay(field, newValue);
+
+            // Speichere im analysisResult für späteren Export
+            updateAnalysisResult(field, newValue);
+        }
+
+        function cancelEdit(field, originalValue) {
+            // Hole den aktuell gültigen Wert (Override oder Original)
+            const displayValue = userOverrides[field] !== null ? userOverrides[field] : originalValue;
+            updateEditDisplay(field, displayValue);
+        }
+
+        function updateEditDisplay(field, value) {
+            const container = document.getElementById(`edit-${field}`);
+            const isEmpty = !value;
+
+            container.innerHTML = `
+                <span class="value-text ${isEmpty ? 'placeholder' : ''}">${escapeHtml(value) || '-'}</span>
+                <button class="edit-btn" onclick="startEdit('${field}', '${escapeHtml(value)}')">✎</button>
+            `;
+        }
+
+        function updateAnalysisResult(field, value) {
+            if (!analysisResult?.parsed) return;
+
+            // Stelle sicher dass die Struktur existiert
+            if (!analysisResult.parsed.userOverrides) {
+                analysisResult.parsed.userOverrides = {};
+            }
+
+            analysisResult.parsed.userOverrides[field] = value;
+
+            // Update auch die metadata für den Chart-Generator
+            if (!analysisResult.parsed.metadata) {
+                analysisResult.parsed.metadata = {};
+            }
+
+            switch (field) {
+                case 'unit':
+                    analysisResult.parsed.metadata.overrideUnit = value;
+                    break;
+                case 'timerange':
+                    analysisResult.parsed.metadata.overrideTimeRange = value;
+                    break;
+                case 'year':
+                    analysisResult.parsed.metadata.overrideYear = value;
+                    break;
+            }
+        }
+
+        function renderDataQualitySection(dataQuality) {
+            const assumptions = dataQuality?.assumptions || [];
+            const issues = dataQuality?.issues || [];
+
+            if (assumptions.length === 0 && issues.length === 0) return '';
+
+            return `
+                <div class="section">
+                    <div class="section-title">Datenqualität</div>
+                    <div class="quality-details">
+                        ${issues.length > 0 ? `
+                            <div class="quality-issues">
+                                <span class="quality-icon">⚠️</span>
+                                <strong>Probleme:</strong>
+                                <ul>${issues.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
+                            </div>
+                        ` : ''}
+                        ${assumptions.length > 0 ? `
+                            <div class="quality-assumptions">
+                                <span class="quality-icon">ℹ️</span>
+                                <strong>Annahmen:</strong>
+                                <ul>${assumptions.map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRecommendationSection(recommendation) {
+            // Chart-Mix ist immer die erste Option und die Standard-Empfehlung
+            // Danach kommen die einzelnen Chart-Typen als Alternativen
+            const allCharts = ['chart-mix', 'waterfall', 'bar', 'stacked-bar'];
+
+            // Chart-Mix Beschreibung
+            const mixDescription = 'Der Chart-Mix erstellt automatisch eine optimale Kombination aus Waterfall, Bar und Stacked Bar Charts basierend auf Ihren Daten.';
+            const singleTypeDescription = recommendation.reasoning || 'Basierend auf der erkannten Datenstruktur.';
+
+            // Zeige je nach Auswahl unterschiedliche Beschreibung
+            const isChartMix = selectedChartType === 'chart-mix';
+            const displayText = isChartMix ? mixDescription : singleTypeDescription;
+
+            return `
+                <div class="section">
+                    <div class="section-title">Chart-Typ</div>
+                    <div class="recommendation">
+                        <div class="recommendation-text" id="chartTypeDescription">${escapeHtml(displayText)}</div>
+                        <div class="chart-type-selector">
+                            ${allCharts.map(chart => `
+                                <button class="chart-type-btn ${chart === selectedChartType ? 'selected' : ''} ${chart === 'chart-mix' ? 'recommended' : ''}"
+                                        onclick="selectChartType('${chart}')"
+                                        data-chart="${chart}">
+                                    ${getChartLabel(chart)}
+                                    ${chart === 'chart-mix' ? '<span class="recommended-tag">(Empf.)</span>' : ''}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <div class="chart-count-section">
+                            <div class="chart-count-container">
+                                <div class="chart-count-label">
+                                    <span>Anzahl Charts</span>
+                                    <span class="chart-count-value" id="chartCountValue">${selectedChartCount}</span>
+                                </div>
+                                <input type="range"
+                                       class="chart-count-slider"
+                                       id="chartCountSlider"
+                                       min="1"
+                                       max="10"
+                                       value="${selectedChartCount}"
+                                       oninput="updateChartCount(this.value)">
+                                <div class="slider-labels">
+                                    <span>1</span>
+                                    <span>5</span>
+                                    <span>10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPositionsSection(analysis) {
+            const positions = analysis.positions || {};
+            const summary = positions.summary || [];
+            const detail = positions.detail || [];
+            const groups = positions.groups || [];
+            const expenses = positions.expenses || [];
+            const income = positions.income || [];
+            const hierarchy = analysis.hierarchy || {};
+
+            // Prüfe ob es überhaupt Positionen gibt
+            const hasPositions = summary.length > 0 || detail.length > 0 || groups.length > 0 ||
+                                 expenses.length > 0 || income.length > 0;
+
+            if (!hasPositions) {
+                return '';
+            }
+
+            // Bei hierarchischen Daten: Gruppen und Details anzeigen
+            // Bei GuV-Daten: Summen, Aufwand, Ertrag anzeigen
+            const isHierarchical = groups.length > 0 || (hierarchy.type && hierarchy.type !== 'none');
+
+            return `
+                <div class="section">
+                    <div class="section-title">Erkannte Positionen${hierarchy.description ? ` <span class="hierarchy-hint">(${escapeHtml(hierarchy.description)})</span>` : ''}</div>
+                    <div class="tag-section">
+                        ${groups.length > 0 ? `
+                            <div class="tag-group">
+                                <div class="tag-group-title">Gruppen</div>
+                                <div class="tag-list">
+                                    ${groups.slice(0, 6).map(p => `<span class="tag group">${escapeHtml(truncate(p, 20))}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${detail.length > 0 ? `
+                            <div class="tag-group">
+                                <div class="tag-group-title">Details</div>
+                                <div class="tag-list">
+                                    ${detail.slice(0, 8).map(p => `<span class="tag detail">${escapeHtml(truncate(p, 20))}</span>`).join('')}
+                                    ${detail.length > 8 ? `<span class="tag neutral">+${detail.length - 8} weitere</span>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${summary.length > 0 ? `
+                            <div class="tag-group">
+                                <div class="tag-group-title">Summenzeilen</div>
+                                <div class="tag-list">
+                                    ${summary.slice(0, 5).map(p => `<span class="tag summary">${escapeHtml(truncate(p, 20))}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${!isHierarchical && expenses.length > 0 ? `
+                            <div class="tag-group">
+                                <div class="tag-group-title">Aufwand</div>
+                                <div class="tag-list">
+                                    ${expenses.slice(0, 5).map(p => `<span class="tag expense">${escapeHtml(truncate(p, 20))}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${!isHierarchical && income.length > 0 ? `
+                            <div class="tag-group">
+                                <div class="tag-group-title">Ertrag</div>
+                                <div class="tag-list">
+                                    ${income.slice(0, 5).map(p => `<span class="tag income">${escapeHtml(truncate(p, 20))}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderConfigSection(configs) {
+            // Get the first variant config for display
+            const variantKeys = Object.keys(configs).filter(k => k.startsWith('variant'));
+            const firstConfig = variantKeys.length > 0 ? configs[variantKeys[0]] : configs[Object.keys(configs)[0]];
+
+            if (!firstConfig) {
+                return '';
+            }
+
+            const formattedConfig = formatConfigForDisplay(firstConfig);
+
+            return `
+                <div class="section">
+                    <button class="config-toggle" onclick="toggleConfig(this)">
+                        <span class="arrow">&#9654;</span> Generierte Config anzeigen (${variantKeys.length || Object.keys(configs).length} Varianten)
+                    </button>
+                    <div class="config-content">
+                        <div class="config-preview">
+                            <pre>${formattedConfig}</pre>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectChartType(chartType) {
+            selectedChartType = chartType;
+
+            const isChangedFromRecommendation = chartType !== recommendedChartType;
+
+            // Update button states
+            document.querySelectorAll('.chart-type-btn').forEach(btn => {
+                const isSelected = btn.dataset.chart === chartType;
+                const isRecommended = btn.dataset.chart === recommendedChartType;
+
+                // Reset classes
+                btn.classList.remove('selected', 'changed-selection', 'inactive');
+
+                if (isSelected) {
+                    btn.classList.add('selected');
+                    // Gelb wenn nicht-empfohlener Chart ausgewählt
+                    if (isChangedFromRecommendation) {
+                        btn.classList.add('changed-selection');
+                    }
+                }
+
+                // Empfohlener Button wird inaktiv (kein Grün) wenn anderer Chart ausgewählt
+                if (isRecommended && isChangedFromRecommendation && !isSelected) {
+                    btn.classList.add('inactive');
+                }
+            });
+
+            // Update description based on chart type
+            const descriptionEl = document.getElementById('chartTypeDescription');
+            if (descriptionEl) {
+                if (chartType === 'chart-mix') {
+                    descriptionEl.textContent = 'Der Chart-Mix erstellt automatisch eine optimale Kombination aus Waterfall, Bar und Stacked Bar Charts basierend auf Ihren Daten.';
+                } else {
+                    const originalReasoning = analysisResult?.parsed?.recommendation?.reasoning || 'Basierend auf der erkannten Datenstruktur.';
+                    descriptionEl.textContent = `Nur ${getChartLabel(chartType)} Charts werden generiert. ${originalReasoning}`;
+                }
+            }
+
+            // Update recommendation box color based on selection
+            const recommendationBox = document.querySelector('.recommendation');
+            if (recommendationBox) {
+                if (chartType === recommendedChartType) {
+                    recommendationBox.classList.remove('changed');
+                } else {
+                    recommendationBox.classList.add('changed');
+                }
+            }
+
+            // Store the selection with explicit user-selection flag
+            if (analysisResult) {
+                // Stelle sicher, dass recommendation existiert
+                if (!analysisResult.parsed.recommendation) {
+                    analysisResult.parsed.recommendation = {};
+                }
+                analysisResult.parsed.recommendation.selectedChart = chartType;
+                // WICHTIG: Markiere dass der User explizit gewählt hat
+                analysisResult.parsed.recommendation._userSelectedChart = true;
+                console.log('User hat Chart-Typ gewählt:', chartType, '(_userSelectedChart = true)');
+            }
+        }
+
+        function updateChartCount(count) {
+            selectedChartCount = parseInt(count, 10);
+
+            // Update display
+            const valueDisplay = document.getElementById('chartCountValue');
+            if (valueDisplay) {
+                valueDisplay.textContent = selectedChartCount;
+            }
+
+            // Store the selection for charts.html
+            if (analysisResult) {
+                // Stelle sicher, dass recommendation existiert
+                if (!analysisResult.parsed.recommendation) {
+                    analysisResult.parsed.recommendation = {};
+                }
+                analysisResult.parsed.recommendation.chartCount = selectedChartCount;
+            }
+        }
+
+        function toggleConfig(button) {
+            button.classList.toggle('open');
+            const content = button.nextElementSibling;
+            content.classList.toggle('open');
+        }
+
+        function formatConfigForDisplay(config) {
+            const json = JSON.stringify(config, null, 2);
+            return json
+                .replace(/"([^"]+)":/g, '<span class="key">"$1"</span>:')
+                .replace(/: "([^"]*)"/g, ': <span class="string">"$1"</span>')
+                .replace(/: (-?\d+\.?\d*)/g, ': <span class="number">$1</span>');
+        }
+
+        function showEmptyState() {
+            document.getElementById('subtitle').textContent = 'Keine Analyseergebnisse gefunden';
+            document.getElementById('results-container').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="#9ca3af" stroke-width="1.5">
+                            <rect x="4" y="14" width="4" height="6" rx="0.5"/>
+                            <rect x="10" y="10" width="4" height="10" rx="0.5"/>
+                            <rect x="16" y="6" width="4" height="14" rx="0.5"/>
+                            <path d="M3 4v16h18"/>
+                        </svg>
+                    </div>
+                    <div class="empty-state-title">Keine Ergebnisse vorhanden</div>
+                    <div class="empty-state-text">
+                        Es wurden keine Analyseergebnisse gefunden. Bitte laden Sie zuerst eine Datei hoch.
+                    </div>
+                    <a href="upload.html" class="empty-state-link">Zur Upload-Seite</a>
+                </div>
+            `;
+        }
+
+        function showErrorState(message) {
+            document.getElementById('subtitle').textContent = 'Fehler beim Laden';
+            document.getElementById('results-container').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-title">Fehler beim Laden</div>
+                    <div class="empty-state-text">${escapeHtml(message)}</div>
+                    <a href="upload.html" class="empty-state-link">Neue Analyse starten</a>
+                </div>
+            `;
+        }
+
+        function goToColors() {
+            // Update sessionStorage with the selected chart type
+            if (analysisResult) {
+                console.log('=== SPEICHERE FÜR NAVIGATION ===');
+                console.log('selectedChart:', analysisResult.parsed.recommendation?.selectedChart);
+                console.log('_userSelectedChart:', analysisResult.parsed.recommendation?._userSelectedChart);
+                console.log('chartCount:', analysisResult.parsed.recommendation?.chartCount);
+
+                const updatedResult = {
+                    fileName: analysisResult.fileName,
+                    sheetName: analysisResult.sheetName,
+                    displayName: analysisResult.displayName,
+                    csvData: analysisResult.csvData,  // WICHTIG: csvData behalten
+                    rawData: analysisResult.rawData,  // Falls rawData verwendet wird
+                    result: JSON.stringify(analysisResult.parsed)
+                };
+                sessionStorage.setItem('analysisResult', JSON.stringify(updatedResult));
+                console.log('=== END SPEICHERE ===');
+            }
+            window.location.href = 'colors.html';
+        }
+
+        // Utility functions
+        // HINWEIS: Line-Charts wurden entfernt
+        function getChartLabel(chartType) {
+            const labels = {
+                'chart-mix': 'Chart-Mix',
+                'bar': 'Bar Chart',
+                'waterfall': 'Waterfall',
+                'stacked': 'Stacked Bar',
+                'stacked-bar': 'Stacked Bar'
+            };
+            return labels[chartType] || 'Bar Chart';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function truncate(text, maxLength) {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // Data Table Functions
+        let allTableRows = [];
+
+        function renderDataTableSection(csvData) {
+            if (!csvData) return '';
+
+            // Trennzeichen erkennen (Semikolon oder Komma)
+            const separator = csvData.includes(';') ? ';' : ',';
+            const lines = csvData.trim().split('\n').filter(line => line.trim());
+
+            if (lines.length < 2) return '';
+
+            const headers = lines[0].split(separator).map(h => h.trim());
+            const rows = lines.slice(1).map(line => line.split(separator).map(c => c.trim()));
+
+            // Speichere alle Zeilen für "Mehr anzeigen"
+            allTableRows = rows;
+
+            const initialRows = 10;
+            const hasMoreRows = rows.length > initialRows;
+
+            return `
+                <div class="section data-table-section">
+                    <div class="section-title">Importierte Daten</div>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    ${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody">
+                                ${rows.slice(0, initialRows).map(row => renderTableRow(row)).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${hasMoreRows ? `
+                        <button class="show-more-btn" onclick="toggleAllRows()" id="showMoreBtn">
+                            Alle ${rows.length} Zeilen anzeigen
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderTableRow(cells) {
+            return `<tr>${cells.map(cell => {
+                const num = parseFloat(cell.replace(/[^\d.-]/g, ''));
+                const isNumeric = !isNaN(num) && cell.match(/^-?[\d.,]+$/);
+                const isNegative = isNumeric && num < 0;
+                const isPositive = isNumeric && num > 0;
+                const formatted = isNumeric ? formatNumber(num) : escapeHtml(cell);
+                const colorClass = isNegative ? 'negative' : (isPositive ? 'positive' : '');
+                return `<td class="${isNumeric ? 'numeric' : ''} ${colorClass}">${formatted}</td>`;
+            }).join('')}</tr>`;
+        }
+
+        function formatNumber(num) {
+            return num.toLocaleString('de-DE');
+        }
+
+        function toggleAllRows() {
+            const tbody = document.getElementById('dataTableBody');
+            const btn = document.getElementById('showMoreBtn');
+
+            if (btn.textContent.includes('Alle')) {
+                tbody.innerHTML = allTableRows.map(row => renderTableRow(row)).join('');
+                btn.textContent = 'Weniger anzeigen';
+            } else {
+                tbody.innerHTML = allTableRows.slice(0, 10).map(row => renderTableRow(row)).join('');
+                btn.textContent = `Alle ${allTableRows.length} Zeilen anzeigen`;
+            }
+        }
+    </script>
+</body>
+</html>

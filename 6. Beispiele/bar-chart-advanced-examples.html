@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Chart Advanced Beispiele - Think-Cell Style</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .chart-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+        }
+        .dashboard-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        .dashboard-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        .mini-chart {
+            text-align: center;
+        }
+        .mini-chart svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Legende */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #333;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+        .legend-color.dashed {
+            background: repeating-linear-gradient(
+                90deg,
+                currentColor,
+                currentColor 3px,
+                transparent 3px,
+                transparent 6px
+            );
+            border: 1.5px dashed currentColor;
+            background: none;
+        }
+
+        svg { display: block; }
+        .bar { transition: opacity 0.2s ease; }
+        .bar:hover { opacity: 0.8; cursor: pointer; }
+        .value-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .axis-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .chart-title-svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .bracket-bubble { fill: white; stroke: #333; stroke-width: 1.5; }
+        .bracket-line { stroke: #333; stroke-width: 1.5; fill: none; }
+        .bracket-line-thin { stroke: #333; stroke-width: 1; fill: none; }
+        .arrow-head { fill: #333; }
+    </style>
+</head>
+<body>
+    <h1>Bar Chart Advanced Beispiele - Think-Cell Style</h1>
+
+    <!-- Beispiel 1: YoY Growth Dashboard (5 KPIs) -->
+    <div class="chart-container">
+        <div class="chart-title">1. TechnoWerk Industries - YoY Growth Analysis (3 Perioden)</div>
+        <div class="chart-description">Multi-Chart Dashboard mit paarweisen Brackets zwischen aufeinanderfolgenden Jahren</div>
+        <div class="dashboard-grid" id="dashboard1"></div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color" style="background: #B0B0B0;"></div> FY22</div>
+            <div class="legend-item"><div class="legend-color" style="background: #006B6B;"></div> FY23</div>
+            <div class="legend-item"><div class="legend-color" style="background: #00A5A5;"></div> FY24</div>
+        </div>
+    </div>
+
+    <!-- Beispiel 2: Quarterly Performance mit Forecast -->
+    <div class="chart-container">
+        <div class="chart-title">2. Quarterly Performance mit Forecast</div>
+        <div class="chart-description">Gestrichelte Balken für Projektionen, Brackets zwischen aktuellen Werten und Forecast</div>
+        <div class="dashboard-grid-2" id="dashboard2"></div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color" style="background: #A8C5E2;"></div> Q1</div>
+            <div class="legend-item"><div class="legend-color" style="background: #7BA3D0;"></div> Q2</div>
+            <div class="legend-item"><div class="legend-color" style="background: #5580BD;"></div> Q3</div>
+            <div class="legend-item"><div class="legend-color" style="background: #3366AA;"></div> Q4</div>
+            <div class="legend-item"><div class="legend-color dashed" style="color: #8888DD;"></div> Q1 (Proj.)</div>
+        </div>
+    </div>
+
+    <!-- Beispiel 3: Regional Comparison mit konsekutiven Brackets -->
+    <div class="chart-container">
+        <div class="chart-title">3. Regional Performance - Konsekutive Brackets</div>
+        <div class="chart-description">Jeder Balken hat einen Bracket zum nächsten, zeigt relative Veränderungen</div>
+        <svg id="chart3" viewBox="0 0 900 400"></svg>
+    </div>
+
+    <!-- Beispiel 4: Budget vs Actual vs Forecast -->
+    <div class="chart-container">
+        <div class="chart-title">4. Budget vs. Actual vs. Forecast Comparison</div>
+        <div class="chart-description">Drei Perioden pro Kategorie: Budget (grau), Actual (blau), Forecast (gestrichelt)</div>
+        <div class="dashboard-grid-3" id="dashboard4"></div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color" style="background: #AAAAAA;"></div> Budget</div>
+            <div class="legend-item"><div class="legend-color" style="background: #2E5A88;"></div> Actual</div>
+            <div class="legend-item"><div class="legend-color dashed" style="color: #5B8DBE;"></div> Forecast</div>
+        </div>
+    </div>
+
+    <!-- Beispiel 5: Time Series mit Trend -->
+    <div class="chart-container">
+        <div class="chart-title">5. Monatliche Entwicklung mit CAGR-Bracket</div>
+        <div class="chart-description">12 Monate mit einem übergreifenden Bracket für die Gesamtentwicklung</div>
+        <svg id="chart5" viewBox="0 0 1100 400"></svg>
+    </div>
+
+    <script>
+        // ============================================
+        // FARB-DEFINITIONEN
+        // ============================================
+        const COLORS = {
+            fy22: '#B0B0B0',      // Grau für vergangenes Jahr
+            fy23: '#006B6B',      // Dunkel-Teal
+            fy24: '#00A5A5',      // Hell-Teal
+
+            q1: '#A8C5E2',
+            q2: '#7BA3D0',
+            q3: '#5580BD',
+            q4: '#3366AA',
+            forecast: '#8888DD',
+
+            budget: '#AAAAAA',
+            actual: '#2E5A88',
+            forecastBlue: '#5B8DBE'
+        };
+
+        // ============================================
+        // MINI-CHART RENDERER (für Dashboards)
+        // ============================================
+        function renderMiniChart(containerId, config) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'mini-chart';
+
+            const width = config.width || 160;
+            const height = config.height || 280;
+            const margin = { top: 70, right: 15, bottom: 40, left: 15 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const values = config.bars.map(b => b.value);
+            const maxValue = Math.max(...values) * 1.25;
+
+            const numBars = config.bars.length;
+            const barWidth = Math.min(35, (chartWidth / numBars) * 0.7);
+            const barGap = (chartWidth - numBars * barWidth) / (numBars + 1);
+
+            function getBarX(index) {
+                return margin.left + barGap * (index + 1) + barWidth * index;
+            }
+
+            function yScale(value) {
+                return margin.top + chartHeight - (value / maxValue) * chartHeight;
+            }
+
+            const baselineY = margin.top + chartHeight;
+            let svgContent = '';
+
+            // Titel
+            svgContent += `<text x="${width/2}" y="18" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a1a1a">${config.title}</text>`;
+            if (config.subtitle) {
+                svgContent += `<text x="${width/2}" y="34" text-anchor="middle" font-size="10" fill="#888">${config.subtitle}</text>`;
+            }
+
+            // Baseline
+            svgContent += `<line x1="${margin.left}" y1="${baselineY}" x2="${margin.left + chartWidth}" y2="${baselineY}" stroke="#333" stroke-width="1"/>`;
+
+            // Balken
+            const barData = [];
+            config.bars.forEach((bar, index) => {
+                const barX = getBarX(index);
+                const barY = yScale(bar.value);
+                const barHeight = baselineY - barY;
+                const barCenterX = barX + barWidth / 2;
+
+                barData.push({ barX, barY, barHeight, barCenterX, value: bar.value });
+
+                // Gestrichelter Balken für Forecast
+                if (bar.dashed) {
+                    svgContent += `<rect class="bar" x="${barX}" y="${barY}" width="${barWidth}" height="${barHeight}" fill="none" stroke="${bar.color}" stroke-width="2" stroke-dasharray="4,2" rx="2"/>`;
+                    svgContent += `<rect x="${barX}" y="${barY}" width="${barWidth}" height="${barHeight}" fill="${bar.color}" fill-opacity="0.2" rx="2"/>`;
+                } else {
+                    svgContent += `<rect class="bar" x="${barX}" y="${barY}" width="${barWidth}" height="${barHeight}" fill="${bar.color}" rx="2"/>`;
+                }
+
+                // Wert-Label
+                svgContent += `<text class="value-label" x="${barCenterX}" y="${barY - 6}" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a1a1a">${bar.displayValue}</text>`;
+
+                // X-Achsen-Label
+                svgContent += `<text class="axis-label" x="${barCenterX}" y="${baselineY + 14}" text-anchor="middle" font-size="9" fill="#666">${bar.label}</text>`;
+            });
+
+            // Paarweise Brackets
+            if (config.pairwiseBrackets) {
+                for (let i = 0; i < barData.length - 1; i++) {
+                    const bar1 = barData[i];
+                    const bar2 = barData[i + 1];
+
+                    // Prozentuale Änderung berechnen
+                    const change = ((bar2.value - bar1.value) / bar1.value * 100).toFixed(0);
+                    const changeText = change >= 0 ? `+${change}%` : `${change}%`;
+
+                    // Höchster Punkt zwischen den beiden Balken
+                    const higherY = Math.min(bar1.barY, bar2.barY);
+                    const bracketY = higherY - 45;
+
+                    const x1 = bar1.barCenterX;
+                    const x2 = bar2.barCenterX;
+                    const centerX = (x1 + x2) / 2;
+
+                    // Bubble
+                    const bubbleWidth = 36;
+                    const bubbleHeight = 16;
+                    svgContent += `<ellipse class="bracket-bubble" cx="${centerX}" cy="${bracketY}" rx="${bubbleWidth/2}" ry="${bubbleHeight/2}"/>`;
+                    svgContent += `<text x="${centerX}" y="${bracketY + 1}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="bold" fill="#1a1a1a">${changeText}</text>`;
+
+                    // Linien
+                    const valueLabelGap = 22;
+                    svgContent += `<line class="bracket-line-thin" x1="${x1}" y1="${bar1.barY - valueLabelGap}" x2="${x1}" y2="${bracketY}"/>`;
+                    svgContent += `<line class="bracket-line-thin" x1="${x1}" y1="${bracketY}" x2="${centerX - bubbleWidth/2 - 2}" y2="${bracketY}"/>`;
+                    svgContent += `<line class="bracket-line-thin" x1="${centerX + bubbleWidth/2 + 2}" y1="${bracketY}" x2="${x2}" y2="${bracketY}"/>`;
+                    svgContent += `<line class="bracket-line-thin" x1="${x2}" y1="${bracketY}" x2="${x2}" y2="${bar2.barY - valueLabelGap - 3}"/>`;
+
+                    // Pfeil
+                    svgContent += `<polygon class="arrow-head" points="${x2},${bar2.barY - valueLabelGap + 1} ${x2-3},${bar2.barY - valueLabelGap - 4} ${x2+3},${bar2.barY - valueLabelGap - 4}"/>`;
+                }
+            }
+
+            // Einzelner Bracket (z.B. für Forecast)
+            if (config.brackets) {
+                config.brackets.forEach(bracket => {
+                    const bar1 = barData[bracket.from];
+                    const bar2 = barData[bracket.to];
+
+                    const changeText = bracket.label;
+                    const higherY = Math.min(bar1.barY, bar2.barY);
+                    const bracketY = higherY - 45;
+
+                    const x1 = bar1.barCenterX;
+                    const x2 = bar2.barCenterX;
+                    const centerX = (x1 + x2) / 2;
+
+                    const bubbleWidth = 40;
+                    const bubbleHeight = 16;
+                    svgContent += `<ellipse class="bracket-bubble" cx="${centerX}" cy="${bracketY}" rx="${bubbleWidth/2}" ry="${bubbleHeight/2}"/>`;
+                    svgContent += `<text x="${centerX}" y="${bracketY + 1}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="bold" fill="#1a1a1a">${changeText}</text>`;
+
+                    const valueLabelGap = 22;
+                    svgContent += `<line class="bracket-line-thin" x1="${x1}" y1="${bar1.barY - valueLabelGap}" x2="${x1}" y2="${bracketY}"/>`;
+                    svgContent += `<line class="bracket-line-thin" x1="${x1}" y1="${bracketY}" x2="${centerX - bubbleWidth/2 - 2}" y2="${bracketY}"/>`;
+                    svgContent += `<line class="bracket-line-thin" x1="${centerX + bubbleWidth/2 + 2}" y1="${bracketY}" x2="${x2}" y2="${bracketY}"/>`;
+                    svgContent += `<line class="bracket-line-thin" x1="${x2}" y1="${bracketY}" x2="${x2}" y2="${bar2.barY - valueLabelGap - 3}"/>`;
+                    svgContent += `<polygon class="arrow-head" points="${x2},${bar2.barY - valueLabelGap + 1} ${x2-3},${bar2.barY - valueLabelGap - 4} ${x2+3},${bar2.barY - valueLabelGap - 4}"/>`;
+                });
+            }
+
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.setAttribute('width', width);
+            svg.innerHTML = svgContent;
+
+            div.appendChild(svg);
+            container.appendChild(div);
+        }
+
+        // ============================================
+        // BEISPIEL 1: YoY Growth Dashboard
+        // ============================================
+        const dashboard1Data = [
+            { title: 'Revenue', subtitle: 'in billion €', values: [72, 78, 85] },
+            { title: 'Digital Ind.', subtitle: 'in billion €', values: [19, 21, 24] },
+            { title: 'Smart Infra', subtitle: 'in billion €', values: [17, 19, 22] },
+            { title: 'Mobility', subtitle: 'in billion €', values: [9, 10, 12] },
+            { title: 'Free CF', subtitle: 'in billion €', values: [8.2, 9.5, 11.2] }
+        ];
+
+        dashboard1Data.forEach((data, i) => {
+            renderMiniChart('dashboard1', {
+                title: data.title,
+                subtitle: data.subtitle,
+                bars: [
+                    { label: 'FY22', value: data.values[0], displayValue: data.values[0].toString(), color: COLORS.fy22 },
+                    { label: 'FY23', value: data.values[1], displayValue: data.values[1].toString(), color: COLORS.fy23 },
+                    { label: 'FY24', value: data.values[2], displayValue: data.values[2].toString(), color: COLORS.fy24 }
+                ],
+                pairwiseBrackets: true
+            });
+        });
+
+        // ============================================
+        // BEISPIEL 2: Quarterly mit Forecast
+        // ============================================
+        const dashboard2Data = [
+            {
+                title: 'Gross Margin',
+                subtitle: 'in %',
+                values: [42.3, 43.8, 44.2, 45.1, 46.5],
+                labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q1 (Proj.)']
+            },
+            {
+                title: 'Operating Expenses',
+                subtitle: 'in Mio. EUR',
+                values: [28.4, 27.1, 26.8, 25.9, 25.2],
+                labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q1 (Proj.)']
+            }
+        ];
+
+        dashboard2Data.forEach((data) => {
+            renderMiniChart('dashboard2', {
+                title: data.title,
+                subtitle: data.subtitle,
+                width: 380,
+                height: 320,
+                bars: data.values.map((v, i) => ({
+                    label: data.labels[i],
+                    value: v,
+                    displayValue: v.toLocaleString('de-DE', { minimumFractionDigits: i === 4 ? 1 : 1 }),
+                    color: i === 4 ? COLORS.forecast : [COLORS.q1, COLORS.q2, COLORS.q3, COLORS.q4][i],
+                    dashed: i === 4
+                })),
+                brackets: [
+                    { from: 0, to: 3, label: data.title === 'Gross Margin' ? '+6.6%' : '-8.8%' },
+                    { from: 3, to: 4, label: data.title === 'Gross Margin' ? '+3.1%' : '-2.7%' }
+                ]
+            });
+        });
+
+        // ============================================
+        // BEISPIEL 3: Regional mit konsekutiven Brackets
+        // ============================================
+        function renderRegionalChart() {
+            const svg = document.getElementById('chart3');
+            const width = 900;
+            const height = 400;
+            const margin = { top: 60, right: 40, bottom: 60, left: 60 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const data = [
+                { label: 'DACH', value: 45, color: '#2E86AB' },
+                { label: 'UK', value: 52, color: '#2E86AB' },
+                { label: 'France', value: 48, color: '#2E86AB' },
+                { label: 'Nordics', value: 38, color: '#2E86AB' },
+                { label: 'Benelux', value: 42, color: '#2E86AB' },
+                { label: 'Spain', value: 35, color: '#2E86AB' },
+                { label: 'Italy', value: 31, color: '#2E86AB' }
+            ];
+
+            const maxValue = Math.max(...data.map(d => d.value)) * 1.3;
+            const numBars = data.length;
+            const barWidth = (chartWidth / numBars) * 0.5;
+            const barGap = (chartWidth - numBars * barWidth) / (numBars + 1);
+
+            function getBarX(index) {
+                return margin.left + barGap * (index + 1) + barWidth * index;
+            }
+
+            function yScale(value) {
+                return margin.top + chartHeight - (value / maxValue) * chartHeight;
+            }
+
+            const baselineY = margin.top + chartHeight;
+            let svgContent = '';
+
+            // Titel
+            svgContent += `<text x="${width/2}" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a1a">Regional Revenue Comparison 2024</text>`;
+            svgContent += `<text x="${width/2}" y="48" text-anchor="middle" font-size="12" fill="#666">in Mio. EUR</text>`;
+
+            // Baseline
+            svgContent += `<line x1="${margin.left}" y1="${baselineY}" x2="${margin.left + chartWidth}" y2="${baselineY}" stroke="#333" stroke-width="1"/>`;
+
+            // Balken
+            const barData = [];
+            data.forEach((bar, index) => {
+                const barX = getBarX(index);
+                const barY = yScale(bar.value);
+                const barHeight = baselineY - barY;
+                const barCenterX = barX + barWidth / 2;
+
+                barData.push({ barX, barY, barHeight, barCenterX, value: bar.value });
+
+                svgContent += `<rect class="bar" x="${barX}" y="${barY}" width="${barWidth}" height="${barHeight}" fill="${bar.color}" rx="2"/>`;
+                svgContent += `<text class="value-label" x="${barCenterX}" y="${barY - 8}" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a1a1a">${bar.value}</text>`;
+                svgContent += `<text class="axis-label" x="${barCenterX}" y="${baselineY + 20}" text-anchor="middle" font-size="11" fill="#333">${bar.label}</text>`;
+            });
+
+            // Konsekutive Brackets (immer zwischen benachbarten Balken)
+            for (let i = 0; i < barData.length - 1; i++) {
+                const bar1 = barData[i];
+                const bar2 = barData[i + 1];
+
+                const change = ((bar2.value - bar1.value) / bar1.value * 100).toFixed(0);
+                const changeText = change >= 0 ? `+${change}%` : `${change}%`;
+
+                const higherY = Math.min(bar1.barY, bar2.barY);
+                const bracketY = higherY - 40;
+
+                const x1 = bar1.barCenterX;
+                const x2 = bar2.barCenterX;
+                const centerX = (x1 + x2) / 2;
+
+                const bubbleWidth = 45;
+                const bubbleHeight = 18;
+                svgContent += `<ellipse class="bracket-bubble" cx="${centerX}" cy="${bracketY}" rx="${bubbleWidth/2}" ry="${bubbleHeight/2}"/>`;
+                svgContent += `<text x="${centerX}" y="${bracketY + 1}" text-anchor="middle" dominant-baseline="middle" font-size="10" font-weight="bold" fill="#1a1a1a">${changeText}</text>`;
+
+                const valueLabelGap = 25;
+                svgContent += `<line class="bracket-line-thin" x1="${x1}" y1="${bar1.barY - valueLabelGap}" x2="${x1}" y2="${bracketY}"/>`;
+                svgContent += `<line class="bracket-line-thin" x1="${x1}" y1="${bracketY}" x2="${centerX - bubbleWidth/2 - 3}" y2="${bracketY}"/>`;
+                svgContent += `<line class="bracket-line-thin" x1="${centerX + bubbleWidth/2 + 3}" y1="${bracketY}" x2="${x2}" y2="${bracketY}"/>`;
+                svgContent += `<line class="bracket-line-thin" x1="${x2}" y1="${bracketY}" x2="${x2}" y2="${bar2.barY - valueLabelGap - 4}"/>`;
+                svgContent += `<polygon class="arrow-head" points="${x2},${bar2.barY - valueLabelGap} ${x2-4},${bar2.barY - valueLabelGap - 6} ${x2+4},${bar2.barY - valueLabelGap - 6}"/>`;
+            }
+
+            svg.innerHTML = svgContent;
+        }
+
+        renderRegionalChart();
+
+        // ============================================
+        // BEISPIEL 4: Budget vs Actual vs Forecast
+        // ============================================
+        const dashboard4Data = [
+            { title: 'Q1 2024', budget: 3000, actual: 2850, forecast: 3100 },
+            { title: 'Q2 2024', budget: 3200, actual: 3350, forecast: 3400 },
+            { title: 'Q3 2024', budget: 3400, actual: 3280, forecast: 3500 }
+        ];
+
+        dashboard4Data.forEach((data) => {
+            renderMiniChart('dashboard4', {
+                title: data.title,
+                subtitle: 'in Tsd. EUR',
+                width: 240,
+                height: 300,
+                bars: [
+                    { label: 'Budget', value: data.budget, displayValue: data.budget.toLocaleString('de-DE'), color: COLORS.budget },
+                    { label: 'Actual', value: data.actual, displayValue: data.actual.toLocaleString('de-DE'), color: COLORS.actual },
+                    { label: 'Forecast', value: data.forecast, displayValue: data.forecast.toLocaleString('de-DE'), color: COLORS.forecastBlue, dashed: true }
+                ],
+                brackets: [
+                    { from: 1, to: 2, label: data.forecast > data.actual ? `+${((data.forecast - data.actual) / data.actual * 100).toFixed(0)}%` : `${((data.forecast - data.actual) / data.actual * 100).toFixed(0)}%` }
+                ]
+            });
+        });
+
+        // ============================================
+        // BEISPIEL 5: Monatliche Entwicklung mit CAGR
+        // ============================================
+        function renderMonthlyChart() {
+            const svg = document.getElementById('chart5');
+            const width = 1100;
+            const height = 400;
+            const margin = { top: 80, right: 40, bottom: 60, left: 60 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const values = [120, 125, 132, 128, 145, 152, 148, 165, 172, 180, 188, 195];
+
+            // Farbverlauf von hell nach dunkel
+            const getColor = (index) => {
+                const lightness = 70 - (index * 3);
+                return `hsl(210, 60%, ${lightness}%)`;
+            };
+
+            const maxValue = Math.max(...values) * 1.2;
+            const numBars = values.length;
+            const barWidth = (chartWidth / numBars) * 0.65;
+            const barGap = (chartWidth - numBars * barWidth) / (numBars + 1);
+
+            function getBarX(index) {
+                return margin.left + barGap * (index + 1) + barWidth * index;
+            }
+
+            function yScale(value) {
+                return margin.top + chartHeight - (value / maxValue) * chartHeight;
+            }
+
+            const baselineY = margin.top + chartHeight;
+            let svgContent = '';
+
+            // Titel
+            svgContent += `<text x="${width/2}" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a1a">Monthly Revenue Development 2024</text>`;
+            svgContent += `<text x="${width/2}" y="48" text-anchor="middle" font-size="12" fill="#666">in Tsd. EUR</text>`;
+
+            // Baseline
+            svgContent += `<line x1="${margin.left}" y1="${baselineY}" x2="${margin.left + chartWidth}" y2="${baselineY}" stroke="#333" stroke-width="1"/>`;
+
+            // Balken
+            const barData = [];
+            values.forEach((value, index) => {
+                const barX = getBarX(index);
+                const barY = yScale(value);
+                const barHeight = baselineY - barY;
+                const barCenterX = barX + barWidth / 2;
+
+                barData.push({ barX, barY, barHeight, barCenterX, value });
+
+                svgContent += `<rect class="bar" x="${barX}" y="${barY}" width="${barWidth}" height="${barHeight}" fill="${getColor(index)}" rx="2"/>`;
+                svgContent += `<text class="value-label" x="${barCenterX}" y="${barY - 6}" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a1a1a">${value}</text>`;
+                svgContent += `<text class="axis-label" x="${barCenterX}" y="${baselineY + 18}" text-anchor="middle" font-size="10" fill="#333">${months[index]}</text>`;
+            });
+
+            // Großer Bracket über das ganze Jahr
+            const firstBar = barData[0];
+            const lastBar = barData[barData.length - 1];
+
+            const cagr = ((lastBar.value / firstBar.value - 1) * 100).toFixed(0);
+            const changeText = `+${cagr}% YTD`;
+
+            const bracketY = Math.min(firstBar.barY, lastBar.barY) - 50;
+            const x1 = firstBar.barCenterX;
+            const x2 = lastBar.barCenterX;
+            const centerX = (x1 + x2) / 2;
+
+            const bubbleWidth = 80;
+            const bubbleHeight = 22;
+
+            svgContent += `<ellipse class="bracket-bubble" cx="${centerX}" cy="${bracketY}" rx="${bubbleWidth/2}" ry="${bubbleHeight/2}"/>`;
+            svgContent += `<text x="${centerX}" y="${bracketY + 1}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="bold" fill="#1a1a1a">${changeText}</text>`;
+
+            const valueLabelGap = 22;
+            // Linke Linie
+            svgContent += `<line class="bracket-line" x1="${x1}" y1="${firstBar.barY - valueLabelGap}" x2="${x1}" y2="${bracketY}"/>`;
+            // Horizontale Linie links (gestrichelt)
+            svgContent += `<line stroke="#333" stroke-width="1" stroke-dasharray="4,3" x1="${x1}" y1="${bracketY}" x2="${centerX - bubbleWidth/2 - 5}" y2="${bracketY}"/>`;
+            // Horizontale Linie rechts (gestrichelt)
+            svgContent += `<line stroke="#333" stroke-width="1" stroke-dasharray="4,3" x1="${centerX + bubbleWidth/2 + 5}" y1="${bracketY}" x2="${x2}" y2="${bracketY}"/>`;
+            // Rechte Linie + Pfeil
+            svgContent += `<line class="bracket-line" x1="${x2}" y1="${bracketY}" x2="${x2}" y2="${lastBar.barY - valueLabelGap - 5}"/>`;
+            svgContent += `<polygon class="arrow-head" points="${x2},${lastBar.barY - valueLabelGap} ${x2-5},${lastBar.barY - valueLabelGap - 8} ${x2+5},${lastBar.barY - valueLabelGap - 8}"/>`;
+
+            svg.innerHTML = svgContent;
+        }
+
+        renderMonthlyChart();
+    </script>
+</body>
+</html>
