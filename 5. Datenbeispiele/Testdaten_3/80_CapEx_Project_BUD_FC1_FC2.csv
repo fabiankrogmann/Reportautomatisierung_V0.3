@@ -1,0 +1,10 @@
+Project_Name,Project_Type,BUD_2025,FC1_2025,FC2_2025,Spent_YTD,Remaining_FC2,Variance_BUD_vs_FC2,Completion_%
+ERP System Upgrade,IT,2500,2375,2438,1800,638,62,74%
+New Production Line,Production,8500,8075,8288,5200,3088,212,63%
+Office Renovation,Facilities,1200,1140,1170,950,220,30,81%
+Fleet Modernization,Fleet,1800,1710,1755,1200,555,45,68%
+R&D Lab Equipment,R&D,3200,3040,3120,2100,1020,80,67%
+Warehouse Automation,Logistics,4500,4275,4388,2800,1588,112,64%
+IT Infrastructure,IT,1500,1425,1463,1100,363,37,75%
+Solar Installation,Sustainability,800,760,780,520,260,20,67%
+Total CapEx,,24000,22800,23400,15670,7730,600,67%

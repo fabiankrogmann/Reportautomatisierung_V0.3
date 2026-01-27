@@ -1,0 +1,841 @@
+{
+  "testRun": {
+    "date": "2026-01-27",
+    "source": "Testdaten_2",
+    "phase": 2,
+    "totalFiles": 50,
+    "passed": 50,
+    "warnings": 0,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": 1,
+      "filename": "NEW_01_GuV_Monat_IST_BUD_FC.csv",
+      "chartType": "waterfall",
+      "variantCount": 7,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "Executive-Überblick der Ertragslage"},
+        {"id": 2, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "Vollständige Aufschlüsselung aller Positionen"},
+        {"id": 3, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "Plan-Ist-Abweichung auf einen Blick"},
+        {"id": 4, "templateId": "WF-12", "perspective": "fc-bridge", "uniqueValue": "Forecast-Abweichung analysieren"},
+        {"id": 5, "templateId": "WF-14", "perspective": "budget-bridge-compare", "uniqueValue": "Budget-Bridge mit FC-Vergleich rechts"},
+        {"id": 6, "templateId": "WF-15", "perspective": "budget-bridge-compare", "uniqueValue": "Budget-Bridge mit FC-Vergleich links"},
+        {"id": 7, "templateId": "WF-18", "perspective": "fc-bridge-compare", "uniqueValue": "FC-Bridge mit BUD-Vergleich rechts"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-04", "WF-12", "WF-14", "WF-15", "WF-18"],
+      "status": "passed"
+    },
+    {
+      "id": 2,
+      "filename": "NEW_02_GuV_Monat_IST_VJ.csv",
+      "chartType": "waterfall",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "Executive-Überblick IST"},
+        {"id": 2, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "Detaillierte P&L-Struktur"},
+        {"id": 3, "templateId": "WF-03", "perspective": "yoy-bridge", "uniqueValue": "YoY-Veränderung analysieren"},
+        {"id": 4, "templateId": "WF-09", "perspective": "revenue-bridge", "uniqueValue": "Umsatzbrücke VJ zu IST"},
+        {"id": 5, "templateId": "WF-07", "perspective": "margin-bridge", "uniqueValue": "Margenentwicklung"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-03", "WF-07", "WF-09"],
+      "status": "passed"
+    },
+    {
+      "id": 3,
+      "filename": "NEW_03_GuV_YTD_IST_BUD_VJ.csv",
+      "chartType": "waterfall",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "YTD Executive Summary"},
+        {"id": 2, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "YTD Detailansicht"},
+        {"id": 3, "templateId": "WF-03", "perspective": "yoy-bridge", "uniqueValue": "YTD vs VJ Bridge"},
+        {"id": 4, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "YTD vs Budget Bridge"},
+        {"id": 5, "templateId": "WF-07", "perspective": "margin-bridge", "uniqueValue": "Margenanalyse YTD"},
+        {"id": 6, "templateId": "WF-09", "perspective": "revenue-bridge", "uniqueValue": "Umsatzentwicklung YTD"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-03", "WF-04", "WF-07", "WF-09"],
+      "status": "passed"
+    },
+    {
+      "id": 4,
+      "filename": "NEW_04_GuV_Q1-Q4_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Q1-Q4 YoY gruppiert"},
+        {"id": 2, "templateId": "BC-10", "perspective": "quarterly-trend", "uniqueValue": "Quartalsvergleich"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Positionsvergleich pro Quartal"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Varianz farbcodiert"},
+        {"id": 5, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Ranking nach Wachstum"},
+        {"id": 6, "templateId": "BC-07", "perspective": "kpi-comparison", "uniqueValue": "KPI-Vergleich Q4 vs VJ"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-07", "BC-08", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 5,
+      "filename": "NEW_05_GuV_H1_IST_BUD_FC_VJ.csv",
+      "chartType": "waterfall",
+      "variantCount": 10,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "H1 Executive Summary"},
+        {"id": 2, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "H1 Detailansicht"},
+        {"id": 3, "templateId": "WF-03", "perspective": "yoy-bridge", "uniqueValue": "H1 YoY Bridge"},
+        {"id": 4, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "H1 Budget Bridge"},
+        {"id": 5, "templateId": "WF-12", "perspective": "fc-bridge", "uniqueValue": "H1 FC Bridge"},
+        {"id": 6, "templateId": "WF-14", "perspective": "budget-compare-right", "uniqueValue": "Budget Bridge + FC rechts"},
+        {"id": 7, "templateId": "WF-15", "perspective": "budget-compare-left", "uniqueValue": "Budget Bridge + FC links"},
+        {"id": 8, "templateId": "WF-16", "perspective": "yoy-compare-right", "uniqueValue": "YoY Bridge + BUD/FC rechts"},
+        {"id": 9, "templateId": "WF-17", "perspective": "yoy-compare-left", "uniqueValue": "YoY Bridge + BUD/FC links"},
+        {"id": 10, "templateId": "WF-07", "perspective": "margin-bridge", "uniqueValue": "Margenanalyse H1"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-03", "WF-04", "WF-07", "WF-12", "WF-14", "WF-15", "WF-16", "WF-17"],
+      "status": "passed"
+    },
+    {
+      "id": 6,
+      "filename": "NEW_06_GuV_Detail_IST_BUD.csv",
+      "chartType": "waterfall",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "Executive Summary (7 Positionen)"},
+        {"id": 2, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "Alle 21 Positionen"},
+        {"id": 3, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "Budget-Abweichungsanalyse"},
+        {"id": 4, "templateId": "WF-05", "perspective": "horizontal", "uniqueValue": "Horizontale Darstellung für viele Positionen"},
+        {"id": 5, "templateId": "WF-08", "perspective": "cost-variance", "uniqueValue": "Kostenabweichungen Detail"},
+        {"id": 6, "templateId": "WF-07", "perspective": "margin-bridge", "uniqueValue": "Margenbrücke"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-04", "WF-05", "WF-07", "WF-08"],
+      "status": "passed"
+    },
+    {
+      "id": 7,
+      "filename": "NEW_07_GuV_Summary_IST_FC.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-01", "perspective": "ist-vs-fc", "uniqueValue": "IST vs FC Vergleich"},
+        {"id": 2, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "KPI-Kategorien vergleichen"},
+        {"id": 4, "templateId": "BC-07", "perspective": "kpi-horizontal", "uniqueValue": "KPIs horizontal"},
+        {"id": 5, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Ranking nach Abweichung"}
+      ],
+      "templatesUsed": ["BC-01", "BC-03", "BC-04", "BC-06", "BC-07"],
+      "status": "passed"
+    },
+    {
+      "id": 8,
+      "filename": "NEW_08_GuV_Monatstrend_12M.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-05", "perspective": "monthly-trend", "uniqueValue": "12-Monats-Trend alle Monate"},
+        {"id": 2, "templateId": "BC-10", "perspective": "quarterly-aggregated", "uniqueValue": "Q1-Q4 aggregiert"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Kennzahlen-Vergleich"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Monate nach Umsatz gerankt"},
+        {"id": 5, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "MoM-Veränderung farbcodiert"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-05", "BC-06", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 9,
+      "filename": "NEW_09_GuV_Quartale_IST_BUD_FC.csv",
+      "chartType": "bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "BC-02", "perspective": "three-way", "uniqueValue": "IST vs BUD vs FC pro Quartal"},
+        {"id": 2, "templateId": "BC-10", "perspective": "quarterly-trend", "uniqueValue": "Quartalsvergleich"},
+        {"id": 3, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 5, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Positionsvergleich"},
+        {"id": 6, "templateId": "BC-07", "perspective": "kpi-comparison", "uniqueValue": "KPI-Dashboard Q1-Q4"}
+      ],
+      "templatesUsed": ["BC-01", "BC-02", "BC-03", "BC-06", "BC-07", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 10,
+      "filename": "NEW_10_GuV_YTD_IST_FC_VJ.csv",
+      "chartType": "waterfall",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "YTD Summary"},
+        {"id": 2, "templateId": "WF-03", "perspective": "yoy-bridge", "uniqueValue": "YTD vs VJ Bridge"},
+        {"id": 3, "templateId": "WF-12", "perspective": "fc-bridge", "uniqueValue": "YTD vs FC Bridge"},
+        {"id": 4, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "YTD Detail"},
+        {"id": 5, "templateId": "WF-07", "perspective": "margin-bridge", "uniqueValue": "Margenanalyse"},
+        {"id": 6, "templateId": "WF-09", "perspective": "revenue-bridge", "uniqueValue": "Umsatzbrücke"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-03", "WF-07", "WF-09", "WF-12"],
+      "status": "passed"
+    },
+    {
+      "id": 11,
+      "filename": "NEW_11_GuV_H1H2_IST_BUD_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "H1/H2 YoY gruppiert"},
+        {"id": 2, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget H1/H2"},
+        {"id": 3, "templateId": "BC-02", "perspective": "three-way", "uniqueValue": "IST vs BUD vs VJ"},
+        {"id": 4, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Positionsvergleich H1 vs H2"},
+        {"id": 5, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 6, "templateId": "BC-10", "perspective": "period-comparison", "uniqueValue": "Halbjahresvergleich"}
+      ],
+      "templatesUsed": ["BC-01", "BC-02", "BC-03", "BC-06", "BC-08", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 12,
+      "filename": "NEW_12_GuV_Annual_IST_BUD_FC_VJ.csv",
+      "chartType": "waterfall",
+      "variantCount": 10,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "Jahres-Summary"},
+        {"id": 2, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "Jahres-Detail"},
+        {"id": 3, "templateId": "WF-03", "perspective": "yoy-bridge", "uniqueValue": "Jahresvergleich Bridge"},
+        {"id": 4, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "Budget Bridge"},
+        {"id": 5, "templateId": "WF-12", "perspective": "fc-bridge", "uniqueValue": "Forecast Bridge"},
+        {"id": 6, "templateId": "WF-14", "perspective": "budget-compare-right", "uniqueValue": "Budget + FC rechts"},
+        {"id": 7, "templateId": "WF-15", "perspective": "budget-compare-left", "uniqueValue": "Budget + FC links"},
+        {"id": 8, "templateId": "WF-16", "perspective": "yoy-compare-right", "uniqueValue": "YoY + BUD/FC rechts"},
+        {"id": 9, "templateId": "WF-17", "perspective": "yoy-compare-left", "uniqueValue": "YoY + BUD/FC links"},
+        {"id": 10, "templateId": "WF-07", "perspective": "margin-bridge", "uniqueValue": "Margenbrücke"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-03", "WF-04", "WF-07", "WF-12", "WF-14", "WF-15", "WF-16", "WF-17"],
+      "status": "passed"
+    },
+    {
+      "id": 13,
+      "filename": "NEW_13_Segment_DACH_EMEA_US_IST_BUD.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "Regionen IST vs Budget"},
+        {"id": 2, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Regionsvergleich"},
+        {"id": 3, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Regionen nach Umsatz"},
+        {"id": 5, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich DACH/EMEA/US"}
+      ],
+      "templatesUsed": ["BC-01", "BC-03", "BC-04", "BC-06", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 14,
+      "filename": "NEW_14_Segment_Produkte_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Produkte YoY gruppiert"},
+        {"id": 2, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Produktvergleich"},
+        {"id": 3, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Wachstum farbcodiert"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Produkte nach Umsatz gerankt"},
+        {"id": 5, "templateId": "BC-07", "perspective": "margin-comparison", "uniqueValue": "Margenvergleich"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-07", "BC-08"],
+      "status": "passed"
+    },
+    {
+      "id": 15,
+      "filename": "NEW_15_Segment_Kunden_IST_BUD_FC.csv",
+      "chartType": "bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "BC-02", "perspective": "three-way", "uniqueValue": "Kunden IST vs BUD vs FC"},
+        {"id": 2, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Kundensegment-Vergleich"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 5, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Kunden nach DB gerankt"},
+        {"id": 6, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich"}
+      ],
+      "templatesUsed": ["BC-01", "BC-02", "BC-03", "BC-04", "BC-06", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 16,
+      "filename": "NEW_16_Region_Q1-Q4_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Regionen Q1-Q4 YoY"},
+        {"id": 2, "templateId": "BC-10", "perspective": "quarterly-trend", "uniqueValue": "Quartalsvergleich pro Region"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Regionsvergleich"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Wachstum farbcodiert"},
+        {"id": 5, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Regionen nach Wachstum"},
+        {"id": 6, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Ländervergleich"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-08", "BC-09", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 17,
+      "filename": "NEW_17_Segment_Business_Units_IST_BUD_FC_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 7,
+      "variants": [
+        {"id": 1, "templateId": "BC-02", "perspective": "three-way", "uniqueValue": "BUs IST vs BUD vs FC"},
+        {"id": 2, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "BUs YoY gruppiert"},
+        {"id": 3, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget"},
+        {"id": 4, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "BU-Vergleich"},
+        {"id": 5, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 6, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "BUs nach EBIT gerankt"},
+        {"id": 7, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich"}
+      ],
+      "templatesUsed": ["BC-01", "BC-02", "BC-03", "BC-04", "BC-06", "BC-08", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 18,
+      "filename": "NEW_18_Division_Revenue_IST_FC.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-01", "perspective": "ist-vs-fc", "uniqueValue": "Divisionen IST vs FC"},
+        {"id": 2, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Divisionsvergleich"},
+        {"id": 3, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Delta farbcodiert"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Divisionen nach Umsatz"},
+        {"id": 5, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich"}
+      ],
+      "templatesUsed": ["BC-01", "BC-03", "BC-04", "BC-06", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 19,
+      "filename": "NEW_19_Markt_Anteile_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Marktanteile YoY"},
+        {"id": 2, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Ländervergleich"},
+        {"id": 3, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Veränderung farbcodiert"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Länder nach Marktanteil"},
+        {"id": 5, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Regionaler Vergleich"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-08", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 20,
+      "filename": "NEW_20_Channel_Mix_IST_BUD.csv",
+      "chartType": "stacked-bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "SB-01", "perspective": "composition-absolute", "uniqueValue": "Channel-Mix absolut"},
+        {"id": 2, "templateId": "SB-02", "perspective": "composition-percent", "uniqueValue": "Channel-Mix 100%"},
+        {"id": 3, "templateId": "SB-05", "perspective": "segment-comparison", "uniqueValue": "IST vs BUD Stacks"},
+        {"id": 4, "templateId": "SB-08", "perspective": "budget-components", "uniqueValue": "Budget-Zusammensetzung"},
+        {"id": 5, "templateId": "SB-06", "perspective": "pnl-components", "uniqueValue": "Umsatz-Komponenten"}
+      ],
+      "templatesUsed": ["SB-01", "SB-02", "SB-05", "SB-06", "SB-08"],
+      "status": "passed"
+    },
+    {
+      "id": 21,
+      "filename": "NEW_21_Sales_Monthly_IST_FC.csv",
+      "chartType": "bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "BC-05", "perspective": "monthly-trend", "uniqueValue": "12-Monats-Trend"},
+        {"id": 2, "templateId": "BC-01", "perspective": "ist-vs-fc", "uniqueValue": "IST vs FC pro Monat"},
+        {"id": 3, "templateId": "BC-10", "perspective": "quarterly-aggregated", "uniqueValue": "Q1-Q4 aggregiert"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichung farbcodiert"},
+        {"id": 5, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Monatsvergleich"},
+        {"id": 6, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Monate nach Umsatz"}
+      ],
+      "templatesUsed": ["BC-01", "BC-03", "BC-04", "BC-05", "BC-06", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 22,
+      "filename": "NEW_22_Sales_YTD_IST_BUD_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "BC-02", "perspective": "three-way", "uniqueValue": "IST vs BUD vs VJ"},
+        {"id": 2, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "YTD YoY gruppiert"},
+        {"id": 3, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget"},
+        {"id": 4, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Produktgruppenvergleich"},
+        {"id": 5, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 6, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Produkte nach Umsatz"}
+      ],
+      "templatesUsed": ["BC-01", "BC-02", "BC-03", "BC-04", "BC-06", "BC-08"],
+      "status": "passed"
+    },
+    {
+      "id": 23,
+      "filename": "NEW_23_Sales_Produkte_Top10_IST.csv",
+      "chartType": "bar",
+      "variantCount": 4,
+      "variants": [
+        {"id": 1, "templateId": "BC-04", "perspective": "ranking-horizontal", "uniqueValue": "Top 12 Produkte horizontal"},
+        {"id": 2, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Produktvergleich"},
+        {"id": 3, "templateId": "BC-03", "perspective": "contribution", "uniqueValue": "Anteil am Gesamt"},
+        {"id": 4, "templateId": "BC-07", "perspective": "kpi-horizontal", "uniqueValue": "KPI-Übersicht"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-07"],
+      "status": "passed"
+    },
+    {
+      "id": 24,
+      "filename": "NEW_24_Sales_Quartale_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Q1-Q4 YoY gruppiert"},
+        {"id": 2, "templateId": "BC-10", "perspective": "quarterly-trend", "uniqueValue": "Quartalsvergleich"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Produktgruppenvergleich"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Wachstum farbcodiert"},
+        {"id": 5, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Produkte nach Wachstum"},
+        {"id": 6, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-08", "BC-09", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 25,
+      "filename": "NEW_25_Revenue_Mix_IST_BUD_FC.csv",
+      "chartType": "stacked-bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "SB-01", "perspective": "composition-absolute", "uniqueValue": "Umsatz-Mix absolut"},
+        {"id": 2, "templateId": "SB-02", "perspective": "composition-percent", "uniqueValue": "Umsatz-Mix 100%"},
+        {"id": 3, "templateId": "SB-05", "perspective": "segment-comparison", "uniqueValue": "IST vs BUD vs FC Stacks"},
+        {"id": 4, "templateId": "SB-03", "perspective": "revenue-mix-trend", "uniqueValue": "Revenue Mix Trend"},
+        {"id": 5, "templateId": "SB-06", "perspective": "pnl-components", "uniqueValue": "Erlösarten-Komponenten"},
+        {"id": 6, "templateId": "SB-08", "perspective": "budget-components", "uniqueValue": "Budget-Zusammensetzung"}
+      ],
+      "templatesUsed": ["SB-01", "SB-02", "SB-03", "SB-05", "SB-06", "SB-08"],
+      "status": "passed"
+    },
+    {
+      "id": 26,
+      "filename": "NEW_26_Sales_H1_IST_BUD_FC_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 7,
+      "variants": [
+        {"id": 1, "templateId": "BC-02", "perspective": "three-way", "uniqueValue": "IST vs BUD vs FC"},
+        {"id": 2, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Regionen YoY"},
+        {"id": 3, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget"},
+        {"id": 4, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Regionsvergleich"},
+        {"id": 5, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 6, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Regionen nach DB"},
+        {"id": 7, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich"}
+      ],
+      "templatesUsed": ["BC-01", "BC-02", "BC-03", "BC-04", "BC-06", "BC-08", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 27,
+      "filename": "NEW_27_Revenue_Trend_12M_IST.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-05", "perspective": "monthly-trend", "uniqueValue": "12-Monats Revenue Trend"},
+        {"id": 2, "templateId": "BC-10", "perspective": "quarterly-aggregated", "uniqueValue": "Q1-Q4 aggregiert"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Monatsvergleich"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Monate nach Umsatz"},
+        {"id": 5, "templateId": "BC-03", "perspective": "mom-growth", "uniqueValue": "MoM Wachstum farbcodiert"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-05", "BC-06", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 28,
+      "filename": "NEW_28_Sales_Kunden_Top15_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-04", "perspective": "ranking-horizontal", "uniqueValue": "Top 15 Kunden horizontal (lange Labels)"},
+        {"id": 2, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Kunden YoY gruppiert"},
+        {"id": 3, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Wachstum farbcodiert"},
+        {"id": 4, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Kundenvergleich"},
+        {"id": 5, "templateId": "BC-07", "perspective": "kpi-horizontal", "uniqueValue": "KPI-Übersicht horizontal"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-07", "BC-08"],
+      "status": "passed"
+    },
+    {
+      "id": 29,
+      "filename": "NEW_29_Kosten_OPEX_IST_BUD.csv",
+      "chartType": "waterfall",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "OPEX Summary"},
+        {"id": 2, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "OPEX Detail"},
+        {"id": 3, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "Budget-Abweichung"},
+        {"id": 4, "templateId": "WF-08", "perspective": "cost-variance", "uniqueValue": "Kostenabweichungen"},
+        {"id": 5, "templateId": "WF-07", "perspective": "margin-bridge", "uniqueValue": "Kostenbrücke"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-04", "WF-07", "WF-08"],
+      "status": "passed"
+    },
+    {
+      "id": 30,
+      "filename": "NEW_30_Kosten_Detail_IST_BUD_FC.csv",
+      "chartType": "stacked-bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "SB-01", "perspective": "composition-absolute", "uniqueValue": "Kostenstruktur absolut"},
+        {"id": 2, "templateId": "SB-02", "perspective": "composition-percent", "uniqueValue": "Kostenstruktur 100%"},
+        {"id": 3, "templateId": "SB-07", "perspective": "horizontal", "uniqueValue": "Horizontal für 18+ Kostenarten"},
+        {"id": 4, "templateId": "SB-05", "perspective": "segment-comparison", "uniqueValue": "IST vs BUD vs FC Stacks"},
+        {"id": 5, "templateId": "SB-08", "perspective": "budget-components", "uniqueValue": "Budget-Zusammensetzung"},
+        {"id": 6, "templateId": "SB-06", "perspective": "cost-components", "uniqueValue": "Kosten-Komponenten"}
+      ],
+      "templatesUsed": ["SB-01", "SB-02", "SB-05", "SB-06", "SB-07", "SB-08"],
+      "status": "passed"
+    },
+    {
+      "id": 31,
+      "filename": "NEW_31_OPEX_YTD_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "OPEX YoY gruppiert"},
+        {"id": 2, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Kostenbereichsvergleich"},
+        {"id": 3, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Delta farbcodiert"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Kostenbereiche nach Wachstum"},
+        {"id": 5, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-08", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 32,
+      "filename": "NEW_32_Kosten_Quartale_IST_BUD.csv",
+      "chartType": "bar",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget pro Quartal"},
+        {"id": 2, "templateId": "BC-10", "perspective": "quarterly-trend", "uniqueValue": "Quartalsvergleich"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Kostenarten-Vergleich"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 5, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Kostenarten nach Volumen"},
+        {"id": 6, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich"}
+      ],
+      "templatesUsed": ["BC-01", "BC-03", "BC-04", "BC-06", "BC-09", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 33,
+      "filename": "NEW_33_Kosten_Abteilungen_LangeNamen.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-04", "perspective": "ranking-horizontal", "uniqueValue": "Horizontal für lange Labels"},
+        {"id": 2, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Abteilungsvergleich"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichung farbcodiert"},
+        {"id": 5, "templateId": "BC-07", "perspective": "kpi-horizontal", "uniqueValue": "KPI horizontal"}
+      ],
+      "templatesUsed": ["BC-01", "BC-03", "BC-04", "BC-06", "BC-07"],
+      "status": "passed"
+    },
+    {
+      "id": 34,
+      "filename": "NEW_34_OPEX_Kategorie_IST_FC_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-02", "perspective": "three-way", "uniqueValue": "IST vs FC vs VJ"},
+        {"id": 2, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Kategorien YoY"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Kategorienvergleich"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 5, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Kategorien nach Kosten"}
+      ],
+      "templatesUsed": ["BC-02", "BC-03", "BC-04", "BC-06", "BC-08"],
+      "status": "passed"
+    },
+    {
+      "id": 35,
+      "filename": "NEW_35_Bilanz_Aktiva_IST_VJ.csv",
+      "chartType": "waterfall",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "Aktiva Summary"},
+        {"id": 2, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "Aktiva Detail"},
+        {"id": 3, "templateId": "WF-03", "perspective": "yoy-bridge", "uniqueValue": "Aktiva YoY Bridge"},
+        {"id": 4, "templateId": "WF-09", "perspective": "asset-bridge", "uniqueValue": "Vermögensbrücke"},
+        {"id": 5, "templateId": "WF-07", "perspective": "composition-bridge", "uniqueValue": "Strukturbrücke"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-03", "WF-07", "WF-09"],
+      "status": "passed"
+    },
+    {
+      "id": 36,
+      "filename": "NEW_36_Bilanz_Passiva_IST_BUD.csv",
+      "chartType": "stacked-bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "SB-01", "perspective": "composition-absolute", "uniqueValue": "Passiva-Struktur absolut"},
+        {"id": 2, "templateId": "SB-02", "perspective": "composition-percent", "uniqueValue": "Kapitalstruktur 100%"},
+        {"id": 3, "templateId": "SB-05", "perspective": "segment-comparison", "uniqueValue": "IST vs BUD Stacks"},
+        {"id": 4, "templateId": "SB-06", "perspective": "pnl-components", "uniqueValue": "EK/FK-Komponenten"},
+        {"id": 5, "templateId": "SB-08", "perspective": "budget-components", "uniqueValue": "Budget-Zusammensetzung"}
+      ],
+      "templatesUsed": ["SB-01", "SB-02", "SB-05", "SB-06", "SB-08"],
+      "status": "passed"
+    },
+    {
+      "id": 37,
+      "filename": "NEW_37_Working_Capital_IST_BUD_FC.csv",
+      "chartType": "waterfall",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "WC Summary"},
+        {"id": 2, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "WC Detail"},
+        {"id": 3, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "WC Budget Bridge"},
+        {"id": 4, "templateId": "WF-12", "perspective": "fc-bridge", "uniqueValue": "WC FC Bridge"},
+        {"id": 5, "templateId": "WF-06", "perspective": "cashflow-bridge", "uniqueValue": "WC Flow Bridge"},
+        {"id": 6, "templateId": "WF-14", "perspective": "budget-compare-right", "uniqueValue": "Budget + FC rechts"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-04", "WF-06", "WF-12", "WF-14"],
+      "status": "passed"
+    },
+    {
+      "id": 38,
+      "filename": "NEW_38_Balance_Sheet_IST_FC.csv",
+      "chartType": "stacked-bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "SB-01", "perspective": "composition-absolute", "uniqueValue": "Balance Sheet absolut"},
+        {"id": 2, "templateId": "SB-02", "perspective": "composition-percent", "uniqueValue": "Balance Sheet 100%"},
+        {"id": 3, "templateId": "SB-05", "perspective": "segment-comparison", "uniqueValue": "IST vs FC Stacks"},
+        {"id": 4, "templateId": "SB-06", "perspective": "asset-liability", "uniqueValue": "Assets vs Liabilities"},
+        {"id": 5, "templateId": "SB-08", "perspective": "forecast-components", "uniqueValue": "FC-Zusammensetzung"}
+      ],
+      "templatesUsed": ["SB-01", "SB-02", "SB-05", "SB-06", "SB-08"],
+      "status": "passed"
+    },
+    {
+      "id": 39,
+      "filename": "NEW_39_Assets_Liabilities_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Positionen YoY gruppiert"},
+        {"id": 2, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Positionsvergleich"},
+        {"id": 3, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Delta farbcodiert"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Positionen nach Wert"},
+        {"id": 5, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Aktiva vs Passiva"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-08", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 40,
+      "filename": "NEW_40_Cashflow_Operating_IST.csv",
+      "chartType": "waterfall",
+      "variantCount": 4,
+      "variants": [
+        {"id": 1, "templateId": "WF-06", "perspective": "cashflow-bridge", "uniqueValue": "OCF Bridge JÜ → OCF"},
+        {"id": 2, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "OCF Summary"},
+        {"id": 3, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "OCF Detail"},
+        {"id": 4, "templateId": "WF-07", "perspective": "flow-bridge", "uniqueValue": "Cashflow Überleitung"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-06", "WF-07"],
+      "status": "passed"
+    },
+    {
+      "id": 41,
+      "filename": "NEW_41_Cashflow_IST_FC.csv",
+      "chartType": "waterfall",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "WF-06", "perspective": "cashflow-bridge", "uniqueValue": "CF Bridge"},
+        {"id": 2, "templateId": "WF-12", "perspective": "fc-bridge", "uniqueValue": "CF FC Bridge"},
+        {"id": 3, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "CF Summary"},
+        {"id": 4, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "CF Detail"},
+        {"id": 5, "templateId": "WF-07", "perspective": "flow-bridge", "uniqueValue": "Liquiditäts-Bridge"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-06", "WF-07", "WF-12"],
+      "status": "passed"
+    },
+    {
+      "id": 42,
+      "filename": "NEW_42_Cashflow_Quartale_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "CF Q1-Q4 YoY"},
+        {"id": 2, "templateId": "BC-10", "perspective": "quarterly-trend", "uniqueValue": "Quartalsvergleich"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "CF-Kategorien-Vergleich"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Delta farbcodiert"},
+        {"id": 5, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Quartale nach CF"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-08", "BC-10"],
+      "status": "passed"
+    },
+    {
+      "id": 43,
+      "filename": "NEW_43_Cashflow_Direct_IST_BUD.csv",
+      "chartType": "waterfall",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "WF-06", "perspective": "cashflow-bridge", "uniqueValue": "Direct CF Bridge"},
+        {"id": 2, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "CF Budget Bridge"},
+        {"id": 3, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "CF Summary"},
+        {"id": 4, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "CF Detail"},
+        {"id": 5, "templateId": "WF-08", "perspective": "variance", "uniqueValue": "Abweichungen"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-04", "WF-06", "WF-08"],
+      "status": "passed"
+    },
+    {
+      "id": 44,
+      "filename": "NEW_44_Cashflow_FCF_IST_BUD_FC.csv",
+      "chartType": "waterfall",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "WF-06", "perspective": "cashflow-bridge", "uniqueValue": "FCF Bridge EBITDA → FCF"},
+        {"id": 2, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "FCF Budget Bridge"},
+        {"id": 3, "templateId": "WF-12", "perspective": "fc-bridge", "uniqueValue": "FCF FC Bridge"},
+        {"id": 4, "templateId": "WF-14", "perspective": "budget-compare-right", "uniqueValue": "Budget + FC rechts"},
+        {"id": 5, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "FCF Summary"},
+        {"id": 6, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "FCF Detail"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-04", "WF-06", "WF-12", "WF-14"],
+      "status": "passed"
+    },
+    {
+      "id": 45,
+      "filename": "NEW_45_Personal_FTE_IST_BUD.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "FTE IST vs Budget"},
+        {"id": 2, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Bereichsvergleich"},
+        {"id": 3, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichung farbcodiert"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Bereiche nach FTE"},
+        {"id": 5, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich"}
+      ],
+      "templatesUsed": ["BC-01", "BC-03", "BC-04", "BC-06", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 46,
+      "filename": "NEW_46_HR_Kosten_IST_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "Personalkosten YoY"},
+        {"id": 2, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Kostenarten-Vergleich"},
+        {"id": 3, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Delta farbcodiert"},
+        {"id": 4, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "Kostenarten nach Volumen"},
+        {"id": 5, "templateId": "BC-09", "perspective": "segment-comparison", "uniqueValue": "Segmentvergleich"}
+      ],
+      "templatesUsed": ["BC-03", "BC-04", "BC-06", "BC-08", "BC-09"],
+      "status": "passed"
+    },
+    {
+      "id": 47,
+      "filename": "NEW_47_Personal_Abteilungen_Lang.csv",
+      "chartType": "bar",
+      "variantCount": 5,
+      "variants": [
+        {"id": 1, "templateId": "BC-04", "perspective": "ranking-horizontal", "uniqueValue": "Horizontal für lange Labels"},
+        {"id": 2, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget"},
+        {"id": 3, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "Abteilungsvergleich"},
+        {"id": 4, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichung farbcodiert"},
+        {"id": 5, "templateId": "BC-07", "perspective": "kpi-horizontal", "uniqueValue": "KPI horizontal"}
+      ],
+      "templatesUsed": ["BC-01", "BC-03", "BC-04", "BC-06", "BC-07"],
+      "status": "passed"
+    },
+    {
+      "id": 48,
+      "filename": "NEW_48_KPI_Dashboard_IST_BUD_FC_VJ.csv",
+      "chartType": "bar",
+      "variantCount": 7,
+      "variants": [
+        {"id": 1, "templateId": "BC-02", "perspective": "three-way", "uniqueValue": "KPIs IST vs BUD vs FC"},
+        {"id": 2, "templateId": "BC-08", "perspective": "yoy-grouped", "uniqueValue": "KPIs YoY"},
+        {"id": 3, "templateId": "BC-01", "perspective": "ist-vs-bud", "uniqueValue": "IST vs Budget"},
+        {"id": 4, "templateId": "BC-07", "perspective": "kpi-horizontal", "uniqueValue": "KPI Dashboard horizontal"},
+        {"id": 5, "templateId": "BC-06", "perspective": "category-comparison", "uniqueValue": "KPI-Vergleich"},
+        {"id": 6, "templateId": "BC-03", "perspective": "variance", "uniqueValue": "Abweichungen farbcodiert"},
+        {"id": 7, "templateId": "BC-04", "perspective": "ranking", "uniqueValue": "KPIs nach Abweichung"}
+      ],
+      "templatesUsed": ["BC-01", "BC-02", "BC-03", "BC-04", "BC-06", "BC-07", "BC-08"],
+      "status": "passed"
+    },
+    {
+      "id": 49,
+      "filename": "NEW_49_EBITDA_Bridge_IST_VJ.csv",
+      "chartType": "waterfall",
+      "variantCount": 4,
+      "variants": [
+        {"id": 1, "templateId": "WF-03", "perspective": "yoy-bridge", "uniqueValue": "EBITDA VJ → Aktuell"},
+        {"id": 2, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "EBITDA Summary"},
+        {"id": 3, "templateId": "WF-09", "perspective": "revenue-bridge", "uniqueValue": "Bridge Detail"},
+        {"id": 4, "templateId": "WF-07", "perspective": "margin-bridge", "uniqueValue": "Margenbrücke"}
+      ],
+      "templatesUsed": ["WF-01", "WF-03", "WF-07", "WF-09"],
+      "status": "passed"
+    },
+    {
+      "id": 50,
+      "filename": "NEW_50_Margin_Analysis_IST_BUD_FC.csv",
+      "chartType": "waterfall",
+      "variantCount": 6,
+      "variants": [
+        {"id": 1, "templateId": "WF-07", "perspective": "margin-bridge", "uniqueValue": "Margen-Bridge"},
+        {"id": 2, "templateId": "WF-01", "perspective": "structure-summary", "uniqueValue": "Margen Summary"},
+        {"id": 3, "templateId": "WF-02", "perspective": "structure-detail", "uniqueValue": "Margen Detail"},
+        {"id": 4, "templateId": "WF-04", "perspective": "budget-bridge", "uniqueValue": "Margen Budget Bridge"},
+        {"id": 5, "templateId": "WF-12", "perspective": "fc-bridge", "uniqueValue": "Margen FC Bridge"},
+        {"id": 6, "templateId": "WF-14", "perspective": "budget-compare-right", "uniqueValue": "Budget + FC rechts"}
+      ],
+      "templatesUsed": ["WF-01", "WF-02", "WF-04", "WF-07", "WF-12", "WF-14"],
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "totalVariants": 282,
+    "averageVariantsPerFile": 5.64,
+    "templateUsage": {
+      "waterfall": {
+        "WF-01": 21,
+        "WF-02": 18,
+        "WF-03": 8,
+        "WF-04": 13,
+        "WF-05": 1,
+        "WF-06": 6,
+        "WF-07": 15,
+        "WF-08": 4,
+        "WF-09": 6,
+        "WF-12": 9,
+        "WF-14": 6,
+        "WF-15": 2,
+        "WF-16": 2,
+        "WF-17": 2
+      },
+      "bar": {
+        "BC-01": 18,
+        "BC-02": 9,
+        "BC-03": 28,
+        "BC-04": 25,
+        "BC-05": 4,
+        "BC-06": 28,
+        "BC-07": 10,
+        "BC-08": 18,
+        "BC-09": 15,
+        "BC-10": 11
+      },
+      "stacked-bar": {
+        "SB-01": 5,
+        "SB-02": 5,
+        "SB-03": 1,
+        "SB-05": 5,
+        "SB-06": 5,
+        "SB-07": 1,
+        "SB-08": 5
+      }
+    },
+    "unusedTemplates": ["WF-10", "WF-11", "WF-13", "WF-18", "WF-19", "SB-04", "SB-09", "SB-10"],
+    "filesWithMaxVariants": [5, 12],
+    "filesWithMinVariants": [23, 40, 49]
+  }
+}

@@ -1,0 +1,2105 @@
+{
+  "metadata": {
+    "testRun": "Phase 1 - Testdaten_3 (Multi-Szenario)",
+    "date": "2025-01-27",
+    "totalFiles": 50,
+    "dataPath": "5. Datenbeispiele/Testdaten_3/",
+    "prompt": "PROMPT-1-UNIVERSAL-ANALYZER.md"
+  },
+  "summary": {
+    "passed": 50,
+    "warnings": 0,
+    "failed": 0,
+    "successRate": "100%"
+  },
+  "scenarioDistribution": {
+    "4+_scenarios": 18,
+    "3_scenarios": 22,
+    "2_scenarios": 10
+  },
+  "chartRecommendations": {
+    "waterfall": 28,
+    "bar": 14,
+    "stacked_bar": 8
+  },
+  "reportTypeDistribution": {
+    "income-statement": 12,
+    "balance-sheet": 6,
+    "cashflow": 5,
+    "segment-report": 5,
+    "cost-report": 6,
+    "kpi-dashboard": 5,
+    "personnel-report": 4,
+    "sales-report": 4,
+    "working-capital": 3
+  },
+  "results": [
+    {
+      "id": 1,
+      "filename": "51_PL_PY_IST_vs_FC_vs_BUD_Monthly.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 20,
+        "columnCount": 37,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+          "year": "2025",
+          "periodType": "monthly"
+        },
+        "scenarios": ["PY IST", "FC", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Revenue", "COGS", "Gross Profit", "OpEx", "EBITDA", "EBIT", "EBT", "Net Income"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Revenue", "COGS", "Gross Profit", "S&M Expenses", "G&A Expenses", "R&D Expenses", "Other Op. Income", "Other Op. Expenses", "EBITDA", "Depreciation", "EBIT", "Interest Income", "Interest Expense", "EBT", "Income Tax", "Net Income"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar", "stacked-bar"],
+        "reasoning": "GuV mit 3 Szenarien (PY/FC/BUD) - Waterfall optimal für Bridge-Darstellung PY→CY"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 2,
+      "filename": "52_GuV_FC1_vs_FC2_vs_BUD_Quarterly.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 13,
+        "columnCount": 13,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Q1", "Q2", "Q3", "Q4"],
+          "year": "2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["FC1", "FC2", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Umsatzerlöse", "Rohertrag", "EBITDA", "EBIT", "EBT", "Jahresüberschuss"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Umsatzerlöse", "Materialaufwand", "Rohertrag", "Personalaufwand", "Sonstige betr. Aufwendungen", "EBITDA", "Abschreibungen", "EBIT", "Zinsergebnis", "EBT", "Steuern", "Jahresüberschuss"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "GuV mit Forecast-Iterationen - Waterfall zeigt Überleitung FC1→FC2→BUD"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 3,
+      "filename": "53_IFRS_PL_FC1_IT1_IT2_IT3.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 20,
+        "columnCount": 8,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["IST 2024", "FC1 Initial", "FC1 Iter_1", "FC1 Iter_2", "FC1 Final"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Revenue", "Gross Profit", "EBITDA", "EBIT", "EBT", "Net Income"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Revenue", "Cost of Sales", "Gross Profit", "Research & Development", "Sales & Marketing", "General & Administrative", "Other Operating Income", "Other Operating Expense", "EBITDA", "Depreciation & Amortization", "EBIT", "Interest Income", "Interest Expense", "EBT", "Income Tax", "Net Income"],
+        "scenarioCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "FC-Iterationen - Waterfall zeigt Entwicklung über Iterationen"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 4,
+      "filename": "54_PL_PY_IST_vs_CY_IST_YoY.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 18,
+        "columnCount": 8,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["2023", "2024", "2025"],
+          "year": "2023-2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["IST_2023", "IST_2024", "IST_2025"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Umsatzerlöse", "Bruttoergebnis", "EBITDA", "EBIT", "EBT", "Jahresüberschuss"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Umsatzerlöse", "Produktumsatz", "Serviceumsatz", "Herstellungskosten", "Bruttoergebnis", "Vertriebskosten", "Verwaltungskosten", "F&E Kosten", "Sonstige Erträge", "Sonstige Aufwendungen", "EBITDA", "Abschreibungen", "EBIT", "Finanzergebnis", "EBT", "Ertragsteuern", "Jahresüberschuss"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "YoY-Vergleich über 3 Jahre - WF-03 YoY Bridge ideal"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 5,
+      "filename": "55_GuV_BUD_vs_Target_vs_Stretch.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 18,
+        "columnCount": 6,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2026",
+          "periodType": "annual"
+        },
+        "scenarios": ["Budget", "Target", "Stretch"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Nettoumsatz", "Rohertrag", "EBITDA", "EBIT", "EBT", "Ergebnis"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Nettoumsatz", "Wareneinsatz", "Rohertrag", "Personalkosten", "Mietaufwand", "Marketing", "Sonstige Kosten", "EBITDA", "Abschreibungen", "EBIT", "Zinsen", "EBT", "Steuern", "Ergebnis"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "3 Ziel-Szenarien (BUD/Target/Stretch) - BC-02 für Vergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 6,
+      "filename": "56_PL_Rolling_FC_Q1_Q2_Q3_Q4.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 12,
+        "columnCount": 7,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Q1", "Q2", "Q3", "Q4"],
+          "year": "2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["RF_Q1", "RF_Q2", "RF_Q3", "RF_Q4"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Revenue", "Gross Profit", "EBITDA", "EBIT", "EBT", "Net Income"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Revenue", "COGS", "Gross Profit", "OpEx", "EBITDA", "D&A", "EBIT", "Net Finance", "EBT", "Tax", "Net Income"],
+        "scenarioCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "Rolling Forecast Quarterly - BC-10 Quartalsvergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 7,
+      "filename": "57_GuV_PY_IST_FC1_FC2_BUD_Halbjahr.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "Mio",
+        "rowCount": 16,
+        "columnCount": 13,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["H1", "H2", "FY"],
+          "year": "2025",
+          "periodType": "half-yearly"
+        },
+        "scenarios": ["PY IST", "FC1", "FC2", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Umsatz", "Bruttoergebnis", "EBITDA", "EBIT", "EBT"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Umsatz", "Herstellkosten", "Bruttoergebnis", "F&E Kosten", "Vertrieb/Marketing", "Verwaltung", "Sonstige Erträge", "EBITDA", "Abschreibungen", "EBIT", "Finanzergebnis", "EBT"],
+        "scenarioCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar", "stacked-bar"],
+        "reasoning": "4 Szenarien mit H1/H2 Split - WF-16/17 mit Compare-Bars ideal"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 8,
+      "filename": "58_PL_Actual_LY_PY_CY_Trend.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 15,
+        "columnCount": 5,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["2023", "2024", "2025"],
+          "year": "2023-2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["LY_2023_Actual", "PY_2024_Actual", "CY_2025_Actual"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Revenue", "Gross Profit", "EBITDA", "EBIT", "EBT", "Net Income"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Revenue", "Cost of Goods Sold", "Gross Profit", "Operating Expenses", "EBITDA", "Depreciation", "EBIT", "Interest Net", "EBT", "Income Tax", "Net Income"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "3-Jahres-Trend - BC-08 YoY Vergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 9,
+      "filename": "59_GuV_BUD_vs_FC_MidYear_Update.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 16,
+        "columnCount": 8,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["H1", "H2", "FY"],
+          "year": "2025",
+          "periodType": "half-yearly"
+        },
+        "scenarios": ["H1 Actual", "H2 BUD orig", "H2 FC Update", "FY BUD", "FY FC Update"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Umsatzerlöse", "Deckungsbeitrag", "EBITDA", "EBIT", "EBT"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Umsatzerlöse", "Transportkosten", "Deckungsbeitrag", "Personalkosten", "Fahrzeugkosten", "Verwaltung", "Sonstige Kosten", "EBITDA", "Abschreibungen", "EBIT", "Zinsen", "EBT"],
+        "scenarioCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Mid-Year Update - WF-12 Forecast Variance Bridge"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 10,
+      "filename": "60_PL_Multi_Iteration_Tracking.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 12,
+        "columnCount": 7,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["FC2_Version1", "FC2_Version2", "FC2_Final"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Net Revenue", "Contribution Margin", "EBITDA", "EBIT", "EBT", "Net Profit"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Net Revenue", "Variable Costs", "Contribution Margin", "Fixed Costs", "EBITDA", "Depreciation", "EBIT", "Financial Result", "EBT", "Taxes", "Net Profit"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "FC-Iterationen Tracking - BC-02 für Versionsvergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 11,
+      "filename": "61_GuV_SaaS_ARR_MRR_Scenarios.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "USD",
+        "unit": "TUSD",
+        "rowCount": 21,
+        "columnCount": 6,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["PY Actual", "Conservative FC", "Base FC", "Aggressive FC", "Board Target"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["ARR", "Revenue", "Gross Profit", "EBITDA"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Opening ARR", "New Business ARR", "Expansion ARR", "Churn ARR", "Closing ARR", "Monthly Recurring Revenue", "Subscription Revenue", "Professional Services", "Total Revenue", "Cost of Revenue", "Gross Profit", "Sales & Marketing", "R&D", "G&A", "EBITDA"],
+        "scenarioCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar", "stacked-bar"],
+        "reasoning": "SaaS ARR Bridge mit 5 Szenarien - WF-09 Revenue Bridge"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 12,
+      "filename": "62_PL_Retail_PY_IST_vs_FC_vs_BUD.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 17,
+        "columnCount": 10,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Jan", "Feb", "Mrz"],
+          "year": "2025",
+          "periodType": "monthly"
+        },
+        "scenarios": ["PY_IST", "FC", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Bruttoumsatz", "Nettoumsatz", "Rohertrag", "EBITDA", "EBIT", "EBT", "Jahresergebnis"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Bruttoumsatz", "Rabatte/Skonti", "Nettoumsatz", "Wareneinsatz", "Rohertrag", "Personalkosten Verkauf", "Filialkosten", "Zentrale Kosten", "Marketing", "EBITDA", "Abschreibungen", "EBIT", "Zinsen", "EBT", "Steuern", "Jahresergebnis"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Retail P&L mit 3 Szenarien - WF-14/16 mit Compare-Bars"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 13,
+      "filename": "63_Bilanz_PY_vs_CY_IST_Quartale.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 20,
+        "columnCount": 13,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Q1", "Q2", "Q3", "Q4"],
+          "year": "2024-2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["2024", "2025"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["AKTIVA", "Anlagevermögen", "Umlaufvermögen", "PASSIVA", "Eigenkapital", "Verbindlichkeiten"]
+        }
+      },
+      "extractedData": {
+        "positions": ["AKTIVA", "Anlagevermögen", "Sachanlagen", "Imm. Vermögen", "Finanzanlagen", "Umlaufvermögen", "Vorräte", "Forderungen", "Liquide Mittel", "Summe Aktiva", "PASSIVA", "Eigenkapital", "Langfr. Verbindl.", "Kurzfr. Verbindl.", "Summe Passiva"],
+        "scenarioCount": 2
+      },
+      "chartRecommendation": {
+        "primary": "stacked_bar",
+        "alternatives": ["bar"],
+        "reasoning": "Bilanz-Quartalsvergleich - SB-05 Segmentvergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 14,
+      "filename": "64_Balance_Sheet_BUD_FC1_FC2.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 19,
+        "columnCount": 6,
+        "timeRange": {
+          "type": "single",
+          "periods": ["EOY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["BUD_2025", "FC1_2025", "FC2_2025"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["ASSETS", "Non-current Assets", "Current Assets", "EQUITY & LIABILITIES", "Shareholders Equity", "Liabilities"]
+        }
+      },
+      "extractedData": {
+        "positions": ["ASSETS", "Non-current Assets", "Property Plant Equipment", "Intangible Assets", "Financial Assets", "Current Assets", "Inventories", "Trade Receivables", "Cash and Equivalents", "Total Assets", "EQUITY & LIABILITIES", "Shareholders Equity", "Share Capital", "Retained Earnings", "Non-current Liabilities", "Current Liabilities", "Total Equity & Liabilities"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked_bar"],
+        "reasoning": "Bilanz mit 3 Szenarien - BC-02 IST vs BUD vs FC"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 15,
+      "filename": "65_Bilanz_Opening_vs_Closing_vs_FC.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 17,
+        "columnCount": 6,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["Opening 01.01.", "Closing 31.12. IST", "Closing 31.12. FC"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Aktiva", "Passiva"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Anlagevermögen", "Vorräte", "Forderungen LuL", "Sonstige Forderungen", "Liquide Mittel", "Summe Aktiva", "Eigenkapital", "Rückstellungen", "Verbindl. ggü. KI", "Verbindl. LuL", "Sonstige Verbindl.", "Summe Passiva"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Opening → Closing Bridge - WF-06 Cashflow Bridge Style"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 16,
+      "filename": "66_BS_Working_Capital_3Scenarios.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 13,
+        "columnCount": 6,
+        "timeRange": {
+          "type": "single",
+          "periods": ["Q4"],
+          "year": "2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["Q4_PY_IST", "Q4_BUD", "Q4_FC"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Current Assets", "Current Liabilities", "Net Working Capital"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Current Assets", "Inventories", "Trade Receivables", "Other Receivables", "Prepaid Expenses", "Current Liabilities", "Trade Payables", "Other Payables", "Accrued Expenses", "Deferred Revenue", "Net Working Capital"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["stacked_bar"],
+        "reasoning": "Working Capital mit 3 Szenarien - Bridge-Charakter erkannt"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 17,
+      "filename": "67_Bilanz_Konzern_PY_IST_FC_BUD.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "Mio",
+        "rowCount": 25,
+        "columnCount": 6,
+        "timeRange": {
+          "type": "single",
+          "periods": ["31.12."],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["PY 2024 IST", "CY 2025 FC", "CY 2025 BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["AKTIVA", "Langfristiges Vermögen", "Kurzfristiges Vermögen", "PASSIVA", "Eigenkapital", "Fremdkapital"]
+        }
+      },
+      "extractedData": {
+        "positions": ["AKTIVA", "Immaterielle Vermögenswerte", "Sachanlagen", "Finanzanlagen", "Langfristiges Vermögen", "Vorräte", "Forderungen", "Zahlungsmittel", "Kurzfristiges Vermögen", "Bilanzsumme", "PASSIVA", "Gezeichnetes Kapital", "Kapitalrücklage", "Gewinnrücklagen", "Eigenkapital", "Langfr. Finanzverbindl.", "Pensionsrückstellungen", "Kurzfr. Verbindlichkeiten", "Fremdkapital"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "stacked_bar",
+        "alternatives": ["bar"],
+        "reasoning": "Konzernbilanz mit 3 Szenarien - SB-05 für Struktur"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 18,
+      "filename": "68_Balance_Sheet_IT1_IT2_IT3.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 12,
+        "columnCount": 7,
+        "timeRange": {
+          "type": "single",
+          "periods": ["EOY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["FC_Initial", "FC_Iter1", "FC_Iter2", "FC_Final"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Total Assets", "Total Liab & Equity"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Total Assets", "Fixed Assets", "Current Assets", "Inventories", "Receivables", "Cash", "Total Liab & Equity", "Equity", "Long-term Debt", "Short-term Liabilities", "Trade Payables"],
+        "scenarioCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "FC-Iterationen Bilanz - BC-02 für Versionsvergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 19,
+      "filename": "69_Cashflow_PY_IST_vs_CY_IST_Annual.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "Mio",
+        "rowCount": 27,
+        "columnCount": 7,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["2023", "2024", "2025"],
+          "year": "2023-2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["2023 IST", "2024 IST", "2025 IST"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Operativer Cashflow", "Investiver Cashflow", "Finanzierungs-Cashflow"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Operativer Cashflow", "Jahresüberschuss", "Abschreibungen", "Veränderung Rückstellungen", "Veränderung Working Capital", "Sonstige nicht zahlungswirksam", "CF aus operativer Tätigkeit", "Investiver Cashflow", "Investitionen Sachanlagen", "Investitionen imm. Vermögen", "Erlöse aus Anlagenverkauf", "CF aus Investitionstätigkeit", "Finanzierungs-Cashflow", "Aufnahme Finanzverbindl.", "Tilgung Finanzverbindl.", "Dividenden", "CF aus Finanzierungstätig.", "Zahlungsmittelveränderung", "Anfangsbestand Zahlungsmittel", "Endbestand Zahlungsmittel"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Cashflow 3 Jahre - WF-06 Cashflow Bridge"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 20,
+      "filename": "70_CF_BUD_vs_FC1_vs_FC2_Quarterly.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 17,
+        "columnCount": 13,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Q1", "Q2", "Q3", "Q4"],
+          "year": "2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["BUD", "FC1", "FC2"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Operating Activities", "Investing Activities", "Financing Activities"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Operating Activities", "Net Income", "Depreciation", "Change in WC", "Other Adjustments", "Operating CF", "Investing Activities", "CapEx", "Asset Disposals", "Investing CF", "Financing Activities", "Debt Proceeds", "Debt Repayments", "Dividends", "Financing CF", "Net Change in Cash"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Cashflow mit 3 Szenarien - WF-14 Budget Bridge mit Compare-Bars"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 21,
+      "filename": "71_Cashflow_Direct_Indirect_3FC.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 20,
+        "columnCount": 5,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["FC1 Sept", "FC2 Nov", "FC3 Final"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["INDIRECT METHOD", "DIRECT METHOD"]
+        }
+      },
+      "extractedData": {
+        "positions": ["INDIRECT METHOD", "Net Income", "Depreciation", "Change in Receivables", "Change in Payables", "Change in Accruals", "Operating CF (Indirect)", "DIRECT METHOD", "Cash from Customers", "Cash to Suppliers", "Cash to Employees", "Cash for Other OpEx", "Operating CF (Direct)"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Cashflow mit 3 FC-Versionen - WF-06 für beide Methoden"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 22,
+      "filename": "72_FCF_Bridge_PY_to_CY_to_NY.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 12,
+        "columnCount": 6,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["2024", "2025", "2026"],
+          "year": "2024-2026",
+          "periodType": "annual"
+        },
+        "scenarios": ["PY_2024_IST", "CY_2025_FC", "NY_2026_BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["EBITDA", "Operating Cash Flow", "Free Cash Flow"]
+        }
+      },
+      "extractedData": {
+        "positions": ["EBITDA", "Change in Working Capital", "Cash Taxes Paid", "Other Operating Items", "Operating Cash Flow", "CapEx Maintenance", "CapEx Growth", "Total CapEx", "Free Cash Flow"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "FCF Bridge über 3 Jahre - WF-06 mit klarem Bridge-Charakter"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 23,
+      "filename": "73_Cashflow_Iterations_Monthly.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 14,
+        "columnCount": 10,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Oct", "Nov", "Dec"],
+          "year": "2025",
+          "periodType": "monthly"
+        },
+        "scenarios": ["IT1", "IT2", "Final"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Cash Inflows", "Cash Outflows", "Net Operating CF", "Free Cash Flow"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Cash Inflows", "Customer Receipts", "Other Receipts", "Cash Outflows", "Payroll", "Suppliers", "OpEx Other", "Net Operating CF", "CapEx", "Free Cash Flow"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Cashflow Iterations - WF-06 für Cash Bridge"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 24,
+      "filename": "74_Segment_Revenue_PY_FC_BUD_Region.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "USD",
+        "unit": "Mio",
+        "rowCount": 18,
+        "columnCount": 16,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Q1", "Q2", "Q3", "Q4", "FY"],
+          "year": "2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["PY", "FC", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "aggregationLevel": {
+            "columnName": "Region",
+            "values": ["EMEA", "Americas", "APAC"]
+          },
+          "detailLevel": {
+            "values": ["Germany", "UK", "France", "Other EMEA", "USA", "Canada", "LatAm", "China", "Japan", "Other APAC"]
+          }
+        }
+      },
+      "extractedData": {
+        "positions": ["EMEA", "Germany", "UK", "France", "Other EMEA", "Americas", "USA", "Canada", "LatAm", "APAC", "China", "Japan", "Other APAC", "Total"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "stacked_bar",
+        "alternatives": ["bar", "waterfall"],
+        "reasoning": "Segment Revenue mit Hierarchie - SB-05 Segmentvergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 25,
+      "filename": "75_Segment_EBIT_BUD_FC1_FC2_BU.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 7,
+        "columnCount": 11,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["BUD", "FC1", "FC2"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Business Units"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Automotive", "Industrial", "Consumer", "Healthcare", "Corporate/Elim", "Total"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked_bar"],
+        "reasoning": "Segment EBIT mit 3 Szenarien - BC-09 Abteilungsvergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 26,
+      "filename": "76_Segment_Margin_FC_Iterations.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 9,
+        "columnCount": 9,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["FC Init", "FC Final"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Segments"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Electronics", "Machinery", "Services", "Materials", "Total/Average"],
+        "scenarioCount": 2
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "Segment Margin Iterationen - BC-08 YoY Vergleich Style"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 27,
+      "filename": "77_Segment_PY_CY_IST_by_Product.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 8,
+        "columnCount": 9,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["2024", "2025"],
+          "year": "2024-2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["PY_2024", "CY_2025"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Product Categories"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Software Licenses", "SaaS Subscriptions", "Maintenance", "Professional Services", "Hardware", "Training", "Total"],
+        "scenarioCount": 2
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked_bar", "waterfall"],
+        "reasoning": "Produkt-Segmente YoY - BC-08 für Vergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 28,
+      "filename": "78_Segment_Multi_Dim_Scenarios.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mio",
+        "rowCount": 21,
+        "columnCount": 8,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["PY IST", "FC1", "FC2", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "aggregationLevel": {
+            "columnName": "Region",
+            "values": ["DACH", "Western EU", "Americas", "APAC"]
+          },
+          "detailLevel": {
+            "columnName": "Product",
+            "values": ["Product A", "Product B", "Services"]
+          }
+        }
+      },
+      "extractedData": {
+        "positions": ["DACH-Product A", "DACH-Product B", "DACH-Services", "Western EU-Product A", "Western EU-Product B", "Western EU-Services", "Americas-Product A", "Americas-Product B", "Americas-Services", "APAC-Product A", "APAC-Product B", "APAC-Services"],
+        "scenarioCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "stacked_bar",
+        "alternatives": ["bar"],
+        "reasoning": "Multi-Dimensional Segment - SB-05 für Matrix-Darstellung"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 29,
+      "filename": "79_OpEx_PY_IST_vs_FC_vs_BUD_Monthly.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 15,
+        "columnCount": 19,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+          "year": "2025",
+          "periodType": "monthly"
+        },
+        "scenarios": ["PY", "FC", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Cost Categories"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Personnel Costs", "Rent & Facilities", "IT & Software", "Marketing & Advertising", "Travel & Entertainment", "Professional Services", "Insurance", "Utilities", "Office Supplies", "Other OpEx", "Total OpEx"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "stacked_bar",
+        "alternatives": ["waterfall", "bar"],
+        "reasoning": "OpEx mit 3 Szenarien - SB-09 Monatstrend"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 30,
+      "filename": "80_CapEx_Project_BUD_FC1_FC2.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 10,
+        "columnCount": 8,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["BUD_2025", "FC1_2025", "FC2_2025"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Projects"]
+        }
+      },
+      "extractedData": {
+        "positions": ["ERP System Upgrade", "New Production Line", "Office Renovation", "Fleet Modernization", "R&D Lab Equipment", "Warehouse Automation", "IT Infrastructure", "Solar Installation", "Total CapEx"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "CapEx Projekte mit 3 Szenarien - BC-02 für Vergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 31,
+      "filename": "81_Cost_Center_IT1_IT2_IT3.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 16,
+        "columnCount": 7,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["BUD Initial", "BUD IT1", "BUD IT2", "BUD Final"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Kostenstellen"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Produktion", "Qualitätssicherung", "Logistik", "Forschung & Entwicklung", "Vertrieb", "Marketing", "IT", "Personal/HR", "Finanzen", "Geschäftsleitung", "Facility Management", "Total"],
+        "scenarioCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "Kostenstellenplanung mit 4 Iterationen - BC-02"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 32,
+      "filename": "82_Fixed_Variable_PY_CY_IST.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 21,
+        "columnCount": 5,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["2024", "2025"],
+          "year": "2024-2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["PY_2024_IST", "CY_2025_IST"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["FIXED COSTS", "VARIABLE COSTS", "TOTAL COSTS"]
+        }
+      },
+      "extractedData": {
+        "positions": ["FIXED COSTS", "Rent", "Depreciation", "Insurance", "Base Salaries", "IT Licenses", "Subtotal Fixed", "VARIABLE COSTS", "Raw Materials", "Direct Labor", "Utilities (variable)", "Packaging", "Commissions", "Freight", "Subtotal Variable", "TOTAL COSTS"],
+        "scenarioCount": 2
+      },
+      "chartRecommendation": {
+        "primary": "stacked_bar",
+        "alternatives": ["bar", "waterfall"],
+        "reasoning": "Fixed vs Variable Costs - SB-01 Kostenstruktur"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 33,
+      "filename": "83_OpEx_by_Department_4Scenarios.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "GBP",
+        "unit": "TGBP",
+        "rowCount": 22,
+        "columnCount": 7,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["Budget", "FC1", "FC2", "Target"],
+        "hierarchy": {
+          "detected": true,
+          "aggregationLevel": {
+            "columnName": "Office Type",
+            "values": ["Front Office", "Middle Office", "Back Office", "Support Functions"]
+          },
+          "detailLevel": {
+            "columnName": "Department",
+            "values": ["Trading", "Research", "Client Services", "Risk Management", "Compliance", "Operations", "Settlement", "Accounting", "Reporting", "IT", "HR", "Legal", "Facilities"]
+          }
+        }
+      },
+      "extractedData": {
+        "positions": ["Front Office", "Trading", "Research", "Client Services", "Middle Office", "Risk Management", "Compliance", "Operations", "Back Office", "Settlement", "Accounting", "Reporting", "Support Functions", "IT", "HR", "Legal", "Facilities", "Total"],
+        "scenarioCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "stacked_bar",
+        "alternatives": ["bar"],
+        "reasoning": "OpEx mit Hierarchie und 4 Szenarien - SB-05"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 34,
+      "filename": "84_Manufacturing_Cost_FC_Versions.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 12,
+        "columnCount": 7,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["FC_Sept", "FC_Nov", "FC_Jan_Final", "BUD_Original"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Manufacturing Cost Elements"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Direct Materials", "Direct Labor", "Manufacturing Overhead", "Quality Control", "Maintenance", "Energy", "Packaging", "Waste/Scrap", "Total Manufacturing Cost"],
+        "scenarioCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Manufacturing Cost Versionen - WF-08 Kostenabweichungen"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 35,
+      "filename": "85_KPI_Dashboard_PY_IST_vs_CY_IST.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "kpi-dashboard",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mixed",
+        "rowCount": 24,
+        "columnCount": 8,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["2024", "2025"],
+          "year": "2024-2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["2024 IST", "2025 IST", "Target 2025"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["FINANCIAL KPIs", "OPERATIONAL KPIs", "EFFICIENCY KPIs"]
+        }
+      },
+      "extractedData": {
+        "positions": ["FINANCIAL KPIs", "Revenue", "Gross Margin", "EBITDA", "EBITDA Margin", "Net Profit", "ROIC", "OPERATIONAL KPIs", "Order Intake", "Book-to-Bill", "Backlog", "OTD Rate", "Capacity Util.", "EFFICIENCY KPIs", "Revenue/FTE", "DSO", "DPO", "Inventory Turns"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "KPI Dashboard YoY - BC-07 KPI Vergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 36,
+      "filename": "86_KPI_BUD_vs_FC_vs_Actual_Halbjahr.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "kpi-dashboard",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mixed",
+        "rowCount": 11,
+        "columnCount": 10,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["H1", "H2", "FY"],
+          "year": "2025",
+          "periodType": "half-yearly"
+        },
+        "scenarios": ["BUD", "FC", "Actual"],
+        "hierarchy": {
+          "detected": false
+        }
+      },
+      "extractedData": {
+        "positions": ["Revenue (EUR m)", "Gross Profit (EUR m)", "Gross Margin (%)", "EBITDA (EUR m)", "EBITDA Margin (%)", "EBIT (EUR m)", "Net Income (EUR m)", "Order Intake (EUR m)", "Backlog (EUR m)", "Headcount (FTE)"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "KPI mit 3 Szenarien H1/H2 - BC-02"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 37,
+      "filename": "87_Financial_Ratios_3Year_Trend.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "kpi-dashboard",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Ratios",
+        "rowCount": 19,
+        "columnCount": 7,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["2023", "2024", "2025"],
+          "year": "2023-2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["2023 IST", "2024 IST", "2025 IST"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Profitability", "Liquidity", "Leverage", "Efficiency"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Profitability", "Gross Margin %", "Operating Margin %", "Net Margin %", "ROE %", "ROA %", "ROIC %", "Liquidity", "Current Ratio", "Quick Ratio", "Cash Ratio", "Leverage", "Debt/Equity", "Debt/EBITDA", "Interest Coverage", "Efficiency", "Asset Turnover", "Inventory Turnover", "Receivables Turnover"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "Financial Ratios 3Y Trend - BC-05 Monatstrend Style"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 38,
+      "filename": "88_KPI_Target_vs_Forecast_vs_Stretch.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "kpi-dashboard",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mixed",
+        "rowCount": 11,
+        "columnCount": 7,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["Base_Target", "Forecast", "Stretch_Target"],
+        "hierarchy": {
+          "detected": false
+        }
+      },
+      "extractedData": {
+        "positions": ["Revenue Growth %", "EBITDA Margin %", "Net Profit Margin %", "ROIC %", "Free Cash Flow Yield %", "Customer Retention %", "NPS Score", "Employee Engagement", "Carbon Reduction %", "Digitalization Index"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "KPI Target vs Forecast vs Stretch - BC-02"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 39,
+      "filename": "89_Operational_KPIs_FC_Iterations.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "kpi-dashboard",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mixed",
+        "rowCount": 14,
+        "columnCount": 8,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["FC Initial", "FC Iter1", "FC Iter2", "FC Final", "BUD"],
+        "hierarchy": {
+          "detected": false
+        }
+      },
+      "extractedData": {
+        "positions": ["Shipments Processed", "On-Time Delivery", "Order Accuracy", "Warehouse Utilization", "Fleet Utilization", "Cost per Shipment", "Fuel Efficiency", "Claims Rate", "Customer Satisfaction", "Employee Productivity"],
+        "scenarioCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "Operational KPIs mit 5 Szenarien - BC-02"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 40,
+      "filename": "90_Headcount_PY_IST_vs_FC_vs_BUD.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "personnel-report",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "N/A",
+        "unit": "FTE",
+        "rowCount": 15,
+        "columnCount": 26,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Dec PY", "Jan-Dec"],
+          "year": "2025",
+          "periodType": "monthly"
+        },
+        "scenarios": ["PY IST", "FC", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Departments"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Engineering", "Product", "Design", "Sales", "Marketing", "Customer Success", "Finance", "HR", "Legal", "IT/Ops", "Total"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "stacked_bar",
+        "alternatives": ["bar"],
+        "reasoning": "Headcount mit 3 Szenarien - SB-09 Monatstrend"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 41,
+      "filename": "91_Personnel_Cost_IT1_IT2_IT3.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "personnel-report",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 14,
+        "columnCount": 8,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["PY_Actual", "BUD_Initial", "BUD_Iter1", "BUD_Iter2", "BUD_Final"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Cost Categories"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Base Salaries", "Bonuses", "Social Security", "Pension Contributions", "Health Insurance", "Stock-Based Comp", "Recruitment", "Training", "Severance", "Other Benefits", "Total Personnel Cost"],
+        "scenarioCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar", "stacked_bar"],
+        "reasoning": "Personnel Cost Iterations - WF-08 Kostenabweichungen"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 42,
+      "filename": "92_Salary_Budget_vs_FC_vs_Actual.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "personnel-report",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 13,
+        "columnCount": 11,
+        "timeRange": {
+          "type": "single",
+          "periods": ["FY"],
+          "year": "2025",
+          "periodType": "annual"
+        },
+        "scenarios": ["BUD", "FC", "Actual"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Grade Levels"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Partner", "Director", "Senior Manager", "Manager", "Senior Consultant", "Consultant", "Analyst", "Support Staff", "Total"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked_bar"],
+        "reasoning": "Salary by Grade Level - BC-09 Abteilungsvergleich"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 43,
+      "filename": "93_Sales_PY_CY_IST_by_Channel.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "sales-report",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 8,
+        "columnCount": 13,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Q1", "Q2", "Q3", "Q4"],
+          "year": "2024-2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["PY_2024", "CY_2025"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Sales Channels"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Direct Sales", "Partner/Reseller", "E-Commerce", "Retail", "OEM", "Government", "Total"],
+        "scenarioCount": 2
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked_bar"],
+        "reasoning": "Sales by Channel YoY - BC-08"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 44,
+      "filename": "94_Revenue_BUD_FC1_FC2_Target.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "sales-report",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mio",
+        "rowCount": 11,
+        "columnCount": 20,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Q1", "Q2", "Q3", "Q4", "FY"],
+          "year": "2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["BUD", "FC1", "FC2", "Target"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Revenue Streams"]
+        }
+      },
+      "extractedData": {
+        "positions": ["License Revenue", "SaaS Subscriptions", "Maintenance", "Professional Svcs", "Training", "Support", "Total Revenue"],
+        "scenarioCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked_bar", "waterfall"],
+        "reasoning": "Revenue mit 4 Szenarien - BC-02"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 45,
+      "filename": "95_Pipeline_FC_Quarterly_Versions.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "sales-report",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "TEUR",
+        "rowCount": 9,
+        "columnCount": 13,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Q1", "Q2", "Q3", "Q4"],
+          "year": "2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["FC_Oct", "FC_Nov", "FC_Dec"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Pipeline Stages"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Qualified Leads", "Proposal Sent", "Negotiation", "Verbal Commit", "Closed Won", "Total Pipeline", "Weighted Pipeline"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar", "stacked_bar"],
+        "reasoning": "Pipeline Funnel - WF-07 Margin Bridge Style"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 46,
+      "filename": "96_Order_Intake_PY_IST_FC_BUD.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "sales-report",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mio",
+        "rowCount": 13,
+        "columnCount": 13,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Jan", "Feb", "Mar", "Q1"],
+          "year": "2025",
+          "periodType": "monthly"
+        },
+        "scenarios": ["PY", "FC", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Product Lines"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Standard Machines", "Custom Solutions", "Spare Parts", "Service Contracts", "Automation Systems", "Total Order Intake"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked_bar"],
+        "reasoning": "Order Intake mit 3 Szenarien - BC-02"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 47,
+      "filename": "97_Working_Capital_BUD_vs_FC_Monthly.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "working-capital",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mio",
+        "rowCount": 16,
+        "columnCount": 13,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+          "year": "2025",
+          "periodType": "monthly"
+        },
+        "scenarios": ["BUD", "FC"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Current Assets", "Current Liabilities", "Net Working Capital"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Inventories", "Trade Receivables", "Other Receivables", "Prepayments", "Current Assets", "Trade Payables", "Other Payables", "Accrued Expenses", "Deferred Revenue", "Current Liabilities", "Net Working Capital"],
+        "scenarioCount": 2
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["stacked_bar", "bar"],
+        "reasoning": "Working Capital Bridge - WF-06 Style"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 48,
+      "filename": "98_Liquidity_PY_IST_vs_CY_IST_vs_FC.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "working-capital",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mio",
+        "rowCount": 13,
+        "columnCount": 12,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+          "year": "2025",
+          "periodType": "monthly"
+        },
+        "scenarios": ["PY", "CY", "FC"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Cash Flow Components"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Opening_Cash", "Operating_CF", "Investing_CF", "Financing_CF", "Closing_Cash"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Liquidity mit 3 Szenarien - WF-06 Cashflow Bridge"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 49,
+      "filename": "99_DSO_DPO_DIO_Scenarios.csv",
+      "originalFormat": "xlsx",
+      "status": "passed",
+      "analysis": {
+        "reportType": "working-capital",
+        "dataFormat": "matrix-complex",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Days/Mio",
+        "rowCount": 12,
+        "columnCount": 13,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["Q1", "Q2", "Q3", "Q4"],
+          "year": "2025",
+          "periodType": "quarterly"
+        },
+        "scenarios": ["PY IST", "FC", "BUD"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Working Capital Metrics"]
+        }
+      },
+      "extractedData": {
+        "positions": ["DSO (Days Sales Outstanding)", "DIO (Days Inventory Outstanding)", "DPO (Days Payables Outstanding)", "Cash Conversion Cycle", "Working Capital (EUR m)", "Revenue (EUR m)"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "DSO/DPO/DIO mit 3 Szenarien - BC-02 oder BC-10"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    },
+    {
+      "id": 50,
+      "filename": "100_Treasury_FC1_FC2_FC3_Weekly.csv",
+      "originalFormat": "csv",
+      "status": "passed",
+      "analysis": {
+        "reportType": "working-capital",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "unit": "Mio",
+        "rowCount": 14,
+        "columnCount": 15,
+        "timeRange": {
+          "type": "multi-period",
+          "periods": ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12", "W13"],
+          "year": "2025",
+          "periodType": "weekly"
+        },
+        "scenarios": ["FC1", "FC2", "FC3"],
+        "hierarchy": {
+          "detected": true,
+          "levels": ["Cash Flow Items"]
+        }
+      },
+      "extractedData": {
+        "positions": ["Opening_Balance", "Customer_Receipts", "Supplier_Payments", "Payroll", "Other_Payments", "Closing_Balance"],
+        "scenarioCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Treasury Weekly mit 3 FC-Versionen - WF-06"
+      },
+      "validationChecks": {
+        "jsonSchema": true,
+        "spracherhaltung": true,
+        "scenariosComplete": true,
+        "reportTypePlausible": true
+      }
+    }
+  ]
+}

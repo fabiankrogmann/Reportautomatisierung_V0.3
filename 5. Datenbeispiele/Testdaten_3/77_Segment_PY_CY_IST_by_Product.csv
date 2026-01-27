@@ -1,0 +1,8 @@
+Product_Category,PY_2024_Revenue,CY_2025_Revenue,YoY_Growth,PY_2024_Gross_Margin,CY_2025_Gross_Margin,PY_2024_EBIT,CY_2025_EBIT,EBIT_YoY
+Software Licenses,28000,25200,-10.0%,92.0%,91.0%,18200,15624,-14.2%
+SaaS Subscriptions,42000,50400,20.0%,85.0%,84.0%,21000,25200,20.0%
+Maintenance,18000,19800,10.0%,75.0%,74.0%,7200,7722,7.3%
+Professional Services,15000,16500,10.0%,45.0%,44.0%,3000,3300,10.0%
+Hardware,8000,7200,-10.0%,25.0%,24.0%,400,288,-28.0%
+Training,4000,4400,10.0%,70.0%,69.0%,1200,1320,10.0%
+Total,115000,123500,7.4%,74.8%,74.1%,51000,53454,4.8%

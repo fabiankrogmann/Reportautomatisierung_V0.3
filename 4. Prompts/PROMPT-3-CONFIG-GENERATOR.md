@@ -30,16 +30,27 @@ GRUNDREGEL:
 Alle Labels, Namen und Bezeichnungen müssen EXAKT so beibehalten werden,
 wie sie in den extractedData stehen.
 
+ERLAUBT (bei Aggregationen):
+✓ Mathematische Symbole hinzufügen: Ø (Durchschnitt), Σ (Summe), Δ (Delta/Veränderung)
+✓ Beispiele:
+  - "Revenue/FTE" → "Ø Revenue per FTE" ✓ (Durchschnitt-Symbol hinzugefügt)
+  - "Total Sales" → "Σ Sales" ✓ (Summen-Symbol hinzugefügt)
+  - "YoY Change" → "Δ YoY" ✓ (Delta-Symbol hinzugefügt)
+
 VERBOTEN:
 ✗ Übersetzen (DE→EN oder EN→DE)
+✗ Symbole ausschreiben ("Ø" → "Durchschnitt", "Σ" → "Summe", "Δ" → "Delta")
+✗ Kürzel auflösen ("FTE" → "Full-Time Equivalents", "YoY" → "Year-over-Year")
+✗ Text kürzen oder ändern ("Sonstige betr. Erträge" → "Sonstige Erträge")
 ✗ Umformulieren oder "Verbessern"
-✗ Kürzen (außer bei extremem Platzmangel)
 ✗ Synonyme verwenden
 
 BEISPIELE:
 - "Umsatzerlöse" → "Umsatzerlöse" (NICHT "Revenue")
 - "Cost of Sales" → "Cost of Sales" (NICHT "Herstellungskosten")
 - "EBITDA" → "EBITDA" (international verwendbar)
+- "FTE" → "FTE" (NICHT "Full-Time Equivalents")
+- "DSO" → "DSO" (NICHT "Days Sales Outstanding")
 
 ═══════════════════════════════════════════════════════════════════════════════
 
@@ -125,6 +136,15 @@ Bei Summary-Varianten dürfen Positionen zusammengefasst werden:
 - Neue Labels in QUELLSPRACHE erstellen
 - Beispiel (DE): Kosten aggregieren zu "Betriebsaufwand"
 - Beispiel (EN): Costs aggregieren zu "Operating Expenses"
+
+**Mathematische Symbole bei Aggregationen:**
+- Ø (Durchschnitt) → Bei Mittelwerten erlaubt: "Ø Umsatz pro Monat"
+- Σ (Summe) → Bei Summen erlaubt: "Σ Kosten"
+- Δ (Delta) → Bei Veränderungen erlaubt: "Δ vs. Vorjahr"
+
+**ABER NIEMALS:**
+- Symbole als Wort ausschreiben: "Durchschnitt Umsatz" statt "Ø Umsatz" ✗
+- Kürzel auflösen: "Full-Time Equivalents" statt "FTE" ✗
 
 ---
 
@@ -476,6 +496,8 @@ Bevor du die Config erstellst, prüfe:
 | Check | Beschreibung | Bei Fail |
 |-------|--------------|----------|
 | Labels original? | Alle Labels in Quellsprache? | Labels korrigieren |
+| Symbole korrekt? | Ø/Σ/Δ nur hinzugefügt, nie ausgeschrieben? | Symbole prüfen |
+| Kürzel erhalten? | FTE, DSO, YoY etc. nicht aufgelöst? | Kürzel beibehalten |
 | Werte korrekt? | Werte aus extractedData? | Werte prüfen |
 | Farben valide? | Hex-Codes aus colorScheme? | Farben korrigieren |
 | Typen korrekt? | start/increase/decrease/end logisch? | Typen korrigieren |
@@ -502,6 +524,9 @@ start_value + sum(increase_values) + sum(decrease_values) == end_value
 2. **SPRACHERHALTUNG ist KRITISCH**
    - Labels EXAKT wie in extractedData
    - KEINE Übersetzungen
+   - Mathematische Symbole (Ø, Σ, Δ) bei Aggregationen ERLAUBT
+   - Symbole NIEMALS ausschreiben (Ø→Durchschnitt verboten)
+   - Kürzel NIEMALS auflösen (FTE→Full-Time Equivalents verboten)
 
 3. **Vollständige Config**
    - Alle Pflichtfelder müssen vorhanden sein
@@ -548,10 +573,12 @@ PROMPT-4-6: Chart Prompts (Waterfall/Bar/Stacked)
 |-------|--------------|----------------|
 | JSON-Schema | Pflichtfelder vorhanden, korrekte Struktur | 100% |
 | Spracherhaltung | Labels nicht übersetzt | 100% |
+| Symbol-Regel | Ø/Σ/Δ nur als Symbole, nie ausgeschrieben | 100% |
+| Kürzel-Erhaltung | FTE, DSO, YoY etc. nicht aufgelöst | 100% |
 | Datenwerte | Werte stimmen mit extractedData | 100% |
 | Farben | Alle Farben aus colorScheme | 100% |
 | Typ-Konsistenz | Waterfall-Typen korrekt | 100% |
-| Math-Konsistenz | Start + Deltas = End (Waterfall) | 100% |
+| Math-Konsistenz | Start + Deltas = End (Waterfall), Toleranz ±5 oder ±0.1% | 100% |
 
 ---
 

@@ -1,0 +1,1037 @@
+{
+  "testRun": {
+    "date": "2026-01-27",
+    "source": "Testdaten_2",
+    "totalFiles": 50,
+    "passed": 50,
+    "warnings": 0,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": 1,
+      "filename": "NEW_01_GuV_Monat_IST_BUD_FC.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC"],
+        "timePeriod": "monthly",
+        "rowCount": 11,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "GuV-Struktur mit klarer Überleitung von Umsatz zu Jahresergebnis. Waterfall zeigt Wertbeiträge optimal."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 2,
+      "filename": "NEW_02_GuV_Monat_IST_VJ.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "monthly",
+        "rowCount": 11,
+        "columnCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "GuV mit YoY-Vergleich. Waterfall für P&L-Bridge, Bar für direkten Periodenvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 3,
+      "filename": "NEW_03_GuV_YTD_IST_BUD_VJ.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "VJ"],
+        "timePeriod": "cumulative",
+        "rowCount": 11,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Kumulierte GuV mit 3 Szenarien. Waterfall für P&L-Überleitung ideal."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 4,
+      "filename": "NEW_04_GuV_Q1-Q4_IST_VJ.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "quarterly",
+        "rowCount": 7,
+        "columnCount": 9
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Quartalsvergleich YoY. Bar Chart zeigt Q1-Q4 Entwicklung mit IST vs VJ optimal."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 5,
+      "filename": "NEW_05_GuV_H1_IST_BUD_FC_VJ.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC", "VJ"],
+        "timePeriod": "half-year",
+        "rowCount": 11,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "GuV mit 4 Szenarien (IST+BUD+FC+VJ). Ideal für WF-16/WF-17 mit Compare-Bars."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 6,
+      "filename": "NEW_06_GuV_Detail_IST_BUD.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "monthly",
+        "rowCount": 21,
+        "columnCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Detaillierte GuV mit 15+ Positionen. Waterfall für P&L-Bridge, evtl. horizontal (WF-05)."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 7,
+      "filename": "NEW_07_GuV_Summary_IST_FC.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "FC"],
+        "timePeriod": "monthly",
+        "rowCount": 6,
+        "columnCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "Executive Summary mit wenigen KPIs. Bar Chart für direkten IST vs FC Vergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 8,
+      "filename": "NEW_08_GuV_Monatstrend_12M.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST"],
+        "timePeriod": "monthly-trend",
+        "rowCount": 4,
+        "columnCount": 13
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "12-Monats-Trend ohne Vergleichsszenarien. Bar Chart zeigt Entwicklung über Zeit."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 9,
+      "filename": "NEW_09_GuV_Quartale_IST_BUD_FC.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC"],
+        "timePeriod": "quarterly",
+        "rowCount": 5,
+        "columnCount": 13
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Quartalsweise GuV mit 3 Szenarien. Bar Chart für Q1-Q4 Vergleich mit IST/BUD/FC."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 10,
+      "filename": "NEW_10_GuV_YTD_IST_FC_VJ.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "FC", "VJ"],
+        "timePeriod": "cumulative",
+        "rowCount": 11,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "YTD GuV mit FC und VJ. Waterfall für P&L-Überleitung mit Szenario-Vergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 11,
+      "filename": "NEW_11_GuV_H1H2_IST_BUD_VJ.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "VJ"],
+        "timePeriod": "half-year",
+        "rowCount": 6,
+        "columnCount": 7
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "H1 vs H2 Vergleich mit 3 Szenarien. Bar Chart für Halbjahresvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 12,
+      "filename": "NEW_12_GuV_Annual_IST_BUD_FC_VJ.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC", "VJ"],
+        "timePeriod": "annual",
+        "rowCount": 11,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Jahres-GuV mit 4 Szenarien. Ideal für WF-16/WF-17 Compare-Bar Templates."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 13,
+      "filename": "NEW_13_Segment_DACH_EMEA_US_IST_BUD.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "monthly",
+        "rowCount": 5,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Regionale Segmente mit IST vs BUD. Bar Chart für Regionsvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 14,
+      "filename": "NEW_14_Segment_Produkte_IST_VJ.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "monthly",
+        "rowCount": 6,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Produktsegmente mit YoY-Vergleich. Bar Chart für Produktvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 15,
+      "filename": "NEW_15_Segment_Kunden_IST_BUD_FC.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC"],
+        "timePeriod": "cumulative",
+        "rowCount": 6,
+        "columnCount": 7
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Kundensegmente mit 3 Szenarien. Bar Chart für Segmentvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 16,
+      "filename": "NEW_16_Region_Q1-Q4_IST_VJ.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "quarterly",
+        "rowCount": 7,
+        "columnCount": 9
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Regionale Q1-Q4 Entwicklung mit YoY. Ideal für BC-08 YoY-Vergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 17,
+      "filename": "NEW_17_Segment_Business_Units_IST_BUD_FC_VJ.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC", "VJ"],
+        "timePeriod": "monthly",
+        "rowCount": 6,
+        "columnCount": 9
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar", "waterfall"],
+        "reasoning": "Business Units mit 4 Szenarien. Bar für Segmentvergleich, Waterfall für P&L-Bridge möglich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 18,
+      "filename": "NEW_18_Division_Revenue_IST_FC.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "FC"],
+        "timePeriod": "cumulative",
+        "rowCount": 6,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "Divisionen mit IST vs FC und Delta. Bar für Vergleich, Waterfall für Bridge möglich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 19,
+      "filename": "NEW_19_Markt_Anteile_IST_VJ.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "annual",
+        "rowCount": 9,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Marktanteile nach Ländern mit YoY. Bar Chart für Ländervergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 20,
+      "filename": "NEW_20_Channel_Mix_IST_BUD.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "monthly",
+        "rowCount": 5,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "stacked-bar",
+        "alternatives": ["bar"],
+        "reasoning": "Vertriebskanal-Mix mit Anteilen. Stacked Bar zeigt Zusammensetzung optimal."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 21,
+      "filename": "NEW_21_Sales_Monthly_IST_FC.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "FC"],
+        "timePeriod": "monthly-trend",
+        "rowCount": 14,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "Monatlicher Sales-Verlauf mit FC. Bar für Trend, Waterfall für Abweichungsanalyse."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 22,
+      "filename": "NEW_22_Sales_YTD_IST_BUD_VJ.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "VJ"],
+        "timePeriod": "cumulative",
+        "rowCount": 7,
+        "columnCount": 7
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "YTD Sales mit 3 Szenarien. Bar für Produktgruppenvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 23,
+      "filename": "NEW_23_Sales_Produkte_Top10_IST.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST"],
+        "timePeriod": "monthly",
+        "rowCount": 14,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Top 10+ Produkte Ranking. Bar horizontal (BC-04) für Ranking optimal."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 24,
+      "filename": "NEW_24_Sales_Quartale_IST_VJ.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "quarterly",
+        "rowCount": 7,
+        "columnCount": 9
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Quartalsweise Sales mit YoY. Ideal für BC-08 gruppierter YoY-Vergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 25,
+      "filename": "NEW_25_Revenue_Mix_IST_BUD_FC.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC"],
+        "timePeriod": "monthly",
+        "rowCount": 7,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "stacked-bar",
+        "alternatives": ["bar"],
+        "reasoning": "Umsatz-Mix nach Erlösarten. Stacked Bar für Zusammensetzung."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 26,
+      "filename": "NEW_26_Sales_H1_IST_BUD_FC_VJ.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC", "VJ"],
+        "timePeriod": "half-year",
+        "rowCount": 7,
+        "columnCount": 9
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "H1 Sales mit 4 Szenarien. Bar für Regionsvergleich mit Compare-Bars."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 27,
+      "filename": "NEW_27_Revenue_Trend_12M_IST.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST"],
+        "timePeriod": "monthly-trend",
+        "rowCount": 14,
+        "columnCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "12-Monats Revenue-Trend. Bar Chart für Monatsentwicklung."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 28,
+      "filename": "NEW_28_Sales_Kunden_Top15_IST_VJ.csv",
+      "analysis": {
+        "reportType": "segment-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "annual",
+        "rowCount": 18,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Top 15 Kunden mit langen Namen. Horizontal Bar (SB-07) für lange Labels."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 29,
+      "filename": "NEW_29_Kosten_OPEX_IST_BUD.csv",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "monthly",
+        "rowCount": 10,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar", "stacked-bar"],
+        "reasoning": "OPEX-Aufschlüsselung mit Budget. Waterfall für Kostenbrücke."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 30,
+      "filename": "NEW_30_Kosten_Detail_IST_BUD_FC.csv",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC"],
+        "timePeriod": "monthly",
+        "rowCount": 19,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "stacked-bar",
+        "alternatives": ["waterfall", "bar"],
+        "reasoning": "Detaillierte Kostenarten (18+). Stacked Bar oder horizontaler Waterfall (WF-05)."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 31,
+      "filename": "NEW_31_OPEX_YTD_IST_VJ.csv",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "cumulative",
+        "rowCount": 8,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "YTD OPEX mit YoY-Vergleich. Bar für Kostenbereichsvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 32,
+      "filename": "NEW_32_Kosten_Quartale_IST_BUD.csv",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "quarterly",
+        "rowCount": 8,
+        "columnCount": 9
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Quartalsweise Kosten mit Budget. Bar für Q1-Q4 Kostenentwicklung."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 33,
+      "filename": "NEW_33_Kosten_Abteilungen_LangeNamen.csv",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "monthly",
+        "rowCount": 11,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Abteilungskosten mit langen Labels (>25 Zeichen). Horizontal (SB-07) empfohlen."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 34,
+      "filename": "NEW_34_OPEX_Kategorie_IST_FC_VJ.csv",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "FC", "VJ"],
+        "timePeriod": "monthly",
+        "rowCount": 6,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar", "waterfall"],
+        "reasoning": "OPEX-Kategorien mit 3 Szenarien. Bar für Kategorienvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 35,
+      "filename": "NEW_35_Bilanz_Aktiva_IST_VJ.csv",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "annual",
+        "rowCount": 11,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar", "stacked-bar"],
+        "reasoning": "Bilanz-Aktiva mit YoY. Waterfall für Vermögensstruktur."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 36,
+      "filename": "NEW_36_Bilanz_Passiva_IST_BUD.csv",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "monthly",
+        "rowCount": 12,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "stacked-bar",
+        "alternatives": ["waterfall", "bar"],
+        "reasoning": "Bilanz-Passiva mit EK/FK-Struktur. Stacked Bar für Kapitalstruktur."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 37,
+      "filename": "NEW_37_Working_Capital_IST_BUD_FC.csv",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC"],
+        "timePeriod": "monthly",
+        "rowCount": 9,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Working Capital Bridge. Waterfall zeigt UV - KV = WC optimal."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 38,
+      "filename": "NEW_38_Balance_Sheet_IST_FC.csv",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "scenarios": ["IST", "FC"],
+        "timePeriod": "cumulative",
+        "rowCount": 9,
+        "columnCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "stacked-bar",
+        "alternatives": ["bar"],
+        "reasoning": "Balance Sheet Summary. Stacked Bar für Assets vs Liabilities."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 39,
+      "filename": "NEW_39_Assets_Liabilities_IST_VJ.csv",
+      "analysis": {
+        "reportType": "balance-sheet",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "quarterly",
+        "rowCount": 9,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Aktiva/Passiva Q4-Vergleich YoY. Bar für Positionsvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 40,
+      "filename": "NEW_40_Cashflow_Operating_IST.csv",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST"],
+        "timePeriod": "monthly",
+        "rowCount": 7,
+        "columnCount": 2
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Operativer Cashflow Bridge. Waterfall zeigt JÜ → OCF Überleitung."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 41,
+      "filename": "NEW_41_Cashflow_IST_FC.csv",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "FC"],
+        "timePeriod": "cumulative",
+        "rowCount": 11,
+        "columnCount": 3
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Cashflow Statement mit FC. Waterfall für CF-Bridge optimal."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 42,
+      "filename": "NEW_42_Cashflow_Quartale_IST_VJ.csv",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-complex",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "quarterly",
+        "rowCount": 4,
+        "columnCount": 9
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Quartals-Cashflow mit YoY. Bar für Q1-Q4 CF-Vergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 43,
+      "filename": "NEW_43_Cashflow_Direct_IST_BUD.csv",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "monthly",
+        "rowCount": 10,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Direkte Cashflow-Methode. Waterfall für Einzahlungen/Auszahlungen Bridge."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 44,
+      "filename": "NEW_44_Cashflow_FCF_IST_BUD_FC.csv",
+      "analysis": {
+        "reportType": "cashflow",
+        "dataFormat": "matrix-simple",
+        "language": "en",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC"],
+        "timePeriod": "half-year",
+        "rowCount": 9,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Free Cashflow Bridge. Waterfall zeigt EBITDA → FCF Überleitung."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 45,
+      "filename": "NEW_45_Personal_FTE_IST_BUD.csv",
+      "analysis": {
+        "reportType": "kpi-dashboard",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "monthly",
+        "rowCount": 7,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "FTE und Personalkosten nach Bereich. Bar für Bereichsvergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 46,
+      "filename": "NEW_46_HR_Kosten_IST_VJ.csv",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "VJ"],
+        "timePeriod": "cumulative",
+        "rowCount": 9,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "Personalkosten YTD mit YoY. Bar für Kostenarten-Vergleich."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 47,
+      "filename": "NEW_47_Personal_Abteilungen_Lang.csv",
+      "analysis": {
+        "reportType": "cost-report",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD"],
+        "timePeriod": "monthly",
+        "rowCount": 11,
+        "columnCount": 5
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["stacked-bar"],
+        "reasoning": "Personal nach Abteilung mit langen Namen. Horizontal (SB-07) für Labels."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 48,
+      "filename": "NEW_48_KPI_Dashboard_IST_BUD_FC_VJ.csv",
+      "analysis": {
+        "reportType": "kpi-dashboard",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC", "VJ"],
+        "timePeriod": "monthly",
+        "rowCount": 10,
+        "columnCount": 6
+      },
+      "chartRecommendation": {
+        "primary": "bar",
+        "alternatives": ["waterfall"],
+        "reasoning": "KPI Dashboard mit 4 Szenarien. Bar für KPI-Vergleich mit Compare-Bars."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 49,
+      "filename": "NEW_49_EBITDA_Bridge_IST_VJ.csv",
+      "analysis": {
+        "reportType": "income-statement",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST"],
+        "timePeriod": "monthly",
+        "rowCount": 7,
+        "columnCount": 2
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": [],
+        "reasoning": "EBITDA Bridge VJ → Aktuell. Klassisches Waterfall-Format."
+      },
+      "status": "passed"
+    },
+    {
+      "id": 50,
+      "filename": "NEW_50_Margin_Analysis_IST_BUD_FC.csv",
+      "analysis": {
+        "reportType": "kpi-dashboard",
+        "dataFormat": "matrix-simple",
+        "language": "de",
+        "currency": "EUR",
+        "scenarios": ["IST", "BUD", "FC"],
+        "timePeriod": "cumulative",
+        "rowCount": 11,
+        "columnCount": 4
+      },
+      "chartRecommendation": {
+        "primary": "waterfall",
+        "alternatives": ["bar"],
+        "reasoning": "Margenanalyse Umsatz → Nettomarge. Waterfall für Margenbrücke."
+      },
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "scenarioDistribution": {
+      "IST_only": 5,
+      "IST_BUD": 10,
+      "IST_FC": 5,
+      "IST_VJ": 8,
+      "IST_BUD_FC": 8,
+      "IST_BUD_VJ": 3,
+      "IST_FC_VJ": 3,
+      "IST_BUD_FC_VJ": 5
+    },
+    "chartTypeRecommendations": {
+      "waterfall": 21,
+      "bar": 24,
+      "stacked-bar": 5
+    },
+    "reportTypeDistribution": {
+      "income-statement": 13,
+      "segment-report": 16,
+      "cost-report": 8,
+      "balance-sheet": 5,
+      "cashflow": 5,
+      "kpi-dashboard": 3
+    }
+  }
+}

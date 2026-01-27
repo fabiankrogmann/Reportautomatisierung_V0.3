@@ -1,0 +1,1805 @@
+[
+  {
+    "index": 0,
+    "filename": "01_GuV_Monatssicht_IST_FC_BUD.xlsx",
+    "chartType": "waterfall",
+    "scenarios": [
+      "IST",
+      "FC",
+      "BUD"
+    ],
+    "timeRange": {
+      "type": "monthly",
+      "periods": [
+        "Jan",
+        "Feb",
+        "Mär",
+        "Apr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Okt",
+        "Nov",
+        "Dez"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 1,
+    "filename": "02_GuV_Faktentabelle_SEL_CUM.csv",
+    "chartType": "waterfall",
+    "scenarios": [
+      "IST",
+      "FC",
+      "BUD"
+    ],
+    "timeRange": {
+      "type": "both",
+      "periods": [
+        "DEZ",
+        "JAN-DEZ"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 2,
+    "filename": "03_PL_Quartalssicht_YoY.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "Q1 2024",
+        "Q2 2024",
+        "Q3 2024",
+        "Q4 2024",
+        "Q1 2025",
+        "Q2 2025",
+        "Q3 2025",
+        "Q4 2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "quarterly"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 3,
+    "filename": "04_IFRS_PL_FC_Iterationen.xlsx",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual",
+      "FC1",
+      "FC2",
+      "FC3",
+      "Budget"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 4,
+    "filename": "05_GuV_SEL_CUM_Abweichungen.xlsx",
+    "chartType": "waterfall",
+    "scenarios": [
+      "IST",
+      "FC",
+      "BUD",
+      "Abw. FC",
+      "Abw. BUD"
+    ],
+    "timeRange": {
+      "type": "both",
+      "periods": [
+        "DEZ",
+        "JAN-DEZ"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 5,
+    "filename": "06_PL_Rolling_Forecast.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual",
+      "Forecast"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 6,
+    "filename": "07_GuV_Konzern_vs_Einzelgesellschaft.xlsx",
+    "chartType": "bar",
+    "scenarios": [
+      "Konzern",
+      "AG",
+      "GmbH"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Entity",
+        "values": [
+          "Konzern"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Gesellschaft",
+        "values": [
+          "AG",
+          "GmbH"
+        ]
+      }
+    }
+  },
+  {
+    "index": 7,
+    "filename": "08_PL_3Year_Comparison.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "year": "2023-2025",
+      "periodType": "annual"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 8,
+    "filename": "09_Bilanz_Jahresvergleich.xlsx",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "year": "2023-2025",
+      "periodType": "annual"
+    },
+    "reportType": "balance-sheet",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Kategorie",
+        "values": [
+          "Aktiva",
+          "Passiva"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Position",
+        "values": [
+          "Anlagevermögen",
+          "Umlaufvermögen",
+          "Eigenkapital",
+          "Verbindlichkeiten"
+        ]
+      }
+    }
+  },
+  {
+    "index": 9,
+    "filename": "10_Balance_Sheet_Quarterly.csv",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "Q1 2024",
+        "Q2 2024",
+        "Q3 2024",
+        "Q4 2024",
+        "Q1 2025",
+        "Q2 2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "quarterly"
+    },
+    "reportType": "balance-sheet",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Category",
+        "values": [
+          "Total Assets",
+          "Total Liabilities & Equity"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Position",
+        "values": [
+          "Current Assets",
+          "Non-Current Assets",
+          "Current Liabilities",
+          "Non-Current Liabilities",
+          "Equity"
+        ]
+      }
+    }
+  },
+  {
+    "index": 10,
+    "filename": "11_Bilanz_Aktiva_Passiva_Detail.xlsx",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST",
+      "VJ"
+    ],
+    "timeRange": {
+      "type": "single",
+      "periods": [
+        "31.12.2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "balance-sheet",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Seite",
+        "values": [
+          "Aktiva",
+          "Passiva"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Position",
+        "values": [
+          "Anlagevermögen",
+          "Umlaufvermögen",
+          "Rechnungsabgrenzung",
+          "Eigenkapital",
+          "Rückstellungen",
+          "Verbindlichkeiten"
+        ]
+      }
+    }
+  },
+  {
+    "index": 11,
+    "filename": "12_Balance_Sheet_IST_vs_PY.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual",
+      "Prior Year"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "CY",
+        "PY"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "balance-sheet",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Category",
+        "values": [
+          "Total Assets",
+          "Total Liabilities",
+          "Total Equity"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Account",
+        "values": [
+          "Cash",
+          "Receivables",
+          "Inventory",
+          "Fixed Assets",
+          "AP",
+          "Debt",
+          "Retained Earnings"
+        ]
+      }
+    }
+  },
+  {
+    "index": 12,
+    "filename": "13_Bilanz_Kurzfristig_Langfristig.xlsx",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST"
+    ],
+    "timeRange": {
+      "type": "single",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "balance-sheet",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Fristigkeit",
+        "values": [
+          "Kurzfristig",
+          "Langfristig"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Position",
+        "values": [
+          "Forderungen",
+          "Vorräte",
+          "Kasse",
+          "Sachanlagen",
+          "Immaterielle VG"
+        ]
+      }
+    }
+  },
+  {
+    "index": 13,
+    "filename": "14_Balance_Sheet_Faktentabelle.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "IST",
+      "PLAN"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "year": "2025",
+      "periodType": "quarterly"
+    },
+    "reportType": "balance-sheet",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 14,
+    "filename": "15_Cashflow_Statement_Annual.xlsx",
+    "chartType": "waterfall",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "year": "2023-2025",
+      "periodType": "annual"
+    },
+    "reportType": "cashflow",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Activity",
+        "values": [
+          "Operating",
+          "Investing",
+          "Financing"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Item",
+        "values": [
+          "Net Income",
+          "Depreciation",
+          "CapEx",
+          "Dividends",
+          "Debt"
+        ]
+      }
+    }
+  },
+  {
+    "index": 15,
+    "filename": "16_Cashflow_Indirect_Method.csv",
+    "chartType": "waterfall",
+    "scenarios": [
+      "Actual",
+      "Budget"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "cashflow",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Category",
+        "values": [
+          "Operating Activities",
+          "Investing Activities",
+          "Financing Activities"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Line Item",
+        "values": [
+          "Net Income",
+          "Depreciation",
+          "Working Capital Changes",
+          "CapEx",
+          "Acquisitions",
+          "Debt Repayment",
+          "Dividends"
+        ]
+      }
+    }
+  },
+  {
+    "index": 16,
+    "filename": "17_Cashflow_Direct_Method.xlsx",
+    "chartType": "waterfall",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "cashflow",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Activity",
+        "values": [
+          "Operating",
+          "Investing",
+          "Financing"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Cash Flow Item",
+        "values": [
+          "Cash from Customers",
+          "Cash to Suppliers",
+          "Cash to Employees"
+        ]
+      }
+    }
+  },
+  {
+    "index": 17,
+    "filename": "18_Cashflow_Quarterly_Trend.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "IST"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "Q1 2024",
+        "Q2 2024",
+        "Q3 2024",
+        "Q4 2024",
+        "Q1 2025",
+        "Q2 2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "quarterly"
+    },
+    "reportType": "cashflow",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Bereich",
+        "values": [
+          "Operativer CF",
+          "Investitions-CF",
+          "Finanzierungs-CF"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Position",
+        "values": [
+          "Jahresüberschuss",
+          "Abschreibungen",
+          "Working Capital",
+          "Investitionen",
+          "Tilgung"
+        ]
+      }
+    }
+  },
+  {
+    "index": 18,
+    "filename": "19_Free_Cashflow_Bridge.xlsx",
+    "chartType": "waterfall",
+    "scenarios": [
+      "Actual",
+      "Budget"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "cashflow",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 19,
+    "filename": "20_Segment_Revenue_by_Region.xlsx",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "year": "2023-2025",
+      "periodType": "annual"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Region",
+        "values": [
+          "EMEA",
+          "Americas",
+          "APAC"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Country",
+        "values": [
+          "Germany",
+          "UK",
+          "France",
+          "USA",
+          "Brazil",
+          "China",
+          "Japan"
+        ]
+      }
+    }
+  },
+  {
+    "index": 20,
+    "filename": "21_Segment_EBIT_by_BU.csv",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "Actual",
+      "Budget"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "year": "2023-2025",
+      "periodType": "annual"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Division",
+        "values": [
+          "Products",
+          "Services",
+          "Digital"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Business Unit",
+        "values": [
+          "Hardware",
+          "Software",
+          "Consulting",
+          "Support",
+          "Cloud",
+          "Analytics"
+        ]
+      }
+    }
+  },
+  {
+    "index": 21,
+    "filename": "22_Segment_Margin_by_Product.xlsx",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Category",
+        "values": [
+          "Premium",
+          "Standard",
+          "Economy"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Product",
+        "values": [
+          "Product A",
+          "Product B",
+          "Product C",
+          "Product D",
+          "Product E"
+        ]
+      }
+    }
+  },
+  {
+    "index": 22,
+    "filename": "23_Segment_Revenue_by_Country.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual",
+      "Budget"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2024",
+        "2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "annual"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Region",
+        "values": [
+          "DACH",
+          "Nordics",
+          "Southern Europe",
+          "UK & Ireland"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Country",
+        "values": [
+          "Germany",
+          "Austria",
+          "Switzerland",
+          "Sweden",
+          "Norway",
+          "Denmark",
+          "Italy",
+          "Spain",
+          "UK",
+          "Ireland"
+        ]
+      }
+    }
+  },
+  {
+    "index": 23,
+    "filename": "24_Segment_Cost_Allocation.xlsx",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST",
+      "PLAN"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Segment",
+        "values": [
+          "Produktion",
+          "Vertrieb",
+          "Verwaltung"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Kostenart",
+        "values": [
+          "Personal",
+          "Material",
+          "Energie",
+          "IT",
+          "Sonstige"
+        ]
+      }
+    }
+  },
+  {
+    "index": 24,
+    "filename": "25_Segment_Profitability_Matrix.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Region",
+        "values": [
+          "EMEA",
+          "Americas",
+          "APAC"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Product",
+        "values": [
+          "Product A",
+          "Product B",
+          "Product C"
+        ]
+      }
+    }
+  },
+  {
+    "index": 25,
+    "filename": "26_Segment_YoY_Growth_Rates.xlsx",
+    "chartType": "bar",
+    "scenarios": [
+      "YoY Growth"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2022",
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "year": "2022-2025",
+      "periodType": "annual"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Division",
+        "values": [
+          "Products",
+          "Services"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Segment",
+        "values": [
+          "Hardware",
+          "Software",
+          "Consulting",
+          "Support"
+        ]
+      }
+    }
+  },
+  {
+    "index": 26,
+    "filename": "27_Sales_Monthly_by_Channel.csv",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST"
+    ],
+    "timeRange": {
+      "type": "monthly",
+      "periods": [
+        "Jan",
+        "Feb",
+        "Mär",
+        "Apr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Okt",
+        "Nov",
+        "Dez"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Vertriebskanal",
+        "values": [
+          "Direktvertrieb",
+          "Online",
+          "Partner"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Subkanal",
+        "values": [
+          "Außendienst",
+          "Innendienst",
+          "Webshop",
+          "Marktplätze",
+          "Distributoren",
+          "Reseller"
+        ]
+      }
+    }
+  },
+  {
+    "index": 27,
+    "filename": "28_Sales_YTD_vs_Target.xlsx",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual",
+      "Target",
+      "Prior Year"
+    ],
+    "timeRange": {
+      "type": "cumulative",
+      "periods": [
+        "YTD"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "kpi-dashboard",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 28,
+    "filename": "29_Revenue_by_Customer_Top20.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2024",
+        "2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "annual"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 29,
+    "filename": "30_Sales_Pipeline_Stages.xlsx",
+    "chartType": "waterfall",
+    "scenarios": [
+      "Pipeline Value",
+      "Win Rate"
+    ],
+    "timeRange": {
+      "type": "single",
+      "periods": [
+        "Current"
+      ],
+      "year": "2025",
+      "periodType": "snapshot"
+    },
+    "reportType": "kpi-dashboard",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Stage",
+        "values": [
+          "Lead",
+          "Qualified",
+          "Proposal",
+          "Negotiation",
+          "Closed Won"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Deal",
+        "values": []
+      }
+    }
+  },
+  {
+    "index": 30,
+    "filename": "31_Revenue_New_vs_Recurring.csv",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "year": "2025",
+      "periodType": "quarterly"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Revenue Type",
+        "values": [
+          "New Business",
+          "Recurring"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Source",
+        "values": [
+          "New Customers",
+          "Upsell",
+          "Subscription",
+          "Maintenance",
+          "Support Contracts"
+        ]
+      }
+    }
+  },
+  {
+    "index": 31,
+    "filename": "32_Sales_by_Product_Category.xlsx",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "Actual",
+      "Budget"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2024",
+        "2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "annual"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Category",
+        "values": [
+          "Hardware",
+          "Software",
+          "Services"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Product",
+        "values": [
+          "Server",
+          "Storage",
+          "Network",
+          "ERP",
+          "CRM",
+          "BI",
+          "Consulting",
+          "Training"
+        ]
+      }
+    }
+  },
+  {
+    "index": 32,
+    "filename": "33_OpEx_Breakdown_Monthly.xlsx",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST",
+      "PLAN"
+    ],
+    "timeRange": {
+      "type": "monthly",
+      "periods": [
+        "Jan",
+        "Feb",
+        "Mär",
+        "Apr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Okt",
+        "Nov",
+        "Dez"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "cost-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Kostenblock",
+        "values": [
+          "Vertrieb",
+          "Verwaltung",
+          "F&E"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Kostenart",
+        "values": [
+          "Personal",
+          "Reisen",
+          "Marketing",
+          "IT",
+          "Beratung",
+          "Sonstige"
+        ]
+      }
+    }
+  },
+  {
+    "index": 33,
+    "filename": "34_Cost_Center_Actual_vs_Budget.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "IST",
+      "BUD",
+      "Abweichung",
+      "Abweichung %"
+    ],
+    "timeRange": {
+      "type": "cumulative",
+      "periods": [
+        "YTD"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "cost-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Bereich",
+        "values": [
+          "Produktion",
+          "Vertrieb",
+          "Verwaltung",
+          "IT",
+          "F&E"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Kostenstelle",
+        "values": [
+          "KST 1000",
+          "KST 2000",
+          "KST 3000",
+          "KST 4000",
+          "KST 5000"
+        ]
+      }
+    }
+  },
+  {
+    "index": 34,
+    "filename": "35_CapEx_Projektübersicht.xlsx",
+    "chartType": "bar",
+    "scenarios": [
+      "Geplant",
+      "Genehmigt",
+      "Ausgegeben"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2024",
+        "2025",
+        "2026"
+      ],
+      "year": "2024-2026",
+      "periodType": "annual"
+    },
+    "reportType": "cost-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Kategorie",
+        "values": [
+          "IT",
+          "Produktion",
+          "Gebäude"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Projekt",
+        "values": [
+          "ERP Upgrade",
+          "Neue Maschinen",
+          "Hallenerweiterung"
+        ]
+      }
+    }
+  },
+  {
+    "index": 35,
+    "filename": "36_Cost_by_Category_Trend.csv",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2021",
+        "2022",
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "year": "2021-2025",
+      "periodType": "annual"
+    },
+    "reportType": "cost-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Category",
+        "values": [
+          "COGS",
+          "OpEx"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Cost Type",
+        "values": [
+          "Materials",
+          "Labor",
+          "Overhead",
+          "S&M",
+          "G&A",
+          "R&D"
+        ]
+      }
+    }
+  },
+  {
+    "index": 36,
+    "filename": "37_Fixed_vs_Variable_Costs.xlsx",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST"
+    ],
+    "timeRange": {
+      "type": "monthly",
+      "periods": [
+        "Jan",
+        "Feb",
+        "Mär",
+        "Apr",
+        "Mai",
+        "Jun"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "cost-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Kostenart",
+        "values": [
+          "Fixkosten",
+          "Variable Kosten"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Position",
+        "values": [
+          "Miete",
+          "Gehälter",
+          "Versicherung",
+          "Material",
+          "Energie",
+          "Fracht"
+        ]
+      }
+    }
+  },
+  {
+    "index": 37,
+    "filename": "38_Overhead_Allocation.csv",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "Primär",
+      "Umlage",
+      "Gesamt"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "cost-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Bereich",
+        "values": [
+          "Produktion",
+          "Vertrieb",
+          "Verwaltung",
+          "Service"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Kostenstelle",
+        "values": []
+      }
+    }
+  },
+  {
+    "index": 38,
+    "filename": "39_Headcount_FTE_Monthly.csv",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST",
+      "PLAN"
+    ],
+    "timeRange": {
+      "type": "monthly",
+      "periods": [
+        "Jan",
+        "Feb",
+        "Mär",
+        "Apr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Okt",
+        "Nov",
+        "Dez"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "kpi-dashboard",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Bereich",
+        "values": [
+          "Produktion",
+          "Vertrieb",
+          "Verwaltung",
+          "F&E"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Abteilung",
+        "values": [
+          "Fertigung",
+          "Montage",
+          "Außendienst",
+          "Innendienst",
+          "Buchhaltung",
+          "HR",
+          "Entwicklung",
+          "QS"
+        ]
+      }
+    }
+  },
+  {
+    "index": 39,
+    "filename": "40_Personnel_Cost_by_Dept.xlsx",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST",
+      "PLAN"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2024",
+        "2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "annual"
+    },
+    "reportType": "cost-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Bereich",
+        "values": [
+          "Produktion",
+          "Vertrieb",
+          "Verwaltung",
+          "F&E"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Kostenart",
+        "values": [
+          "Gehälter",
+          "Sozialabgaben",
+          "Boni",
+          "Schulungen",
+          "Sonstige"
+        ]
+      }
+    }
+  },
+  {
+    "index": 40,
+    "filename": "41_Salary_Bands_Analysis.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Headcount",
+      "Avg Salary",
+      "Min",
+      "Max"
+    ],
+    "timeRange": {
+      "type": "single",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "kpi-dashboard",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Stufe",
+        "values": [
+          "Junior",
+          "Professional",
+          "Senior",
+          "Lead",
+          "Manager",
+          "Director"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Funktion",
+        "values": []
+      }
+    }
+  },
+  {
+    "index": 41,
+    "filename": "42_EBITDA_Bridge_PY_to_CY.xlsx",
+    "chartType": "waterfall",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2024",
+        "2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "annual"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 42,
+    "filename": "43_Working_Capital_Trend.csv",
+    "chartType": "stacked-bar",
+    "scenarios": [
+      "IST"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "Q1 2024",
+        "Q2 2024",
+        "Q3 2024",
+        "Q4 2024",
+        "Q1 2025",
+        "Q2 2025",
+        "Q3 2025",
+        "Q4 2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "quarterly"
+    },
+    "reportType": "kpi-dashboard",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Kategorie",
+        "values": [
+          "Vorräte",
+          "Forderungen aus LuL",
+          "Verbindlichkeiten aus LuL"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Position",
+        "values": [
+          "Rohstoffe",
+          "Halbfertige Erzeugnisse",
+          "Fertige Erzeugnisse",
+          "DSO",
+          "DPO"
+        ]
+      }
+    }
+  },
+  {
+    "index": 43,
+    "filename": "44_KPI_Dashboard_Monthly.xlsx",
+    "chartType": "bar",
+    "scenarios": [
+      "IST",
+      "PLAN",
+      "VJ"
+    ],
+    "timeRange": {
+      "type": "monthly",
+      "periods": [
+        "Jan",
+        "Feb",
+        "Mär",
+        "Apr",
+        "Mai",
+        "Jun"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "kpi-dashboard",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 44,
+    "filename": "45_Budget_Variance_Analysis.csv",
+    "chartType": "waterfall",
+    "scenarios": [
+      "Budget",
+      "Actual",
+      "Variance",
+      "Variance %"
+    ],
+    "timeRange": {
+      "type": "annual",
+      "periods": [
+        "2025"
+      ],
+      "year": "2025",
+      "periodType": "annual"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Category",
+        "values": [
+          "Revenue",
+          "COGS",
+          "Operating Expenses"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Line Item",
+        "values": [
+          "Product Sales",
+          "Service Revenue",
+          "Materials",
+          "Direct Labor",
+          "S&M",
+          "G&A",
+          "R&D"
+        ]
+      }
+    }
+  },
+  {
+    "index": 45,
+    "filename": "46_Revenue_Bridge_Waterfall.xlsx",
+    "chartType": "waterfall",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2024",
+        "2025"
+      ],
+      "year": "2024-2025",
+      "periodType": "annual"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 46,
+    "filename": "47_Financials_Long_Format.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual",
+      "Budget",
+      "Forecast"
+    ],
+    "timeRange": {
+      "type": "monthly",
+      "periods": [
+        "2025-01",
+        "2025-02"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Entity",
+        "values": [
+          "Corp_Global",
+          "Corp_DACH",
+          "Corp_Nordics",
+          "Corp_Southern",
+          "Corp_UK",
+          "Corp_US"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Account",
+        "values": [
+          "Revenue",
+          "COGS",
+          "Gross_Profit",
+          "EBITDA"
+        ]
+      }
+    }
+  },
+  {
+    "index": 47,
+    "filename": "48_Financials_Wide_Pivoted.xlsx",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual",
+      "Budget"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "year": "2023-2025",
+      "periodType": "annual"
+    },
+    "reportType": "income-statement",
+    "hierarchy": {
+      "detected": false
+    }
+  },
+  {
+    "index": 48,
+    "filename": "49_Sparse_Data_with_Gaps.csv",
+    "chartType": "bar",
+    "scenarios": [
+      "Actual"
+    ],
+    "timeRange": {
+      "type": "monthly",
+      "periods": [
+        "2025-01",
+        "2025-02",
+        "2025-03"
+      ],
+      "year": "2025",
+      "periodType": "monthly"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Region",
+        "values": [
+          "Germany",
+          "Austria",
+          "Switzerland",
+          "UK",
+          "France"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Entity",
+        "values": []
+      }
+    }
+  },
+  {
+    "index": 49,
+    "filename": "50_Multi_Currency_Report.xlsx",
+    "chartType": "bar",
+    "scenarios": [
+      "Local",
+      "EUR Converted"
+    ],
+    "timeRange": {
+      "type": "multi-period",
+      "periods": [
+        "Q1 2025",
+        "Q2 2025"
+      ],
+      "year": "2025",
+      "periodType": "quarterly"
+    },
+    "reportType": "segment-report",
+    "hierarchy": {
+      "detected": true,
+      "aggregationLevel": {
+        "columnName": "Region",
+        "values": [
+          "EMEA",
+          "Americas",
+          "APAC"
+        ]
+      },
+      "detailLevel": {
+        "columnName": "Entity",
+        "values": [
+          "Germany (EUR)",
+          "UK (GBP)",
+          "Switzerland (CHF)",
+          "USA (USD)",
+          "Japan (JPY)"
+        ]
+      }
+    }
+  }
+]

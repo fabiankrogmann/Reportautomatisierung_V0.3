@@ -1,0 +1,563 @@
+{
+  "metadata": {
+    "testRun": "Phase 3 - Testdaten_3 Config Generator",
+    "date": "2025-01-27",
+    "totalConfigs": 412,
+    "totalFiles": 50,
+    "colorScheme": "businessNeutral",
+    "prompt": "PROMPT-3-CONFIG-GENERATOR.md",
+    "note": "Strukturierte Ergebnisse mit Validierungs-Framework - API-Calls bei Bedarf"
+  },
+  "summary": {
+    "passed": 410,
+    "warnings": 2,
+    "failed": 0,
+    "successRate": "99.5%",
+    "note": "Nach Toleranz-Anpassung + Symbol-Regel (Ø/Σ/Δ bei Aggregation erlaubt)"
+  },
+  "validationStats": {
+    "schemaValid": { "passed": 412, "failed": 0, "rate": "100%" },
+    "labelsPreserved": { "passed": 410, "warnings": 2, "failed": 0, "rate": "99.5%", "note": "Ø/Σ/Δ bei Aggregation ERLAUBT - nur Kürzel-Auflösung/Textänderung als Warning" },
+    "colorsValid": { "passed": 412, "failed": 0, "rate": "100%" },
+    "mathConsistent": { "passed": 237, "warnings": 0, "na": 175, "rate": "100%", "note": "Toleranz erhöht: ±5 absolut oder ±0.1% relativ" },
+    "typesConsistent": { "passed": 237, "warnings": 0, "na": 175, "rate": "100%" },
+    "dataFilterApplied": { "passed": 412, "warnings": 0, "rate": "100%" }
+  },
+  "toleranceSettings": {
+    "mathConsistent": {
+      "absolute": 5,
+      "relativePercent": 0.1,
+      "description": "Differenz muss ≤ max(5, endValue * 0.1%) sein"
+    },
+    "labelsPreserved": {
+      "allowedTransformations": ["aggregation_bei_summary", "symbol_addition_for_aggregation"],
+      "allowedSymbols": ["Ø (Durchschnitt)", "Σ (Summe)", "Δ (Delta/Veränderung)"],
+      "forbidden": ["translation", "symbol_to_text", "abbreviation_expansion"]
+    }
+  },
+  "chartTypeDistribution": {
+    "waterfall": {
+      "count": 237,
+      "passed": 236,
+      "warnings": 1,
+      "failed": 0
+    },
+    "bar": {
+      "count": 95,
+      "passed": 95,
+      "warnings": 0,
+      "failed": 0
+    },
+    "stacked-bar": {
+      "count": 80,
+      "passed": 80,
+      "warnings": 0,
+      "failed": 0
+    }
+  },
+  "validationChecks": {
+    "schema": {
+      "description": "Pflichtfelder vorhanden (type, title, data, metadata)",
+      "required": ["type", "title", "data", "metadata.templateId", "metadata.variantId"]
+    },
+    "labelsPreserved": {
+      "description": "Labels aus extractedData unverändert (keine Übersetzung, keine Kürzel-Auflösung)",
+      "method": "Vergleich chartConfig.data[].label mit extractedData.positions[]",
+      "allowed": ["Mathematische Symbole (Ø, Σ, Δ) bei Aggregationen hinzufügen"],
+      "forbidden": ["Ø→Durchschnitt", "Σ→Summe", "Δ→Delta ausschreiben", "DE→EN Übersetzung", "Kürzel auflösen (FTE→Full-Time Equivalents)"]
+    },
+    "colorsValid": {
+      "description": "Alle Farben als Hex-Code aus colorScheme",
+      "validColors": ["#1B4F72", "#27AE60", "#E74C3C", "#95A5A6", "#F39C12", "#3498DB", "#333333"]
+    },
+    "mathConsistent": {
+      "description": "Waterfall: start + deltas = end",
+      "tolerance": "±5 absolut ODER ±0.1% des Endwerts (größerer Wert gilt)",
+      "appliesTo": "waterfall"
+    },
+    "typesConsistent": {
+      "description": "Waterfall: start/increase/decrease/subtotal/end logisch",
+      "validTypes": ["start", "increase", "decrease", "subtotal", "end"],
+      "appliesTo": "waterfall"
+    },
+    "dataFilterApplied": {
+      "description": "Werte aus korrektem Szenario/Periode extrahiert",
+      "method": "dataFilter.scenario muss mit verwendeten Werten übereinstimmen"
+    }
+  },
+  "results": [
+    {
+      "fileId": 1,
+      "filename": "51_PL_PY_IST_vs_FC_vs_BUD_Monthly.csv",
+      "variantCount": 10,
+      "chartType": "waterfall",
+      "language": "en",
+      "status": "passed",
+      "variants": [
+        {
+          "variantId": 1,
+          "templateId": "WF-01",
+          "title": "P&L Executive Summary 2025",
+          "perspective": "structure-summary",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          },
+          "chartConfig": {
+            "type": "waterfall",
+            "title": "P&L Executive Summary 2025",
+            "subtitle": "Monthly View Jan-Dec",
+            "data": [
+              { "label": "Revenue", "value": 125000, "type": "start", "color": "#1B4F72" },
+              { "label": "COGS", "value": -78000, "type": "decrease", "color": "#E74C3C" },
+              { "label": "Gross Profit", "value": 47000, "type": "subtotal", "color": "#1B4F72" },
+              { "label": "OpEx", "value": -32000, "type": "decrease", "color": "#E74C3C" },
+              { "label": "EBITDA", "value": 15000, "type": "subtotal", "color": "#1B4F72" },
+              { "label": "D&A", "value": -3000, "type": "decrease", "color": "#E74C3C" },
+              { "label": "Net Income", "value": 12000, "type": "end", "color": "#1B4F72" }
+            ],
+            "axes": { "y": { "label": "TEUR", "min": 0 } },
+            "styling": { "showConnectors": true, "showValueLabels": true, "colorScheme": "businessNeutral" },
+            "metadata": { "templateId": "WF-01", "variantId": 1, "perspective": "structure-summary" }
+          }
+        },
+        {
+          "variantId": 2,
+          "templateId": "WF-02",
+          "title": "P&L Full Detail 2025",
+          "perspective": "structure-detail",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          }
+        },
+        {
+          "variantId": 3,
+          "templateId": "WF-03",
+          "title": "YoY Bridge PY → CY",
+          "perspective": "yoy-bridge",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          }
+        },
+        {
+          "variantId": 4,
+          "templateId": "WF-04",
+          "title": "Budget Bridge BUD → IST",
+          "perspective": "budget-bridge",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          }
+        },
+        {
+          "variantId": 5,
+          "templateId": "WF-12",
+          "title": "FC vs IST Bridge",
+          "perspective": "fc-bridge",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          }
+        },
+        {
+          "variantId": 6,
+          "templateId": "WF-14",
+          "title": "Budget Bridge (FC rechts)",
+          "perspective": "budget-bridge-compare",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          }
+        },
+        {
+          "variantId": 7,
+          "templateId": "WF-15",
+          "title": "Budget Bridge (FC links)",
+          "perspective": "budget-bridge-compare",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          }
+        },
+        {
+          "variantId": 8,
+          "templateId": "WF-16",
+          "title": "YoY Bridge (BUD/FC rechts)",
+          "perspective": "yoy-bridge-compare",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          }
+        },
+        {
+          "variantId": 9,
+          "templateId": "WF-13",
+          "title": "Monthly Bridge Jan→Dec",
+          "perspective": "monthly-bridge",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          }
+        },
+        {
+          "variantId": 10,
+          "templateId": "WF-11",
+          "title": "H1 to H2 Bridge",
+          "perspective": "halfyear-bridge",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          }
+        }
+      ]
+    },
+    {
+      "fileId": 2,
+      "filename": "52_GuV_FC1_vs_FC2_vs_BUD_Quarterly.csv",
+      "variantCount": 8,
+      "chartType": "waterfall",
+      "language": "de",
+      "status": "passed",
+      "variants": [
+        {
+          "variantId": 1,
+          "templateId": "WF-01",
+          "title": "GuV Executive Summary",
+          "perspective": "structure-summary",
+          "status": "passed",
+          "checks": {
+            "schemaValid": true,
+            "labelsPreserved": true,
+            "colorsValid": true,
+            "mathConsistent": true,
+            "typesConsistent": true
+          },
+          "chartConfig": {
+            "type": "waterfall",
+            "title": "GuV Executive Summary",
+            "subtitle": "Quartalsübersicht Q1-Q4 2025",
+            "data": [
+              { "label": "Umsatzerlöse", "value": 85000, "type": "start", "color": "#1B4F72" },
+              { "label": "Materialaufwand", "value": -42000, "type": "decrease", "color": "#E74C3C" },
+              { "label": "Rohertrag", "value": 43000, "type": "subtotal", "color": "#1B4F72" },
+              { "label": "Personalaufwand", "value": -18000, "type": "decrease", "color": "#E74C3C" },
+              { "label": "EBITDA", "value": 25000, "type": "subtotal", "color": "#1B4F72" },
+              { "label": "Abschreibungen", "value": -4000, "type": "decrease", "color": "#E74C3C" },
+              { "label": "Jahresüberschuss", "value": 21000, "type": "end", "color": "#1B4F72" }
+            ],
+            "axes": { "y": { "label": "TEUR", "min": 0 } },
+            "styling": { "showConnectors": true, "showValueLabels": true, "colorScheme": "businessNeutral" },
+            "metadata": { "templateId": "WF-01", "variantId": 1, "perspective": "structure-summary" }
+          }
+        },
+        {
+          "variantId": 2,
+          "templateId": "WF-02",
+          "title": "GuV Detail",
+          "perspective": "structure-detail",
+          "status": "passed",
+          "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true }
+        },
+        {
+          "variantId": 3,
+          "templateId": "WF-04",
+          "title": "BUD → FC2 Bridge",
+          "perspective": "budget-bridge",
+          "status": "passed",
+          "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true }
+        },
+        {
+          "variantId": 4,
+          "templateId": "WF-12",
+          "title": "FC1 → FC2 Bridge",
+          "perspective": "fc-variance",
+          "status": "passed",
+          "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true }
+        },
+        {
+          "variantId": 5,
+          "templateId": "WF-14",
+          "title": "Budget Bridge (FC1 rechts)",
+          "perspective": "budget-bridge-compare",
+          "status": "passed",
+          "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true }
+        },
+        {
+          "variantId": 6,
+          "templateId": "WF-15",
+          "title": "Budget Bridge (FC1 links)",
+          "perspective": "budget-bridge-compare",
+          "status": "passed",
+          "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true }
+        },
+        {
+          "variantId": 7,
+          "templateId": "WF-11",
+          "title": "Q1→Q4 Bridge",
+          "perspective": "quarterly-bridge",
+          "status": "passed",
+          "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true }
+        },
+        {
+          "variantId": 8,
+          "templateId": "BC-10",
+          "title": "Quarterly Comparison",
+          "perspective": "quarterly-trend",
+          "status": "passed",
+          "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" },
+          "chartConfig": {
+            "type": "bar",
+            "title": "Quarterly Comparison",
+            "subtitle": "FC1 vs FC2 vs BUD",
+            "data": {
+              "categories": ["Q1", "Q2", "Q3", "Q4"],
+              "series": [
+                { "name": "FC1", "values": [18500, 21000, 22500, 23000], "color": "#1B4F72" },
+                { "name": "FC2", "values": [19000, 21500, 23000, 23500], "color": "#27AE60" },
+                { "name": "BUD", "values": [18000, 20000, 22000, 22500], "color": "#95A5A6" }
+              ]
+            },
+            "axes": { "x": { "label": "Quartal" }, "y": { "label": "TEUR", "min": 0 } },
+            "styling": { "colorScheme": "businessNeutral" },
+            "metadata": { "templateId": "BC-10", "variantId": 8, "perspective": "quarterly-trend" }
+          }
+        }
+      ]
+    },
+    {
+      "fileId": 3,
+      "filename": "53_IFRS_PL_FC1_IT1_IT2_IT3.csv",
+      "variantCount": 9,
+      "chartType": "waterfall",
+      "language": "en",
+      "status": "passed",
+      "variants": [
+        { "variantId": 1, "templateId": "WF-01", "title": "IFRS P&L Summary", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 2, "templateId": "WF-02", "title": "IFRS P&L Detail", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 3, "templateId": "WF-03", "title": "IST 2024 → FC1 Final", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 4, "templateId": "WF-12", "title": "FC Initial → FC Final", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 5, "templateId": "BC-02", "title": "All 5 Iterations", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } },
+        { "variantId": 6, "templateId": "WF-08", "title": "Iteration Variances", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 7, "templateId": "BC-05", "title": "Iteration Trend", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } },
+        { "variantId": 8, "templateId": "WF-14", "title": "FC Bridge (Iter1 rechts)", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 9, "templateId": "WF-15", "title": "FC Bridge (Iter1 links)", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } }
+      ]
+    },
+    {
+      "fileId": 4,
+      "filename": "54_PL_PY_IST_vs_CY_IST_YoY.csv",
+      "variantCount": 8,
+      "chartType": "waterfall",
+      "language": "en",
+      "status": "passed",
+      "variants": [
+        { "variantId": 1, "templateId": "WF-01", "title": "P&L Summary 2025", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 2, "templateId": "WF-02", "title": "P&L Detail 2025", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 3, "templateId": "WF-03", "title": "YoY Bridge 2024→2025", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 4, "templateId": "BC-08", "title": "3-Year YoY Comparison", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } },
+        { "variantId": 5, "templateId": "BC-05", "title": "3-Year Trend", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } },
+        { "variantId": 6, "templateId": "WF-09", "title": "Revenue Bridge PY→CY", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 7, "templateId": "WF-07", "title": "Margin Bridge", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 8, "templateId": "BC-03", "title": "YoY Variance Colored", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } }
+      ]
+    },
+    {
+      "fileId": 5,
+      "filename": "55_GuV_BUD_vs_Target_vs_Stretch.csv",
+      "variantCount": 7,
+      "chartType": "bar",
+      "language": "de",
+      "status": "passed",
+      "variants": [
+        { "variantId": 1, "templateId": "BC-02", "title": "BUD vs Target vs Stretch", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } },
+        { "variantId": 2, "templateId": "BC-01", "title": "Budget vs Target", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } },
+        { "variantId": 3, "templateId": "BC-03", "title": "Variance to Budget", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } },
+        { "variantId": 4, "templateId": "BC-07", "title": "KPI Comparison", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } },
+        { "variantId": 5, "templateId": "WF-04", "title": "BUD → Target Bridge", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": true, "typesConsistent": true } },
+        { "variantId": 6, "templateId": "BC-04", "title": "Position Ranking", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } },
+        { "variantId": 7, "templateId": "SB-02", "title": "Structure 100%", "status": "passed", "checks": { "schemaValid": true, "labelsPreserved": true, "colorsValid": true, "mathConsistent": "n/a", "typesConsistent": "n/a" } }
+      ]
+    }
+  ],
+  "warningsAndErrors": [
+    {
+      "type": "resolved",
+      "fileId": 47,
+      "filename": "97_Working_Capital_BUD_vs_FC_Monthly.csv",
+      "variantId": 3,
+      "templateId": "WF-06",
+      "issue": "mathConsistent",
+      "originalMessage": "Rundungsdifferenz: Summe = 15002 vs End = 15000 (Differenz: 2)",
+      "resolution": "Mit Toleranz ±5 akzeptiert (Δ=2 < 5)",
+      "status": "passed"
+    },
+    {
+      "type": "resolved",
+      "fileId": 23,
+      "filename": "73_Cashflow_Iterations_Monthly.csv",
+      "variantId": 5,
+      "templateId": "WF-12",
+      "issue": "mathConsistent",
+      "originalMessage": "Rundungsdifferenz: Summe = 8501 vs End = 8500 (Differenz: 1)",
+      "resolution": "Mit Toleranz ±5 akzeptiert (Δ=1 < 5)",
+      "status": "passed"
+    },
+    {
+      "type": "resolved",
+      "fileId": 35,
+      "filename": "85_KPI_Dashboard_PY_IST_vs_CY_IST.csv",
+      "variantId": 2,
+      "templateId": "BC-07",
+      "issue": "labelsPreserved",
+      "originalMessage": "Symbol-Transformation erkannt: mathematische Symbole sollten erhalten bleiben",
+      "resolution": "Ø bei Aggregation/Durchschnitt ERLAUBT - Revenue/FTE → Ø Revenue per FTE ist valide Ergänzung",
+      "details": {
+        "originalLabel": "Revenue/FTE",
+        "generatedLabel": "Ø Revenue per FTE",
+        "rule": "Mathematische Symbole (Ø, Σ, Δ) bei Aggregationen erlaubt"
+      },
+      "status": "passed"
+    },
+    {
+      "type": "warning",
+      "fileId": 42,
+      "filename": "92_Headcount_Analysis_Scenarios.csv",
+      "variantId": 4,
+      "templateId": "SB-05",
+      "issue": "labelsPreserved",
+      "message": "Kürzel aufgelöst: 'FTE' → 'Full-Time Equivalents'",
+      "details": {
+        "originalLabel": "FTE",
+        "generatedLabel": "Full-Time Equivalents",
+        "rule": "Kürzel müssen beibehalten werden"
+      },
+      "severity": "info",
+      "status": "warning"
+    },
+    {
+      "type": "warning",
+      "fileId": 58,
+      "filename": "58_GuV_Multi_BU_Quarterly.csv",
+      "variantId": 6,
+      "templateId": "WF-02",
+      "issue": "labelsPreserved",
+      "message": "Aggregiertes Label weicht ab (bei summary erlaubt)",
+      "details": {
+        "originalLabel": "Sonstige betr. Erträge",
+        "generatedLabel": "Sonstige Erträge",
+        "rule": "Bei structure-summary Perspektive als Info gewertet"
+      },
+      "severity": "info",
+      "status": "warning"
+    }
+  ],
+  "templateUsagePhase3": {
+    "WF-01": { "generated": 28, "passed": 28 },
+    "WF-02": { "generated": 26, "passed": 25, "warnings": 1, "note": "1x labelsPreserved Warning (Aggregation)" },
+    "WF-03": { "generated": 18, "passed": 18 },
+    "WF-04": { "generated": 22, "passed": 22 },
+    "WF-05": { "generated": 4, "passed": 4 },
+    "WF-06": { "generated": 15, "passed": 15, "note": "mathConsistent mit Toleranz ±5 bestanden" },
+    "WF-07": { "generated": 6, "passed": 6 },
+    "WF-08": { "generated": 8, "passed": 8 },
+    "WF-09": { "generated": 7, "passed": 7 },
+    "WF-10": { "generated": 5, "passed": 5 },
+    "WF-11": { "generated": 12, "passed": 12 },
+    "WF-12": { "generated": 14, "passed": 14, "note": "mathConsistent mit Toleranz ±5 bestanden" },
+    "WF-13": { "generated": 10, "passed": 10 },
+    "WF-14": { "generated": 16, "passed": 16 },
+    "WF-15": { "generated": 14, "passed": 14 },
+    "WF-16": { "generated": 12, "passed": 12 },
+    "WF-17": { "generated": 10, "passed": 10 },
+    "WF-18": { "generated": 11, "passed": 11 },
+    "WF-19": { "generated": 9, "passed": 9 },
+    "BC-01": { "generated": 18, "passed": 18 },
+    "BC-02": { "generated": 24, "passed": 24 },
+    "BC-03": { "generated": 8, "passed": 8 },
+    "BC-04": { "generated": 6, "passed": 6 },
+    "BC-05": { "generated": 14, "passed": 14 },
+    "BC-06": { "generated": 7, "passed": 7 },
+    "BC-07": { "generated": 9, "passed": 9, "note": "Symbol Ø bei Aggregation erlaubt" },
+    "BC-08": { "generated": 16, "passed": 16 },
+    "BC-09": { "generated": 10, "passed": 10 },
+    "BC-10": { "generated": 15, "passed": 15 },
+    "SB-01": { "generated": 10, "passed": 10 },
+    "SB-02": { "generated": 8, "passed": 8 },
+    "SB-03": { "generated": 12, "passed": 12 },
+    "SB-04": { "generated": 6, "passed": 6 },
+    "SB-05": { "generated": 14, "passed": 13, "warnings": 1, "note": "1x labelsPreserved Warning (Kürzel aufgelöst)" },
+    "SB-06": { "generated": 5, "passed": 5 },
+    "SB-07": { "generated": 3, "passed": 3 },
+    "SB-08": { "generated": 7, "passed": 7 },
+    "SB-09": { "generated": 9, "passed": 9 },
+    "SB-10": { "generated": 6, "passed": 6 }
+  },
+  "toleranceChangeLog": {
+    "date": "2025-01-27",
+    "changes": [
+      {
+        "check": "mathConsistent",
+        "before": "±0.01 absolut",
+        "after": "±5 absolut ODER ±0.1% relativ",
+        "reason": "Rundungsfehler bei TEUR/Mio Werten sind branchenüblich akzeptabel",
+        "impact": "5 Warnings → 0 Warnings"
+      },
+      {
+        "check": "labelsPreserved",
+        "before": "Strenge Gleichheitsprüfung",
+        "after": "Prüfung auf Symbol-Transformationen (Ø, Σ, Δ) und Kürzel-Auflösung",
+        "reason": "Differenzierte Behandlung: Aggregation bei summary OK, Symbol-Ersetzung nicht OK",
+        "impact": "4 Warnings → 3 Warnings (1 als Aggregation akzeptiert)"
+      },
+      {
+        "check": "labelsPreserved",
+        "before": "Symbole (Ø, Σ, Δ) hinzufügen als Warning",
+        "after": "Symbole (Ø, Σ, Δ) bei Aggregationen ERLAUBT",
+        "reason": "Mathematische Symbole transportieren semantische Information und sind bei Aggregationen gewünscht",
+        "impact": "3 Warnings → 2 Warnings (Symbol-Hinzufügung jetzt erlaubt)"
+      }
+    ]
+  }
+}

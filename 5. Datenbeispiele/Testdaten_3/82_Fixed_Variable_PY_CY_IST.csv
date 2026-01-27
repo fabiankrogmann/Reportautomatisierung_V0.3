@@ -1,0 +1,21 @@
+Cost_Type,PY_2024_IST,CY_2025_IST,YoY_Delta,YoY_%
+FIXED COSTS,,,,
+Rent,3600,3708,108,3.0%
+Depreciation,4200,4494,294,7.0%
+Insurance,720,742,22,3.1%
+Base Salaries,12000,12600,600,5.0%
+IT Licenses,1800,1908,108,6.0%
+Subtotal Fixed,22320,23452,1132,5.1%
+,,,,
+VARIABLE COSTS,,,,
+Raw Materials,28000,30800,2800,10.0%
+Direct Labor,8400,9240,840,10.0%
+Utilities (variable),2100,2310,210,10.0%
+Packaging,3500,3850,350,10.0%
+Commissions,4200,4620,420,10.0%
+Freight,5600,6160,560,10.0%
+Subtotal Variable,51800,56980,5180,10.0%
+,,,,
+TOTAL COSTS,74120,80432,6312,8.5%
+Fixed Cost Ratio,30.1%,29.2%,-0.9%,
+Variable Cost Ratio,69.9%,70.8%,0.9%,

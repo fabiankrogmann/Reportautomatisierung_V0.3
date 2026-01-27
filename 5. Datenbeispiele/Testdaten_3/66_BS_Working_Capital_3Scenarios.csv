@@ -1,0 +1,13 @@
+Position,Q4_PY_IST,Q4_BUD,Q4_FC,FC_vs_BUD,FC_vs_PY
+Current Assets,48500,52000,50900,-1100,2400
+Inventories,16000,17200,16800,-400,800
+Trade Receivables,25000,26800,26200,-600,1200
+Other Receivables,4500,4800,4700,-100,200
+Prepaid Expenses,3000,3200,3200,0,200
+Current Liabilities,32000,34500,33800,-700,1800
+Trade Payables,18000,19400,19000,-400,1000
+Other Payables,8000,8600,8400,-200,400
+Accrued Expenses,4000,4300,4200,-100,200
+Deferred Revenue,2000,2200,2200,0,200
+Net Working Capital,16500,17500,17100,-400,600
+NWC as % of Revenue,12.5%,12.0%,12.2%,0.2%,-0.3%

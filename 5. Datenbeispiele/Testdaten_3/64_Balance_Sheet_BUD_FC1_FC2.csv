@@ -1,0 +1,19 @@
+Position,BUD_2025,FC1_2025,FC2_2025,FC1_vs_BUD,FC2_vs_BUD
+ASSETS,,,,,
+Non-current Assets,125000,122500,123750,-2500,-1250
+  Property Plant Equipment,85000,83300,84150,-1700,-850
+  Intangible Assets,28000,27440,27720,-560,-280
+  Financial Assets,12000,11760,11880,-240,-120
+Current Assets,75000,73500,74250,-1500,-750
+  Inventories,22500,22050,22275,-450,-225
+  Trade Receivables,37500,36750,37125,-750,-375
+  Cash and Equivalents,15000,14700,14850,-300,-150
+Total Assets,200000,196000,198000,-4000,-2000
+,,,,,
+EQUITY & LIABILITIES,,,,,
+Shareholders Equity,90000,88200,89100,-1800,-900
+  Share Capital,50000,50000,50000,0,0
+  Retained Earnings,40000,38200,39100,-1800,-900
+Non-current Liabilities,65000,63700,64350,-1300,-650
+Current Liabilities,45000,44100,44550,-900,-450
+Total Equity & Liabilities,200000,196000,198000,-4000,-2000
