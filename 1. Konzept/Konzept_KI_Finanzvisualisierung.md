@@ -3,7 +3,7 @@
 **Automatisierte Chart-Generierung für Finanzreports**
 Waterfall | Stacked Bar | Bar Chart
 
-Version 2.1 | Januar 2026 (Phase 1 Refactoring)
+Version 3.0 | Januar 2026 (Konsolidierte Prompt-Pipeline)
 
 ---
 
@@ -28,20 +28,21 @@ upload.html → results.html → colors.html → charts.html
 
 | Komponente | Funktion |
 |------------|----------|
-| **Template-Bibliothek** | 30 vordefinierte Layout-Templates (JSON) |
-| **Prompt-System** | 5 KI-Prompts für Chart-Generierung (~158 KB) |
-| **ChartMixer** | Lädt alle Templates des gewählten Typs |
+| **Template-Bibliothek** | 34 vordefinierte Layout-Templates (JSON) |
+| **Prompt-System** | 6 KI-Prompts für Chart-Generierung |
+| **VariantGenerator** | Erzeugt 3-10 Chart-Varianten pro Typ |
 | **ConfigGenerator** | Erzeugt Chart-Konfigurationen via KI |
+| **Chart-Prompts** | Generieren direkt fertiges SVG |
 | **Export-Engine** | SVG, PNG, PPTX, HTML, ZIP |
 
 ### Kernprinzip: KI-Empfehlung + User-Auswahl
 
-Das System zeigt dem User eine KI-Empfehlung für den optimalen Chart-Typ, aber der User MUSS explizit einen Typ wählen. Alle Templates des gewählten Typs werden generiert (bis zu 12). Der User wählt per Checkbox welche Charts exportiert werden.
+Das System zeigt dem User eine KI-Empfehlung für den optimalen Chart-Typ, aber der User MUSS explizit einen Typ wählen. Das System generiert 3-10 sinnvolle Varianten des gewählten Typs. Der User wählt per Checkbox welche Charts exportiert werden.
 
 **Workflow:**
 1. KI analysiert Daten und empfiehlt Chart-Typ
 2. User wählt Chart-Typ (Waterfall, Bar, Stacked Bar)
-3. System generiert ALLE Templates des Typs
+3. System generiert 3-10 unterschiedliche Varianten
 4. User wählt per Checkbox welche Charts exportiert werden
 
 Charts mit identischem Fingerprint werden automatisch übersprungen.
@@ -100,27 +101,17 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │ ConfigLoader │  │TemplateLoader│  │ DataProfiler │              │
+│  │ PromptLoader │  │TemplateLoader│  │  APIClient   │              │
 │  │              │  │              │  │              │              │
-│  │ Lädt JSON-   │  │ Lädt 30      │  │ Analysiert   │              │
-│  │ Configs      │  │ Templates    │  │ Daten-Profil │              │
+│  │ Lädt .md     │  │ Lädt 30      │  │ Anthropic/   │              │
+│  │ Prompts      │  │ Templates    │  │ OpenAI       │              │
 │  └──────────────┘  └──────────────┘  └──────────────┘              │
 │         │                 │                 │                       │
 │         └─────────────────┼─────────────────┘                       │
 │                           ▼                                         │
-│                    ┌──────────────┐                                 │
-│                    │  ChartMixer  │                                 │
-│                    │              │                                 │
-│                    │ Lädt alle    │                                 │
-│                    │ Templates    │                                 │
-│                    └──────────────┘                                 │
-│                           │                                         │
-│                           ▼                                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │  APIClient   │◀─│ConfigGenerator│─▶│ SVG-Renderer │              │
-│  │              │  │              │  │              │              │
-│  │ Anthropic/   │  │ Erzeugt      │  │ Waterfall/   │              │
-│  │ OpenAI       │  │ Chart-Config │  │ Bar/Stacked  │              │
+│  │ Variant      │  │ Config       │  │ Chart-Prompt │              │
+│  │ Generator    │  │ Generator    │  │ (SVG-Output) │              │
 │  └──────────────┘  └──────────────┘  └──────────────┘              │
 │                                              │                       │
 │                                              ▼                       │
@@ -136,13 +127,12 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 
 | Komponente | Aufgabe | Typ |
 |------------|---------|-----|
-| **ConfigLoader** | Lädt JSON-Konfigurationen (Templates, Examples, Colors) | Statisch |
+| **PromptLoader** | Lädt Prompts aus .md-Dateien (Single Source of Truth) | Statisch |
 | **TemplateLoader** | Verwaltet 30 Chart-Templates | Statisch |
-| **DataProfiler** | Analysiert Daten (Typ, Komplexität, Zeitreihen) | Logik |
-| **ChartMixer** | Lädt alle Templates des gewählten Typs | Statisch |
+| **VariantGenerator** | Erzeugt 3-10 unterschiedliche Chart-Varianten | KI |
 | **APIClient** | Zentrale API-Integration (Anthropic/OpenAI) | Integration |
 | **ConfigGenerator** | Generiert Chart-Konfigurationen via KI | KI |
-| **SVG-Renderer** | Rendert Charts als SVG | Rendering |
+| **Chart-Prompts** | Generieren direkt fertiges SVG | KI + Rendering |
 | **Export-Engine** | Exportiert in verschiedene Formate | Export |
 
 ### 2.3 Seiten-Funktionen
@@ -151,13 +141,12 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 - Datei-Upload (CSV, Excel)
 - API-Key-Validierung
 - Datenvorschau (max. 15 Zeilen)
-- Erste KI-Analyse der Datenstruktur
+- Erste KI-Analyse der Datenstruktur (PROMPT-1)
 - Sprach-Erkennung (DE/EN)
 
 #### results.html
 - Zeigt Analyseergebnisse an
-- Chart-Typ-Auswahl (Mix oder Einzeltyp)
-- Anzahl Charts wählbar (1-10)
+- Chart-Typ-Auswahl (User wählt explizit)
 - Datenqualitäts-Score (0-10)
 - Editierbare Metadaten (Unit, Zeitraum)
 
@@ -168,8 +157,8 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 - Persistenz via localStorage
 
 #### charts.html
-- Chart-Generierung via KI
-- SVG-Rendering für alle Chart-Typen
+- Chart-Generierung via KI (PROMPT-2, PROMPT-3, Chart-Prompts)
+- SVG wird direkt von Chart-Prompts generiert
 - Interaktive Tooltips
 - Multi-Format-Export
 
@@ -177,16 +166,16 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 
 ## 3. Template-Bibliothek
 
-Die Bibliothek umfasst 30 Templates in `6. Bibliotheken/templates.json`, verteilt auf drei Chart-Typen.
+Die Bibliothek umfasst 34 Templates in `6. Bibliotheken/templates.json`, verteilt auf drei Chart-Typen.
 
 ### 3.1 Verteilung nach Chart-Typ
 
 | Chart-Typ | Anzahl | Fokus |
 |-----------|--------|-------|
-| Waterfall | 12 | Bridges, Strukturen, Varianzen |
-| Stacked Bar | 8 | Zusammensetzungen, Trends |
+| Waterfall | 19 | Bridges, Strukturen, Varianzen, Layout-Varianten |
+| Stacked Bar | 10 | Zusammensetzungen, Trends, Monthly |
 | Bar Chart | 10 | Vergleiche, Rankings |
-| **Gesamt** | **30** | |
+| **Gesamt** | **40** | |
 
 ### 3.2 Perspektiven-Matrix
 
@@ -201,10 +190,10 @@ Jedes Template ist einer Perspektive zugeordnet, die eine spezifische Frage bean
 | **Trend** | Wie entwickelt sich der Wert über Zeit? | Bar, Stacked Bar |
 | **Ranking** | Was sind die größten Treiber? | Bar (horizontal) |
 
-### 3.3 Waterfall Templates (12)
+### 3.3 Waterfall Templates (19)
 
-| ID | Name | Perspektive | Beschreibung |
-|----|------|-------------|--------------|
+| Kurz-ID | Name | Perspektive | Beschreibung |
+|---------|------|-------------|--------------|
 | WF-01 | pnl_waterfall_summary | Structure | Executive Summary, 5-7 Items |
 | WF-02 | pnl_waterfall_detail | Structure | Alle Zeilen, 10-18 Items |
 | WF-03 | pnl_waterfall_yoy_bridge | Variance | Prior Year → Current Year |
@@ -217,24 +206,35 @@ Jedes Template ist einer Perspektive zugeordnet, die eine spezifische Frage bean
 | WF-10 | segment_pnl_waterfall | Structure | Nach Geschäftssegmenten |
 | WF-11 | quarterly_bridge | Trend | Q1 → Q2 → Q3 → Q4 |
 | WF-12 | forecast_variance_bridge | Variance | Forecast → Actual |
+| WF-13 | monthly_bridge | Trend | M1 → M12 Monatsbrücke |
+| WF-14 | budget_bridge_compare_right | Variance | Budget Bridge + FC rechts |
+| WF-15 | budget_bridge_compare_left | Variance | Budget Bridge + FC links |
+| WF-16 | yoy_bridge_compare_right | Variance | YoY Bridge + BUD/FC rechts |
+| WF-17 | yoy_bridge_compare_left | Variance | YoY Bridge + BUD/FC links |
+| WF-18 | fc_bridge_compare_right | Variance | FC Bridge + BUD rechts |
+| WF-19 | fc_bridge_compare_left | Variance | FC Bridge + BUD links |
 
-### 3.4 Stacked Bar Templates (8)
+**Layout-Varianten (WF-14 bis WF-19):** Diese Templates zeigen zusätzliche Szenario-Werte als schmale Vergleichsbalken neben den Haupt-Bridge-Bars. Position "rechts" oder "links" bestimmt wo die Compare-Bars erscheinen.
 
-| ID | Name | Perspektive | Beschreibung |
-|----|------|-------------|--------------|
+### 3.4 Stacked Bar Templates (10)
+
+| Kurz-ID | Name | Perspektive | Beschreibung |
+|---------|------|-------------|--------------|
 | SB-01 | cost_structure_absolute | Composition | Kosten absolut |
 | SB-02 | cost_structure_percent | Composition | Kosten 100%-gestapelt |
-| SB-03 | revenue_mix_trend_absolute | Trend | Revenue über Zeit (absolut) |
+| SB-03 | revenue_mix_trend_absolute | Trend | Revenue über Zeit (absolut, 3-12 Perioden) |
 | SB-04 | revenue_mix_trend_percent | Trend | Revenue über Zeit (100%) |
 | SB-05 | segment_comparison_stacked | Comparison | Segmente nebeneinander |
 | SB-06 | pnl_components_stacked | Structure | P&L als Stacked Bar |
 | SB-07 | horizontal_cost_breakdown | Composition | Horizontal für lange Labels |
 | SB-08 | budget_components_stacked | Comparison | Budget-Zusammensetzung |
+| SB-09 | monthly_trend_stacked | Trend | 12 Monate gestapelt (absolut) |
+| SB-10 | monthly_trend_stacked_percent | Trend | 12 Monate gestapelt (100%) |
 
 ### 3.5 Bar Chart Templates (10)
 
-| ID | Name | Perspektive | Beschreibung |
-|----|------|-------------|--------------|
+| Kurz-ID | Name | Perspektive | Beschreibung |
+|---------|------|-------------|--------------|
 | BC-01 | actual_vs_budget | Comparison | 2er Grouped Bar |
 | BC-02 | actual_budget_forecast | Comparison | 3er Grouped Bar |
 | BC-03 | variance_bar_colored | Variance | Farbcodiert nach Vorzeichen |
@@ -252,8 +252,9 @@ Jedes Template folgt diesem Schema:
 
 ```json
 {
-  "template_id": "pnl_waterfall_summary",
-  "name": "P&L Executive Summary",
+  "template_id": "WF-01",
+  "name": "pnl_waterfall_summary",
+  "display_name": "P&L Executive Summary",
   "chart_type": "waterfall",
 
   "metadata": {
@@ -280,20 +281,166 @@ Jedes Template folgt diesem Schema:
 
 Die KI-Prompts sind in `4. Prompts/` als Markdown-Dateien gespeichert und werden zur Laufzeit geladen.
 
-### 4.1 Prompt-Dateien
+### 4.1 Prompt-Pipeline (6 Prompts)
 
-| Datei | Größe | Zweck |
-|-------|-------|-------|
-| `WATERFALL-CHART-PROMPT.md` | ~51 KB | Generiert Waterfall-Konfigurationen |
-| `BAR-CHART-PROMPT.md` | ~38 KB | Generiert Bar-Chart-Konfigurationen |
-| `STACKED-BAR-CHART-PROMPT.md` | ~40 KB | Generiert Stacked-Bar-Konfigurationen |
-| `RANKING-MIX-PROMPT.md` | ~8 KB | Wählt optimale Template-Kombination |
-| `FIELD-MAPPING-PROMPT.md` | ~11 KB | Mapped Datenfelder auf Templates |
-| `COLOR-SCHEMA-PROMPT.md` | ~19 KB | Generiert Farbpaletten |
+Das System verwendet eine konsolidierte 6-stufige Prompt-Pipeline:
 
-**Gesamt:** ~167 KB Prompt-Volumen
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│   CSV/Excel Upload                                                               │
+│        │                                                                         │
+│        ▼                                                                         │
+│   ╔═══════════════════════════════╗                                             │
+│   ║ PROMPT 1: Universal Analyzer  ║  ← upload.html                              │
+│   ╚═══════════════════════════════╝  ← Output: analysis, extractedData, hierarchy│
+│        │                                                                         │
+│        │ User wählt Chart-Typ in results.html                                   │
+│        │ User wählt Farbschema in colors.html                                   │
+│        ▼                                                                         │
+│   ╔═══════════════════════════════╗                                             │
+│   ║ PROMPT 2: Variant Generator   ║  ← charts.html                              │
+│   ╚═══════════════════════════════╝  ← Output: variants[] (3-10 Varianten)      │
+│        │                                                                         │
+│        ▼                                                                         │
+│   ┌────────────────────────────────────────────────────────────────┐            │
+│   │           FÜR JEDE VARIANTE                                     │            │
+│   │                                                                 │            │
+│   │   ╔═══════════════════════════════╗                            │            │
+│   │   ║ PROMPT 3: Config Generator    ║  ← charts.html             │            │
+│   │   ╚═══════════════════════════════╝  ← Output: chartConfig     │            │
+│   │        │                                                        │            │
+│   │        ▼                                                        │            │
+│   │   ╔═══════════════════════════════╗                            │            │
+│   │   ║ PROMPT 4-6: Chart Prompt      ║  ← WATERFALL/BAR/STACKED   │            │
+│   │   ╚═══════════════════════════════╝  ← Output: fertiges SVG    │            │
+│   │        │                                                        │            │
+│   │        ▼                                                        │            │
+│   │   Fingerprint-Check → chartConfigs.push() oder skip            │            │
+│   └────────────────────────────────────────────────────────────────┘            │
+│        │                                                                         │
+│        ▼                                                                         │
+│   Export (ZIP/PPTX)                                                             │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
 
-### 4.2 PromptLoader-System
+### 4.2 Prompt-Dateien
+
+| # | Datei | Ersetzt | Aufruf | Output |
+|---|-------|---------|--------|--------|
+| 1 | `PROMPT-1-UNIVERSAL-ANALYZER.md` | DATA-ANALYZER | upload.html | analysisResult |
+| 2 | `PROMPT-2-VARIANT-GENERATOR.md` | PERSPECTIVE-DERIVATION + LAYOUT-RANKING | charts.html | variants[] |
+| 3 | `PROMPT-3-CONFIG-GENERATOR.md` | FIELD-MAPPING | charts.html | chartConfig |
+| 4 | `WATERFALL-CHART-PROMPT.md` | - | charts.html | **SVG direkt** |
+| 5 | `BAR-CHART-PROMPT.md` | - | charts.html | **SVG direkt** |
+| 6 | `STACKED-BAR-CHART-PROMPT.md` | - | charts.html | **SVG direkt** |
+
+**Hinweis:** Die Chart-Prompts (4-6) generieren direkt das fertige SVG – kein separater SVG-Renderer nötig.
+
+**Zusätzlich:**
+- `COLOR-SCHEMA-PROMPT.md` – für dynamische Farbgenerierung in colors.html
+
+**Archiviert (in `4. Prompts/archiv/`):**
+- DATA-ANALYZER-PROMPT (archiviert).md
+- PERSPECTIVE-DERIVATION-PROMPT (archiviert).md
+- LAYOUT-RANKING-PROMPT (archiviert).md
+- FIELD-MAPPING-PROMPT (archiviert).md
+
+### 4.3 PROMPT 1: Universal Analyzer
+
+Analysiert die hochgeladene Datei und extrahiert alle relevanten Metadaten.
+
+**Output-Struktur:**
+```json
+{
+  "analysis": {
+    "reportType": "income-statement",
+    "dataFormat": "matrix-complex",
+    "currency": "EUR",
+    "unit": "TEUR",
+    "timeRange": { "periods": [...], "year": "2025" },
+    "scenarios": ["IST", "FC", "BUD"],
+    "hierarchy": { "detected": true, "levels": [...] }
+  },
+  "extractedData": {
+    "normalized": [...],
+    "positions": { "start": [...], "costs": [...], ... }
+  },
+  "chartRecommendation": {
+    "primary": "waterfall",
+    "alternatives": ["bar", "stacked-bar"],
+    "reasoning": "GuV-Struktur mit Überleitung..."
+  }
+}
+```
+
+### 4.4 PROMPT 2: Variant Generator
+
+Kombiniert die frühere PERSPECTIVE-DERIVATION und LAYOUT-RANKING Logik.
+
+**Input:**
+- analysisResult (von Prompt 1)
+- selectedChartType ("waterfall" | "bar" | "stacked-bar")
+- templateLibrary (alle verfügbaren Templates)
+
+**Output-Struktur:**
+```json
+{
+  "variants": [
+    {
+      "id": 1,
+      "templateId": "WF-01",
+      "title": "GuV Gesamtjahr 2025",
+      "subtitle": "Überleitung Umsatz zu Ergebnis",
+      "focus": "annual-total",
+      "dataFilter": { "scenario": "IST", "period": "all" },
+      "uniqueValue": "Gesamtbild der Ertragslage"
+    }
+  ],
+  "variantCount": 6,
+  "notGeneratedReasons": ["Keine VJ-Daten", "Nur ein Segment"]
+}
+```
+
+### 4.5 PROMPT 3: Config Generator
+
+Erzeugt die vollständige, render-fertige Chart-Konfiguration.
+
+**Input:**
+- variant (von Prompt 2)
+- extractedData (von Prompt 1)
+- templateDefinition (aus Bibliothek)
+- colorScheme (User-Auswahl)
+
+**Output-Struktur:**
+```json
+{
+  "chartConfig": {
+    "type": "waterfall",
+    "title": "...",
+    "subtitle": "...",
+    "data": [
+      { "label": "Umsatzerlöse", "value": 2195000, "type": "start", "color": "#4472C4" }
+    ],
+    "axes": { "y": { "label": "TEUR", "min": 0 } },
+    "styling": { "barWidth": 0.6, "connectorLine": true }
+  }
+}
+```
+
+### 4.6 Chart-Prompts (SVG-Output)
+
+Die Chart-Prompts (Waterfall, Bar, Stacked Bar) generieren **direkt fertiges SVG** – kein separater Renderer nötig.
+
+**Features die in Chart-Prompts gepflegt werden:**
+
+| Feature | Gepflegt in | Beispiel |
+|---------|-------------|----------|
+| Skalenbruch | WATERFALL-CHART-PROMPT.md | `scaleBreak: { enabled: true }` |
+| Bracket | WATERFALL-CHART-PROMPT.md | `bracket: { show: true, label: '+8.7%' }` |
+| Fußnoten | Alle Chart-Prompts | `footnotes: ["Quelle: ..."]` |
+| Connector Lines | WATERFALL-CHART-PROMPT.md | `connectorLine: true` |
+
+### 4.7 PromptLoader-System
 
 Der PromptLoader in `charts.html` lädt die Markdown-Dateien vollständig und cached sie mit Hash-Validierung:
 
@@ -309,12 +456,22 @@ cache: {
 }
 ```
 
-**Cache-Validierung:**
-- Bei jedem `load()` wird der Hash der Datei berechnet
-- Hash identisch → aus Cache laden
-- Hash unterschiedlich → neu laden und Cache aktualisieren
+**Single Source of Truth:**
+```
+4. Prompts/*.md  ←── Source of Truth (einzige Stelle!)
+       │
+       │ PromptLoader.load()
+       ▼
+   HTML-Seiten (laden zur Laufzeit)
+```
 
-### 4.3 Anthropic Prompt Caching
+**Vorteile:**
+- Änderungen nur an einer Stelle
+- Prompts immer aktuell
+- Keine Sync-Probleme
+- Einfaches Testing der Prompts
+
+### 4.8 Anthropic Prompt Caching
 
 Das System nutzt Anthropic's `cache_control` Feature für bis zu **90% Kosteneinsparung**:
 
@@ -334,11 +491,141 @@ Das System nutzt Anthropic's `cache_control` Feature für bis zu **90% Kostenein
 
 ---
 
-## 5. Farbschema-System
+## 5. Übergreifende Regeln
+
+Diese Regeln gelten für ALLE Prompts in der Pipeline.
+
+### 5.1 Spracherhaltung (KRITISCH)
+
+**GRUNDREGEL:**
+Alle Begriffe, Labels, Namen und Bezeichnungen aus den Quelldaten müssen EXAKT so beibehalten werden, wie sie in der hochgeladenen Datei stehen.
+
+**VERBOTEN:**
+- ✗ Übersetzen (DE→EN oder EN→DE)
+- ✗ Umformulieren oder "Verbessern"
+- ✗ Kürzen oder Abkürzen (außer bei Platzmangel)
+- ✗ Synonyme verwenden
+- ✗ Fachbegriffe "verdeutschen" oder anglizisieren
+
+**Beispiele:**
+
+| Quelldaten (DE) | Output (korrekt) | Output (FALSCH) |
+|-----------------|------------------|-----------------|
+| "Umsatzerlöse" | "Umsatzerlöse" | ~~"Revenue"~~ |
+| "Materialaufwand" | "Materialaufwand" | ~~"Material costs"~~ |
+| "EBITDA" | "EBITDA" | "EBITDA" ✓ |
+
+| Quelldaten (EN) | Output (korrekt) | Output (FALSCH) |
+|-----------------|------------------|-----------------|
+| "Revenue" | "Revenue" | ~~"Umsatz"~~ |
+| "Cost of Sales" | "Cost of Sales" | ~~"Herstellungskosten"~~ |
+| "Net Income" | "Net Income" | ~~"Nettoergebnis"~~ |
+
+### 5.2 Intelligente Aggregation (ERLAUBT)
+
+Die KI darf Positionen zu sinnvollen Blöcken/Summen zusammenfassen:
+
+- "Personalaufwand" + "Materialaufwand" + "Abschreibungen" → **"Betriebsaufwand"** (bei deutschen Daten)
+- Einzelne Kostenarten → **"Operating Expenses"** (bei englischen Daten)
+
+**Regeln für Aggregate:**
+- Aggregate müssen in der GLEICHEN SPRACHE wie die Quelldaten benannt werden
+- Ermöglicht zusätzliche Chart-Varianten (z.B. Summary vs. Detail-Ansicht)
+
+### 5.3 Ausnahmen
+
+**Chart-Titles dürfen beschreibend generiert werden:**
+- "GuV Gesamtjahr 2025" (auch wenn Datei englisch ist)
+- "P&L Annual Overview" (auch wenn Datei deutsch ist)
+
+**ABER:** Die Daten-Labels im Chart bleiben IMMER original!
+
+### 5.4 Geltungsbereich
+
+Diese Regeln gelten für die gesamte Pipeline:
+```
+Prompt 1 → Prompt 2 → Prompt 3 → Chart-Prompt → Chart Output
+```
+
+---
+
+## 6. Varianten-Generierung
+
+### 6.1 MUSS-REGELN
+
+1. **KEINE DUPLIKATE**
+   - Jede Variante muss sich DEUTLICH unterscheiden
+   - Unterschied in: Datenauswahl, Aggregation, Perspektive
+
+2. **ECHTER MEHRWERT**
+   - Jede Variante muss neue Erkenntnis ermöglichen
+   - Frage: "Was lernt User hier, was andere Charts nicht zeigen?"
+
+3. **SINNVOLLE ANZAHL**
+   - Minimum: So viele wie sinnvoll (mind. 1)
+   - Maximum: 10
+   - Lieber 5 gute als 10 mittelmäßige
+
+4. **PASSEND ZUM CHART-TYP**
+   - Waterfall: Nur wenn Überleitung/Bridge Sinn macht
+   - Bar: Nur wenn Vergleich Sinn macht
+   - Stacked: Nur wenn Zusammensetzung Sinn macht
+
+5. **DATEN MÜSSEN VORHANDEN SEIN**
+   - Keine Variante für nicht-existente Daten
+   - Keine "Phantasie-Perspektiven"
+
+### 6.2 Varianten-Dimensionen
+
+| Dimension | Beschreibung |
+|-----------|--------------|
+| **A. DATENAUSWAHL** | Alle Daten vs. gefiltert, Aggregiert vs. Detail |
+| **B. ZEITLICHE PERSPEKTIVE** | Siehe vollständige Liste unten |
+| **C. SZENARIO-PERSPEKTIVE** | Siehe vollständige Liste unten |
+| **D. HIERARCHIE-EBENE** | Konzern, Cluster/Segment, Detail (Land, Produkt) |
+| **E. DETAIL-TIEFE** | Executive Summary (5-7), Standard (10-15), Detail (alle) |
+
+**B. ZEITLICHE PERSPEKTIVE im Detail:**
+
+| Kategorie | Optionen |
+|-----------|----------|
+| **Einzelne Perioden** | Einzelperiode (Monat/Quartal), Kumuliert (YTD), Gesamtjahr |
+| **Zeitreihen-Trends** | Monatstrend (12 Monate), Quartalstrend (Q1-Q4), Halbjahresvergleich (H1 vs. H2) |
+| **Periodenvergleiche** | Monat vs. Monat, Quartal vs. Quartal, Jahr vs. Jahr |
+| **Vorjahresvergleiche** | Monat vs. VJ-Monat, YTD vs. VJ-YTD, Quartal vs. VJ-Quartal |
+| **Spezial-Aggregationen** | Rolling 12 Monate, Saisonalitäts-Vergleich |
+
+**Wichtig:** Nur Perspektiven generieren, für die ausreichend Perioden in den Daten vorhanden sind!
+
+**C. SZENARIO-PERSPEKTIVE im Detail:**
+
+| Kategorie | Kombinationen |
+|-----------|---------------|
+| **Einzel-Szenarien** | Nur IST, Nur BUD, Nur FC, Nur VJ |
+| **Zwei-Szenario-Vergleiche** | IST vs. BUD, IST vs. FC, IST vs. VJ, BUD vs. FC, BUD vs. VJ, FC vs. VJ |
+| **Drei-Szenario-Vergleiche** | IST vs. FC vs. BUD, IST vs. VJ vs. BUD |
+| **Forecast-Iterationen** | FC1 vs. FC2 vs. FC3 (Rolling Forecast) |
+
+**Wichtig:** Nur Kombinationen generieren, für die ALLE referenzierten Szenarien in den Daten vorhanden sind!
+
+### 6.3 Duplikat-Erkennung (Daten-basiert)
+
+```javascript
+fingerprint = `${chartType}:${perspectiveId}:${titleHash}:${dataStructure}`
+
+// Beispiele:
+"BAR:p1:clusterübersicht:3:3"  // Cluster-Übersicht → OK
+"BAR:p3:dachbreakdown:3:3"     // DACH-Breakdown   → KEIN Duplikat!
+"BAR:p1:clusterübersicht:3:3"  // Gleiche Daten    → DUPLIKAT (skip)
+```
+
+---
+
+## 7. Farbschema-System
 
 Farbschemas sind in `6. Bibliotheken/color-schemes.json` definiert und modular erweiterbar.
 
-### 5.1 Vordefinierte Schemas
+### 7.1 Vordefinierte Schemas
 
 | Schema | Beschreibung | Farben |
 |--------|--------------|--------|
@@ -349,7 +636,7 @@ Farbschemas sind in `6. Bibliotheken/color-schemes.json` definiert und modular e
 | **trafficLight** | Ampelfarben | Rot, Orange, Grün |
 | **custom** | Benutzerdefiniert | 6 frei wählbare Hex-Codes |
 
-### 5.2 Schema-Struktur
+### 7.2 Schema-Struktur
 
 ```json
 {
@@ -373,7 +660,7 @@ Farbschemas sind in `6. Bibliotheken/color-schemes.json` definiert und modular e
 }
 ```
 
-### 5.3 Erweiterung
+### 7.3 Erweiterung
 
 Neue Farbschemas können ohne Code-Änderungen hinzugefügt werden:
 1. JSON-Eintrag in `color-schemes.json` hinzufügen
@@ -381,41 +668,46 @@ Neue Farbschemas können ohne Code-Änderungen hinzugefügt werden:
 
 ---
 
-## 6. Chart-Generierung
+## 8. Chart-Generierung
 
-### 6.1 ChartMixer
+### 8.1 Generierungs-Pipeline
 
-Der ChartMixer wählt aus 30 Templates die optimale Kombination basierend auf:
+```
+1. PROMPT-1 (Universal Analyzer)  → Daten analysieren
+2. User wählt Chart-Typ          → results.html
+3. User wählt Farbschema         → colors.html
+4. PROMPT-2 (Variant Generator)  → 3-10 Varianten definieren
+5. FÜR JEDE VARIANTE:
+   a. PROMPT-3 (Config Generator) → chartConfig erstellen
+   b. CHART-PROMPT                → SVG generieren
+   c. Fingerprint-Check           → Duplikate überspringen
+6. Export                         → ZIP/PPTX
+```
 
-**Auswahlkriterien:**
+### 8.2 Beispiel: Generierte Varianten
 
-1. **Perspektiven-Abdeckung:** Mindestens 4 verschiedene Perspektiven
-2. **Zielgruppen-Mix:**
-   - 2-3 Executive-Level Charts (Summary)
-   - 3-4 Analyse-Charts (Detail)
-   - 2-3 Spezial-Perspektiven (Variance, Trend, Ranking)
-3. **Charttyp-Balance:**
-   - Nicht mehr als 5 Charts eines Typs
-   - Mindestens 2 verschiedene Charttypen
+Für einen P&L-Report mit 2 Perioden und 18 Zeilen (Waterfall gewählt):
 
-**Constraint: Keine Redundanz**
+| # | Template | Fokus | Mehrwert |
+|---|----------|-------|----------|
+| 1 | WF-01 | Gesamtjahr IST | Executive Overview |
+| 2 | WF-03 | YoY Bridge | Veränderung zum Vorjahr |
+| 3 | WF-04 | Budget Bridge | Plan-Ist-Abweichung |
+| 4 | WF-07 | Margin Bridge | Margin-Entwicklung |
+| 5 | WF-02 | Detail-Ansicht | Alle Positionen |
+| 6 | WF-11 | Quartals-Trend | Q1 → Q4 Entwicklung |
 
-Der ChartMixer führt eine Ähnlichkeitsprüfung durch:
-- Charts mit >80% Layout-Ähnlichkeit werden übersprungen
-- Berücksichtigt: gleiche Struktur, ähnliche Datenpunkte
-- Reduziert Redundanz und API-Kosten
+### 8.3 API-Calls pro Durchlauf (Beispiel)
 
-### 6.2 ConfigGenerator
+| Phase | Prompt | Anzahl Calls |
+|-------|--------|--------------|
+| Upload | PROMPT-1 Universal Analyzer | 1 |
+| Chart-Gen | PROMPT-2 Variant Generator | 1 |
+| Chart-Gen | PROMPT-3 Config Generator | ~6 (1 pro Variante) |
+| Chart-Gen | Chart-Prompt (SVG) | ~6 (1 pro Variante) |
+| **Gesamt** | | **~14** |
 
-Der ConfigGenerator erzeugt die finale Chart-Konfiguration:
-
-1. **Template auswählen** (via ChartMixer)
-2. **Feld-Mapping** erstellen (FIELD-MAPPING-PROMPT)
-3. **Struktur anpassen** an verfügbare Daten
-4. **KI-Generierung** mit chart-spezifischem Prompt
-5. **Validierung** der JSON-Ausgabe
-
-**JSON-Reparatur:**
+### 8.4 JSON-Reparatur
 
 API-Antworten werden manchmal abgeschnitten. Der Parser hat eine 5-Schritt-Reparatur:
 1. Offene Strings schließen
@@ -424,28 +716,9 @@ API-Antworten werden manchmal abgeschnitten. Der Parser hat eine 5-Schritt-Repar
 4. Fehlende Klammern hinzufügen
 5. Aggressives Kürzen als Fallback
 
-### 6.3 Beispiel: Generierter Chart-Mix
-
-Für einen P&L-Report mit 2 Perioden und 18 Zeilen:
-
-| # | Template | Perspektive | Zweck |
-|---|----------|-------------|-------|
-| 1 | pnl_waterfall_summary | Structure | Executive Overview |
-| 2 | pnl_waterfall_yoy_bridge | Variance | YoY-Veränderung |
-| 3 | variance_bar_colored | Variance | Abweichungen farblich |
-| 4 | cost_structure_percent | Composition | Kostenstruktur |
-| 5 | actual_vs_budget | Comparison | Plan-Ist-Vergleich |
-| 6 | margin_bridge | Structure | Margin-Entwicklung |
-| 7 | revenue_mix_trend_percent | Trend | Revenue-Mix |
-| 8 | ranking_horizontal | Ranking | Top Kostentreiber |
-| 9 | pnl_waterfall_detail | Structure | Detailansicht |
-| 10 | quarterly_comparison | Comparison | Quartalsvergleich |
-
-**Mix-Zusammenfassung:** 4 Waterfall + 4 Bar + 2 Stacked Bar
-
 ---
 
-## 7. Export-Funktionen
+## 9. Export-Funktionen
 
 Das System unterstützt 6 Export-Formate:
 
@@ -465,9 +738,9 @@ Das System unterstützt 6 Export-Formate:
 
 ---
 
-## 8. API-Integration
+## 10. API-Integration
 
-### 8.1 Unterstützte Provider
+### 10.1 Unterstützte Provider
 
 | Provider | Modell | Besonderheiten |
 |----------|--------|----------------|
@@ -476,7 +749,7 @@ Das System unterstützt 6 Export-Formate:
 
 Die Provider-Auswahl erfolgt in `upload.html`.
 
-### 8.2 Modi
+### 10.2 Modi
 
 | Modus | Beschreibung |
 |-------|--------------|
@@ -485,7 +758,7 @@ Die Provider-Auswahl erfolgt in `upload.html`.
 
 **Wichtig:** Kein Rule-Based Fallback. Wenn die KI fehlschlägt, gibt es keine lokale Fallback-Logik.
 
-### 8.3 APIClient
+### 10.3 APIClient
 
 Der zentrale APIClient handhabt alle API-Kommunikation:
 
@@ -505,9 +778,9 @@ APIClient.call(systemPrompt, userPrompt, {
 
 ---
 
-## 9. Modulare Erweiterbarkeit
+## 11. Modulare Erweiterbarkeit
 
-### Ohne Code-Änderungen erweiterbar
+### 11.1 Ohne Code-Änderungen erweiterbar
 
 | Erweiterung | Datei | Aktion |
 |-------------|-------|--------|
@@ -515,14 +788,186 @@ APIClient.call(systemPrompt, userPrompt, {
 | Neues Template | `templates.json` | Template-Objekt hinzufügen |
 | Neues Trainingsbeispiel | `chart-examples.json` | Example hinzufügen |
 
-### Nicht erweiterbar ohne Code
+### 11.2 Chart-Typ hinzufügen (z.B. Line Chart)
 
-- Chart-Typen (nur Waterfall, Bar, Stacked Bar)
-- API-Provider (nur Anthropic, OpenAI)
+1. **Prompt erstellen:** `4. Prompts/Prompts for Charts/LINE-CHART-PROMPT.md`
+2. **Templates definieren:** Neue Einträge in `templates.json` mit `chart_type: "line"`
+3. **Variant Generator erweitern:** Template-IDs für neuen Typ ergänzen
+4. **UI anpassen:** Neuen Typ in `results.html` Auswahl hinzufügen
+5. **Dokumentation:** CLAUDE.md + Konzept aktualisieren
+
+### 11.3 Layout/Template hinzufügen
+
+1. **Template in `templates.json`:**
+```json
+{
+  "template_id": "WF-13",
+  "name": "new_waterfall_layout",
+  "chart_type": "waterfall",
+  "metadata": { ... }
+}
+```
+2. **Fertig!** – Variant Generator erkennt neue Templates automatisch
+
+### 11.4 Feature hinzufügen (z.B. neues Chart-Feature)
+
+1. Feature im entsprechenden Chart-Prompt dokumentieren
+2. Config-Struktur definieren (JSON-Schema)
+3. Rendering-Logik im Prompt beschreiben
+4. Beispiele hinzufügen
+
+### 11.5 Design-Prinzipien
+
+- **Prompts sind unabhängig:** Jeder Chart-Prompt funktioniert eigenständig
+- **Templates sind deklarativ:** JSON-Struktur, keine Logik
+- **Variant Generator ist generisch:** Arbeitet mit beliebigen Template-IDs
+- **Keine Hardcoding:** Chart-Typen aus Prompts/Templates, nicht im Code
+- **Prompts extern:** `.md`-Dateien zur Laufzeit laden, NIE in HTML einbetten
+- **Features in Chart-Prompts:** Skalenbrüche, Brackets, Fußnoten etc.
 
 ---
 
-## 10. Anhang: Trainingsbeispiele
+## 12. Testplan & Validierung
+
+### 12.1 Teststrategie
+
+Die Prompt-Engine ist das Herzstück des Systems. Alle Prompts werden vor der HTML-Integration validiert.
+
+**Vorgehen:**
+1. Prompts isoliert testen (ohne Frontend)
+2. Ergebnisse in JSON speichern
+3. Visuelle Validierung
+4. Iterative Prompt-Verbesserung
+
+### 12.2 Testphasen
+
+| Phase | Prompt | Anzahl Tests | Erfolgs-Metrik |
+|-------|--------|--------------|----------------|
+| 1 | Universal Analyzer | 50 Dateien | 100% Spracherhaltung, Struktur |
+| 2 | Variant Generator | 150 (50×3 Typen) | 0% Duplikate, valide IDs |
+| 3 | Config Generator | ~750 Configs | 100% valide JSON, Labels |
+| 4 | Chart-Prompts | E2E Tests | Visuelle Prüfung |
+
+### 12.3 Automatische Validierungs-Checks
+
+**Phase 1 (Universal Analyzer):**
+- JSON-Schema-Validierung
+- Spracherhaltung (Fuzzy-Match 95%)
+- Szenarien-Vollständigkeit
+- Perioden-Extraktion
+- Report-Typ-Plausibilität
+- Datenwert-Stichprobe
+
+**Phase 2 (Variant Generator):**
+- Template-ID-Validierung (existiert in Bibliothek?)
+- Duplikat-Erkennung (keine quasi-identischen Varianten)
+- dataFilter-Validierung (nur existierende Daten referenziert)
+- Varianten-Anzahl (1-10)
+
+**Phase 3 (Config Generator):**
+- JSON-Schema (Pflichtfelder vorhanden)
+- Spracherhaltung (Labels nicht übersetzt)
+- Datenwert-Validierung (Werte aus Quelle)
+- Farb-Validierung (aus colorScheme)
+- Typ-Konsistenz (Waterfall: start/increase/decrease/end)
+- Mathematische Konsistenz (Waterfall: Start + Deltas = End)
+
+### 12.4 Testdateien (50 Stück)
+
+Die Testdateien befinden sich in `5. Datenbeispiele/` und decken alle gängigen Finanzreport-Formate ab.
+
+**Kategorien:**
+
+| Kategorie | Anzahl | Beispiele |
+|-----------|--------|-----------|
+| GuV / P&L | 8 | Monatssicht, Faktentabelle, YoY |
+| Bilanz | 6 | Jahresvergleich, Aktiva/Passiva |
+| Cashflow | 5 | Direct/Indirect, FCF Bridge |
+| Segmente | 7 | by Region, by BU, by Product |
+| Sales | 6 | by Channel, YTD vs Target |
+| Kosten | 6 | OpEx, CapEx, Cost Center |
+| Personal | 3 | FTE, Salary Bands |
+| KPIs/Bridges | 5 | EBITDA Bridge, Working Capital |
+| Sonderformate | 4 | Long Format, Sparse Data |
+
+**Vollständige Liste:**
+
+| # | Datei | Kategorie |
+|---|-------|-----------|
+| 01 | GuV_Monatssicht_IST_FC_BUD.xlsx | GuV |
+| 02 | GuV_Faktentabelle_SEL_CUM.csv | GuV |
+| 03 | PL_Quartalssicht_YoY.csv | GuV |
+| 04 | IFRS_PL_FC_Iterationen.xlsx | GuV |
+| 05 | GuV_SEL_CUM_Abweichungen.xlsx | GuV |
+| 06 | PL_Rolling_Forecast.csv | GuV |
+| 07 | GuV_Konzern_vs_Einzelgesellschaft.xlsx | GuV |
+| 08 | PL_3Year_Comparison.csv | GuV |
+| 09 | Bilanz_Jahresvergleich.xlsx | Bilanz |
+| 10 | Balance_Sheet_Quarterly.csv | Bilanz |
+| 11 | Bilanz_Aktiva_Passiva_Detail.xlsx | Bilanz |
+| 12 | Balance_Sheet_IST_vs_PY.csv | Bilanz |
+| 13 | Bilanz_Kurzfristig_Langfristig.xlsx | Bilanz |
+| 14 | Balance_Sheet_Faktentabelle.csv | Bilanz |
+| 15 | Cashflow_Statement_Annual.xlsx | Cashflow |
+| 16 | Cashflow_Indirect_Method.csv | Cashflow |
+| 17 | Cashflow_Direct_Method.xlsx | Cashflow |
+| 18 | Cashflow_Quarterly_Trend.csv | Cashflow |
+| 19 | Free_Cashflow_Bridge.xlsx | Cashflow |
+| 20 | Segment_Revenue_by_Region.xlsx | Segmente |
+| 21 | Segment_EBIT_by_BU.csv | Segmente |
+| 22 | Segment_Margin_by_Product.xlsx | Segmente |
+| 23 | Segment_Revenue_by_Country.csv | Segmente |
+| 24 | Segment_Cost_Allocation.xlsx | Segmente |
+| 25 | Segment_Profitability_Matrix.csv | Segmente |
+| 26 | Segment_YoY_Growth_Rates.xlsx | Segmente |
+| 27 | Sales_Monthly_by_Channel.csv | Sales |
+| 28 | Sales_YTD_vs_Target.xlsx | Sales |
+| 29 | Revenue_by_Customer_Top20.csv | Sales |
+| 30 | Sales_Pipeline_Stages.xlsx | Sales |
+| 31 | Revenue_New_vs_Recurring.csv | Sales |
+| 32 | Sales_by_Product_Category.xlsx | Sales |
+| 33 | OpEx_Breakdown_Monthly.xlsx | Kosten |
+| 34 | Cost_Center_Actual_vs_Budget.csv | Kosten |
+| 35 | CapEx_Projektübersicht.xlsx | Kosten |
+| 36 | Cost_by_Category_Trend.csv | Kosten |
+| 37 | Fixed_vs_Variable_Costs.xlsx | Kosten |
+| 38 | Overhead_Allocation.csv | Kosten |
+| 39 | Headcount_FTE_Monthly.csv | Personal |
+| 40 | Personnel_Cost_by_Dept.xlsx | Personal |
+| 41 | Salary_Bands_Analysis.csv | Personal |
+| 42 | EBITDA_Bridge_PY_to_CY.xlsx | KPIs |
+| 43 | Working_Capital_Trend.csv | KPIs |
+| 44 | KPI_Dashboard_Monthly.xlsx | KPIs |
+| 45 | Budget_Variance_Analysis.csv | KPIs |
+| 46 | Revenue_Bridge_Waterfall.xlsx | KPIs |
+| 47 | Financials_Long_Format.csv | Sonderformate |
+| 48 | Financials_Wide_Pivoted.xlsx | Sonderformate |
+| 49 | Sparse_Data_with_Gaps.csv | Sonderformate |
+| 50 | Multi_Currency_Report.xlsx | Sonderformate |
+
+### 12.5 End-to-End Validierung
+
+**Repräsentative Auswahl für E2E-Tests (10 Dateien):**
+
+1. 01_GuV_Monatssicht_IST_FC_BUD.xlsx (Standard P&L)
+2. 09_Bilanz_Jahresvergleich.xlsx (Bilanz)
+3. 15_Cashflow_Statement_Annual.xlsx (Cashflow)
+4. 20_Segment_Revenue_by_Region.xlsx (Segmente)
+5. 29_Revenue_by_Customer_Top20.csv (Ranking)
+6. 33_OpEx_Breakdown_Monthly.xlsx (Kosten)
+7. 42_EBITDA_Bridge_PY_to_CY.xlsx (Bridge)
+8. 44_KPI_Dashboard_Monthly.xlsx (KPIs)
+9. 47_Financials_Long_Format.csv (Long-Format)
+10. 50_Multi_Currency_Report.xlsx (Multi-Währung)
+
+**Für jede Datei:**
+- Alle 3 Chart-Typen testen
+- Alle Varianten bis zur SVG-Ausgabe führen
+- Manuelle visuelle Prüfung
+
+---
+
+## 13. Anhang: Trainingsbeispiele
 
 Die Datei `chart-examples.json` enthält 10 Beispiel-Konfigurationen für KI-Training:
 

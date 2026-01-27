@@ -450,7 +450,7 @@
             align-items: center;
             gap: 16px;
             padding: 12px 20px;
-            background: #f8fafc;
+            background: #ffffff;
             border-radius: 8px;
             margin-bottom: 20px;
             border: 1px solid #e2e8f0;
@@ -517,7 +517,7 @@
         <a href="colors.html" class="btn btn-secondary">
             <span>&larr;</span> Zurück
         </a>
-        <div class="nav-buttons">
+        <div class="nav-buttons" id="exportButtons" style="display: none;">
             <button class="btn btn-pptx" onclick="downloadSelectedAsPPTX()" title="Ausgewählte Charts als PowerPoint">
                 Ausgewählte als PPTX
             </button>
@@ -532,11 +532,11 @@
 
     <!-- Export-Auswahl-Leiste -->
     <div class="export-selection-bar" id="selectionBar" style="display: none;">
+        <button class="btn-toggle-all" onclick="toggleAllCharts()">Alle auswählen</button>
+        <button class="btn-toggle-all" onclick="deselectAllCharts()">Keine auswählen</button>
         <span class="selection-info">
             <span class="selection-count" id="selectionCount">0</span> von <span id="totalCharts">0</span> Charts ausgewählt
         </span>
-        <button class="btn-toggle-all" onclick="toggleAllCharts()">Alle auswählen</button>
-        <button class="btn-toggle-all" onclick="deselectAllCharts()">Keine auswählen</button>
     </div>
 
     <div id="charts-wrapper">
@@ -844,6 +844,14 @@
                     row_count: this._countRows(extractedData, analysis),
                     period_count: this._countPeriods(analysis, metadata),
 
+                    // NEU: Detaillierte Listen für Anzeige
+                    position_labels: this._extractPositionLabels(extractedData, analysis),
+                    period_labels: this._extractPeriodLabels(analysis, metadata, extractedData),
+
+                    // NEU: Datenfrequenz und Aggregation
+                    data_frequency: this._detectDataFrequency(analysis, metadata),
+                    is_cumulative: this._detectCumulative(analysis, metadata),
+
                     // Verfügbare Datenarten
                     has_variance_column: this._hasVariance(analysis, extractedData),
                     has_time_series: this._hasTimeSeries(analysis, metadata),
@@ -1018,6 +1026,178 @@
                 if (types.length === 0) types.push('IST');
 
                 return types;
+            },
+
+            /**
+             * Extrahiert Position-Labels (Datenpunkte/Zeilen)
+             */
+            _extractPositionLabels(extractedData, analysis) {
+                const labels = [];
+
+                // Aus Waterfall-Bars (Array)
+                if (Array.isArray(extractedData?.waterfall?.bars)) {
+                    extractedData.waterfall.bars.forEach(b => {
+                        if (b.label) labels.push(b.label);
+                    });
+                }
+
+                // Aus Waterfall-Positionen (manchmal als positions statt bars)
+                if (labels.length === 0 && Array.isArray(extractedData?.waterfall?.positions)) {
+                    extractedData.waterfall.positions.forEach(p => {
+                        if (p.label) labels.push(p.label);
+                        else if (p.name) labels.push(p.name);
+                    });
+                }
+
+                // Aus Bar-Kategorien
+                if (labels.length === 0 && Array.isArray(extractedData?.bar?.categories)) {
+                    extractedData.bar.categories.forEach(c => {
+                        if (typeof c === 'string') labels.push(c);
+                        else if (c?.label) labels.push(c.label);
+                        else if (c?.name) labels.push(c.name);
+                    });
+                }
+
+                // Aus Stacked-Kategorien
+                if (labels.length === 0 && Array.isArray(extractedData?.stacked?.categories)) {
+                    extractedData.stacked.categories.forEach(c => {
+                        if (typeof c === 'string') labels.push(c);
+                        else if (c?.label) labels.push(c.label);
+                    });
+                }
+
+                // Aus Analysis positions (als Array)
+                if (labels.length === 0 && Array.isArray(analysis?.positions)) {
+                    analysis.positions.forEach(p => {
+                        if (p.label) labels.push(p.label);
+                        else if (p.name) labels.push(p.name);
+                    });
+                }
+
+                // Aus Analysis rows (alternative Struktur)
+                if (labels.length === 0 && Array.isArray(analysis?.rows)) {
+                    analysis.rows.forEach(r => {
+                        if (r.label) labels.push(r.label);
+                        else if (r.name) labels.push(r.name);
+                        else if (r.position) labels.push(r.position);
+                    });
+                }
+
+                // Aus extractedData direkt (manchmal flache Struktur)
+                if (labels.length === 0 && Array.isArray(extractedData?.positions)) {
+                    extractedData.positions.forEach(p => {
+                        if (typeof p === 'string') labels.push(p);
+                        else if (p?.label) labels.push(p.label);
+                        else if (p?.name) labels.push(p.name);
+                    });
+                }
+
+                // Aus extractedData.data (generische Struktur)
+                if (labels.length === 0 && Array.isArray(extractedData?.data)) {
+                    extractedData.data.forEach(d => {
+                        if (d.label) labels.push(d.label);
+                        else if (d.name) labels.push(d.name);
+                        else if (d.position) labels.push(d.position);
+                    });
+                }
+
+                // Fallback: Aus available_fields (wird von _extractFieldNames gefüllt)
+                if (labels.length === 0) {
+                    const fields = this._extractFieldNames(extractedData, analysis);
+                    if (fields.length > 0) {
+                        labels.push(...fields);
+                    }
+                }
+
+                return labels;
+            },
+
+            /**
+             * Extrahiert Perioden-Labels
+             */
+            _extractPeriodLabels(analysis, metadata, extractedData) {
+                const labels = [];
+
+                // Aus Analysis periods
+                if (analysis?.periods) {
+                    analysis.periods.forEach(p => {
+                        if (typeof p === 'string') labels.push(p);
+                        else if (p?.label) labels.push(p.label);
+                        else if (p?.name) labels.push(p.name);
+                    });
+                }
+
+                // Aus Metadata
+                if (labels.length === 0 && metadata?.periods) {
+                    metadata.periods.forEach(p => labels.push(p));
+                }
+
+                // Aus extractedData bar periods
+                if (labels.length === 0 && extractedData?.bar?.periods) {
+                    extractedData.bar.periods.forEach(p => {
+                        if (typeof p === 'string') labels.push(p);
+                        else if (p?.label) labels.push(p.label);
+                    });
+                }
+
+                // Aus timeRange extrahieren
+                if (labels.length === 0 && analysis?.timeRange) {
+                    const years = analysis.timeRange.match(/\d{4}/g);
+                    if (years) labels.push(...years);
+                }
+
+                return labels;
+            },
+
+            /**
+             * Erkennt die Datenfrequenz (Monat, Quartal, Jahr)
+             */
+            _detectDataFrequency(analysis, metadata) {
+                const frequencyHints = [
+                    analysis?.dataFrequency,
+                    metadata?.frequency,
+                    analysis?.timeGranularity
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                if (frequencyHints.includes('monat') || frequencyHints.includes('month')) {
+                    return 'Monatswerte';
+                }
+                if (frequencyHints.includes('quartal') || frequencyHints.includes('quarter') || frequencyHints.includes('q1') || frequencyHints.includes('q2')) {
+                    return 'Quartalswerte';
+                }
+                if (frequencyHints.includes('jahr') || frequencyHints.includes('year') || frequencyHints.includes('annual')) {
+                    return 'Jahreswerte';
+                }
+
+                // Heuristik: Wenn periods vorhanden und kurze Labels (z.B. "Jan", "Feb")
+                if (analysis?.periods?.length >= 12) {
+                    return 'Monatswerte';
+                }
+                if (analysis?.periods?.length === 4) {
+                    return 'Quartalswerte';
+                }
+
+                return 'Jahreswerte'; // Default
+            },
+
+            /**
+             * Erkennt ob Daten kumuliert oder selektiv sind
+             */
+            _detectCumulative(analysis, metadata) {
+                const hints = [
+                    analysis?.aggregationType,
+                    metadata?.cumulative,
+                    analysis?.dataAggregation
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                if (hints.includes('cum') || hints.includes('kum') || hints.includes('ytd') || hints.includes('cumul')) {
+                    return 'kumuliert (YTD)';
+                }
+                if (hints.includes('sel') || hints.includes('period') || hints.includes('einzel')) {
+                    return 'Einzelperiode';
+                }
+
+                return null; // Unbekannt
             }
         };
 
@@ -1408,9 +1588,9 @@
                 console.log(`ChartMixer: ${filtered.length} Templates für Typ "${allowedTypes.join(', ')}" gefunden`);
                 console.log('ChartMixer: Template-IDs:', filtered.map(t => t.template_id).join(', '));
 
-                // Wenn Ranking aktiviert und API verfügbar
-                if (useRanking && APIClient.apiKey && filtered.length > count) {
-                    console.log(`ChartMixer: Starte KI-Ranking (${filtered.length} → max ${count})`);
+                // Wenn Ranking aktiviert und API verfügbar - IMMER ranken um unpassende Templates auszuschließen
+                if (useRanking && APIClient.apiKey && filtered.length > 0) {
+                    console.log(`ChartMixer: Starte KI-Ranking (${filtered.length} Templates, max ${count})`);
                     try {
                         const ranked = await LayoutRanker.rank(
                             allowedTypes[0],
@@ -1551,20 +1731,272 @@ Antworte NUR mit dem JSON-Objekt, keine Erklärungen.
         };
 
         // =====================================================
+        // MODUL 4c: PERSPECTIVE DERIVER (NEU)
+        // Leitet Visualisierungsperspektiven aus Hierarchie ab
+        // Ermöglicht verschiedene Blickwinkel auf die Daten
+        // =====================================================
+        const PerspectiveDeriver = {
+            /**
+             * Leitet Visualisierungsperspektiven aus der Datenstruktur ab
+             * @param {Object} hierarchy - Erkannte Hierarchie aus DATA_ANALYZER
+             * @param {Object} extractedData - Die extrahierten Rohdaten
+             * @param {Object} analysis - Analyse-Metadaten
+             * @param {string} chartType - Der gewählte Chart-Typ
+             * @returns {Promise<Array>} Array von Perspektiven
+             */
+            async derive(hierarchy, extractedData, analysis, chartType) {
+                console.log(`PerspectiveDeriver: Starte Ableitung für ${chartType}`);
+                console.log('PerspectiveDeriver: Hierarchy:', hierarchy);
+
+                // Wenn keine Hierarchie erkannt wurde, generiere Standard-Perspektiven
+                if (!hierarchy || !hierarchy.detected) {
+                    console.log('PerspectiveDeriver: Keine Hierarchie erkannt, verwende Standard-Perspektiven');
+                    return this._getDefaultPerspectives(chartType, analysis);
+                }
+
+                // Lade den Perspektiven-Prompt
+                const perspectivePrompt = await PromptLoader.load('perspective_derivation');
+                if (!perspectivePrompt) {
+                    console.warn('PerspectiveDeriver: Prompt nicht verfügbar, verwende Standard-Perspektiven');
+                    return this._getDefaultPerspectives(chartType, analysis);
+                }
+
+                // Baue den API-Request
+                const userMessage = `
+## Erkannte Hierarchie
+${JSON.stringify(hierarchy, null, 2)}
+
+## Extrahierte Daten (Auszug)
+${JSON.stringify(this._summarizeExtractedData(extractedData), null, 2)}
+
+## Analyse-Metadaten
+${JSON.stringify({
+    dataType: analysis?.dataType,
+    valueTypes: analysis?.valueTypes,
+    periods: analysis?.periods,
+    hasVariance: analysis?.hasVariance
+}, null, 2)}
+
+## Gewählter Chart-Typ
+${chartType}
+
+WICHTIG: Generiere mindestens 6 verschiedene Visualisierungsperspektiven basierend auf der Datenstruktur.
+Erstelle für JEDEN Wert der Aggregationsebene (z.B. jeden Cluster) eine eigene gefilterte Perspektive!
+Antworte NUR mit einem validen JSON-Objekt im Format { "perspectives": [...] }.`;
+
+                try {
+                    const response = await APIClient.call(perspectivePrompt, userMessage, {
+                        maxTokens: 4096,
+                        timeout: 30000
+                    });
+
+                    const result = APIClient.parseJSON(response);
+                    if (result && Array.isArray(result.perspectives) && result.perspectives.length > 0) {
+                        console.log(`PerspectiveDeriver: ${result.perspectives.length} Perspektiven abgeleitet`);
+                        // Sortiere nach Priorität
+                        result.perspectives.sort((a, b) => (a.priority || 99) - (b.priority || 99));
+                        return result.perspectives;
+                    }
+                } catch (error) {
+                    console.error('PerspectiveDeriver: KI-Ableitung fehlgeschlagen:', error.message);
+                }
+
+                // Fallback zu Standard-Perspektiven
+                return this._getDefaultPerspectives(chartType, analysis);
+            },
+
+            /**
+             * Zusammenfassung der extrahierten Daten für den Prompt
+             */
+            _summarizeExtractedData(extractedData) {
+                const summary = {};
+
+                if (extractedData?.waterfall?.bars) {
+                    summary.waterfall = {
+                        barCount: extractedData.waterfall.bars.length,
+                        sampleLabels: extractedData.waterfall.bars.slice(0, 5).map(b => b.label)
+                    };
+                }
+
+                if (extractedData?.bar?.categories) {
+                    summary.bar = {
+                        categoryCount: extractedData.bar.categories.length,
+                        sampleCategories: extractedData.bar.categories.slice(0, 5).map(c =>
+                            typeof c === 'string' ? c : c.name || c.label
+                        )
+                    };
+                }
+
+                if (extractedData?.stacked?.categories) {
+                    summary.stacked = {
+                        categoryCount: extractedData.stacked.categories.length,
+                        segmentCount: extractedData.stacked.segments?.length || 0
+                    };
+                }
+
+                return summary;
+            },
+
+            /**
+             * Standard-Perspektiven wenn keine Hierarchie erkannt wurde
+             */
+            _getDefaultPerspectives(chartType, analysis) {
+                const hasYoY = analysis?.valueTypes?.some(t =>
+                    t.toLowerCase().includes('vj') || t.toLowerCase().includes('py')
+                );
+                const hasBudget = analysis?.valueTypes?.some(t =>
+                    t.toLowerCase().includes('bud') || t.toLowerCase().includes('plan')
+                );
+
+                const perspectives = [
+                    {
+                        id: 'p1',
+                        name: 'Standard-Ansicht',
+                        description: 'Vollständige Darstellung aller Daten',
+                        dimension: 'default',
+                        filter: null,
+                        comparison: null,
+                        aggregationLevel: 'detail',
+                        priority: 1
+                    },
+                    {
+                        id: 'p2',
+                        name: 'Zusammenfassung',
+                        description: 'Aggregierte Hauptpositionen',
+                        dimension: 'default',
+                        filter: null,
+                        comparison: null,
+                        aggregationLevel: 'summary',
+                        priority: 2
+                    }
+                ];
+
+                if (hasYoY) {
+                    perspectives.push({
+                        id: 'p3',
+                        name: 'Vorjahresvergleich',
+                        description: 'Vergleich mit Vorjahr',
+                        dimension: 'default',
+                        filter: null,
+                        comparison: 'YoY',
+                        aggregationLevel: 'detail',
+                        priority: 3
+                    });
+                }
+
+                if (hasBudget) {
+                    perspectives.push({
+                        id: 'p4',
+                        name: 'Budget-Vergleich',
+                        description: 'Plan vs. Ist',
+                        dimension: 'default',
+                        filter: null,
+                        comparison: 'Budget',
+                        aggregationLevel: 'detail',
+                        priority: 4
+                    });
+                }
+
+                console.log(`PerspectiveDeriver: ${perspectives.length} Standard-Perspektiven generiert`);
+                return perspectives;
+            }
+        };
+
+        // =====================================================
         // MODUL 5: CONFIG GENERATOR
         // Generiert Chart-Configs aus Templates + Daten
         // =====================================================
         const ConfigGenerator = {
+            // Cache für Field-Mappings (pro Perspektive)
+            _fieldMappingCache: new Map(),
+
+            /**
+             * SCHRITT 1: Field-Mapping durchführen (separater API-Call)
+             * Mappt Template-Felder auf Quelldaten basierend auf Perspektive
+             * @param {Object} template - Das ausgewählte Template
+             * @param {Object} data - Die Quelldaten
+             * @param {Object} perspective - Die Visualisierungsperspektive
+             * @returns {Promise<Object>} Field-Mapping-Ergebnis
+             */
+            async _performFieldMapping(template, data, perspective) {
+                // Cache-Key: perspectiveId + templateId
+                const cacheKey = `${perspective?.id || 'default'}:${template.template_id}`;
+
+                // Prüfe Cache
+                if (this._fieldMappingCache.has(cacheKey)) {
+                    console.log(`FieldMapping: Cache-Hit für ${cacheKey}`);
+                    return this._fieldMappingCache.get(cacheKey);
+                }
+
+                console.log(`FieldMapping: Starte Mapping für Template ${template.template_id} mit Perspektive ${perspective?.name || 'Standard'}`);
+
+                // Lade Field-Mapping-Prompt
+                const fieldMappingPrompt = await PromptLoader.load('field_mapping');
+
+                // Erstelle User-Prompt für Field-Mapping
+                const userPrompt = `## Template-Struktur
+${JSON.stringify(template, null, 2)}
+
+## Verfügbare Datenfelder
+${JSON.stringify(data, null, 2)}
+
+## Perspektive
+${perspective ? `
+- Name: ${perspective.name}
+- Dimension: ${perspective.dimension}
+- Filter: ${perspective.filter || 'Kein Filter'}
+- Aggregationsebene: ${perspective.aggregationLevel}
+- Vergleich: ${perspective.comparison || 'Keiner'}
+
+WICHTIG: Das Mapping muss die Perspektive berücksichtigen!
+${perspective.filter ? `- Filtere auf: ${perspective.filter}` : ''}
+${perspective.aggregationLevel === 'summary' ? '- Nur aggregierte Werte mappen' : ''}
+${perspective.aggregationLevel === 'detail' ? '- Detail-Werte mappen' : ''}
+` : 'Keine spezifische Perspektive - verwende alle Daten'}
+
+Erstelle das Feld-Mapping für dieses Template unter Berücksichtigung der Perspektive.
+Antworte NUR mit einem validen JSON-Objekt.`;
+
+                try {
+                    const response = await APIClient.call(fieldMappingPrompt, userPrompt, { maxTokens: 4096 });
+                    const mapping = APIClient.parseJSON(response);
+
+                    console.log(`FieldMapping: Mapping für ${cacheKey} erfolgreich:`, {
+                        mappedFields: mapping.field_mappings?.length || 0,
+                        unmappedFields: mapping.unmapped_template_fields?.length || 0,
+                        warnings: mapping.warnings?.length || 0
+                    });
+
+                    // Cache speichern
+                    this._fieldMappingCache.set(cacheKey, mapping);
+
+                    return mapping;
+                } catch (error) {
+                    console.warn(`FieldMapping: Fehler für ${cacheKey}:`, error.message);
+                    // Fallback: leeres Mapping (Chart-Prompt macht dann implizites Mapping)
+                    return { field_mappings: [], mapping_status: 'fallback', error: error.message };
+                }
+            },
+
             /**
              * Generiert eine Chart-Config aus Template und Daten
+             * NEUER ABLAUF:
+             * 1. Field-Mapping (separater API-Call)
+             * 2. Chart-Config-Generierung (mit Mapping-Ergebnis)
+             *
              * @param {Object} template - Das ausgewählte Template
              * @param {Object} data - Die Quelldaten
              * @param {Object} colors - Die Farbpalette
              * @param {string} detectedLanguage - Erkannte Sprache der Quelldaten ('de', 'en', 'unknown')
+             * @param {Object} perspective - Die zu verwendende Visualisierungsperspektive (optional)
              * @returns {Promise<Object>} Fertige Chart-Config
              */
-            async generate(template, data, colors, detectedLanguage = 'unknown') {
+            async generate(template, data, colors, detectedLanguage = 'unknown', perspective = null) {
                 const chartType = template.chart_type;
+
+                // SCHRITT 1: Field-Mapping durchführen (separater API-Call)
+                const fieldMapping = await this._performFieldMapping(template, data, perspective);
+                console.log(`ConfigGenerator: Field-Mapping abgeschlossen (Status: ${fieldMapping.mapping_status || 'ok'})`);
 
                 // Lade den passenden Prompt aus .md-Datei (via PromptLoader)
                 let prompt;
@@ -1588,28 +2020,107 @@ Antworte NUR mit dem JSON-Objekt, keine Erklärungen.
                     throw new Error('Kein API-Key vorhanden - Demo-Modus erforderlich');
                 }
 
-                // KI-Generierung
-                console.log('ConfigGenerator: Starte KI-Generierung für Template:', template.template_id);
-                const config = await this._generateWithAI(template, data, colors, prompt, detectedLanguage);
+                // SCHRITT 2: KI-Generierung mit Perspektive und Field-Mapping
+                const perspectiveInfo = perspective ? ` mit Perspektive "${perspective.name}"` : '';
+                console.log(`ConfigGenerator: Starte KI-Generierung für Template: ${template.template_id}${perspectiveInfo}`);
+                const config = await this._generateWithAI(template, data, colors, prompt, detectedLanguage, perspective, fieldMapping);
                 config._generatedBy = 'ai'; // Markiere als KI-generiert
+                config._perspectiveId = perspective?.id || null; // Speichere Perspektive-ID
+                config._perspectiveName = perspective?.name || null;
                 console.log('ConfigGenerator: KI-Generierung erfolgreich');
                 return config;
                 // Fehler werden nach oben propagiert für Demo-Modus
             },
 
             /**
-             * KI-gestützte Config-Generierung
+             * Generiert Template-spezifische Anweisungen basierend auf Template-Metadaten
+             * Hilft der KI, unterschiedliche Chart-Perspektiven zu erstellen
+             */
+            _getTemplateGuidance(template) {
+                const id = template.template_id || '';
+                const meta = template.metadata || {};
+                const structure = template.structure || {};
+                const guidance = [];
+
+                // Basis-Info
+                guidance.push(`Template: ${id} - ${template.display_name || template.name}`);
+
+                // Detail-Level
+                if (meta.detail_level === 'summary') {
+                    guidance.push('→ SUMMARY-Ansicht: Zeige nur 5-7 aggregierte Hauptpositionen (z.B. Umsatz, Kosten gesamt, Ergebnis)');
+                } else if (meta.detail_level === 'detail') {
+                    guidance.push('→ DETAIL-Ansicht: Zeige 10-18 Einzelpositionen mit Aufschlüsselung');
+                }
+
+                // Comparison Type
+                if (meta.comparison_type === 'period_comparison' || id.includes('yoy') || id.includes('YoY')) {
+                    guidance.push('→ PERIODEN-VERGLEICH: Startbalken = Vorjahr (VJ/PY), Endbalken = Aktuell (IST/CY)');
+                    guidance.push('   Die Zwischenbalken zeigen die Veränderungen (Deltas) zwischen den Perioden');
+                }
+                if (meta.comparison_type === 'budget_comparison' || id.includes('budget')) {
+                    guidance.push('→ BUDGET-VERGLEICH: Startbalken = Budget/Plan, Endbalken = Actual/IST');
+                    guidance.push('   Die Zwischenbalken zeigen Plan-Ist-Abweichungen');
+                }
+                if (id.includes('forecast') || id.includes('FC')) {
+                    guidance.push('→ FORECAST-VERGLEICH: Vergleiche Forecast mit Actual');
+                }
+
+                // Perspektive
+                if (meta.analysis_perspective === 'variance') {
+                    guidance.push('→ VARIANZ-Fokus: Hebe Abweichungen und Unterschiede hervor');
+                } else if (meta.analysis_perspective === 'structure') {
+                    guidance.push('→ STRUKTUR-Fokus: Zeige den Aufbau/Zusammensetzung');
+                }
+
+                // Spezial-Templates
+                if (id.includes('horizontal')) {
+                    guidance.push('→ HORIZONTAL: Verwende horizontale Balken-Orientierung');
+                }
+                if (id.includes('margin') || id.includes('Margin')) {
+                    guidance.push('→ MARGIN-BRIDGE: Zeige Entwicklung von Brutto- zu Nettomarge');
+                }
+                if (id.includes('cashflow')) {
+                    guidance.push('→ CASHFLOW: Strukturiere nach Operating, Investing, Financing');
+                }
+                if (id.includes('segment')) {
+                    guidance.push('→ SEGMENT-Ansicht: Gliedere nach Geschäftssegmenten');
+                }
+                if (id.includes('quarterly') || id.includes('Q1') || id.includes('Q2')) {
+                    guidance.push('→ QUARTALS-Ansicht: Zeige Quartalsvergleich Q1→Q2→Q3→Q4');
+                }
+                if (id.includes('ranking') || id.includes('top')) {
+                    guidance.push('→ RANKING: Sortiere nach Größe, zeige Top-Positionen');
+                }
+
+                // Item-Count aus Structure
+                if (structure.item_count) {
+                    const [min, max] = structure.item_count;
+                    guidance.push(`→ Anzahl Datenpunkte: ${min}-${max} Bars/Kategorien`);
+                }
+
+                // Titel-Vorschlag basierend auf Template
+                const titleSuggestion = template.display_name || template.name?.replace(/_/g, ' ') || '';
+                if (titleSuggestion) {
+                    guidance.push(`→ Titel-Vorschlag: "${titleSuggestion}"`);
+                }
+
+                return guidance.join('\n');
+            },
+
+            /**
+             * KI-gestützte Config-Generierung (SCHRITT 2 nach Field-Mapping)
              * @param {Object} template - Das ausgewählte Template
              * @param {Object} data - Die Quelldaten
              * @param {Object} colors - Die Farbpalette
              * @param {string} prompt - Der System-Prompt für den Chart-Typ
              * @param {string} detectedLanguage - Erkannte Sprache ('de', 'en', 'unknown')
+             * @param {Object|null} perspective - Die Visualisierungsperspektive
+             * @param {Object|null} fieldMapping - Das Ergebnis des Field-Mapping-Schritts
              */
-            async _generateWithAI(template, data, colors, prompt, detectedLanguage = 'unknown') {
-                const fieldMappingPrompt = await PromptLoader.load('field_mapping');
+            async _generateWithAI(template, data, colors, prompt, detectedLanguage = 'unknown', perspective = null, fieldMapping = null) {
                 const chartType = template.chart_type;
 
-                console.log(`ConfigGenerator._generateWithAI: Template ${template.template_id}, Typ: ${chartType}, Sprache: ${detectedLanguage}`);
+                console.log(`ConfigGenerator._generateWithAI: Template ${template.template_id}, Typ: ${chartType}, Sprache: ${detectedLanguage}, Mapping: ${fieldMapping?.mapping_status || 'none'}`);
 
                 // Sprach-Hinweis erstellen
                 let languageNote;
@@ -1649,9 +2160,56 @@ ${JSON.stringify(ex.config, null, 2)}
                     // Weiter ohne Beispiele - Prompt hat inline-Beispiele als Fallback
                 }
 
+                // Extrahiere Template-spezifische Anweisungen
+                const templateGuidance = this._getTemplateGuidance(template);
+
+                // Perspektiven-Anweisungen erstellen (falls vorhanden)
+                let perspectiveGuidance = '';
+                if (perspective) {
+                    console.log(`ConfigGenerator._generateWithAI: Perspektive '${perspective.name}' (${perspective.id}) anwenden`);
+                    perspectiveGuidance = `
+## WICHTIG: Visualisierungsperspektive für diesen Chart
+Diese Konfiguration soll eine SPEZIFISCHE Perspektive auf die Daten zeigen:
+
+- **Perspektive:** ${perspective.name}
+- **Beschreibung:** ${perspective.description || 'Keine Beschreibung'}
+- **Dimension:** ${perspective.dimension || 'Standard'}
+- **Filter:** ${perspective.filter || 'Kein Filter - alle Daten verwenden'}
+- **Vergleichstyp:** ${perspective.comparison || 'Kein Vergleich'}
+- **Aggregationsebene:** ${perspective.aggregationLevel || 'Standard'}
+
+### Anweisungen für diese Perspektive:
+${perspective.filter ? `- Filtere die Daten auf: ${perspective.filter}` : '- Verwende ALLE verfügbaren Daten'}
+${perspective.aggregationLevel === 'summary' ? '- Zeige nur die AGGREGIERTE/ZUSAMMENGEFASSTE Ebene (z.B. Cluster, nicht einzelne Länder)' : ''}
+${perspective.aggregationLevel === 'detail' ? '- Zeige die DETAIL-Ebene (z.B. alle einzelnen Länder/Regionen)' : ''}
+${perspective.aggregationLevel === 'filtered' ? `- Zeige nur Details INNERHALB von: ${perspective.filter}` : ''}
+${perspective.comparison === 'YoY' ? '- Fokus auf Vorjahresvergleich (Year-over-Year)' : ''}
+${perspective.comparison === 'Budget' ? '- Fokus auf Budget-Vergleich (Plan vs. Ist)' : ''}
+${perspective.comparison === 'Ranking' ? '- Sortiere nach Wert (größte zuerst)' : ''}
+`;
+                }
+
+                // Field-Mapping-Ergebnis in User-Prompt einbauen (falls vorhanden)
+                let fieldMappingSection = '';
+                if (fieldMapping && fieldMapping.mapping_status !== 'fallback' && fieldMapping.field_mappings?.length > 0) {
+                    fieldMappingSection = `
+## WICHTIG: Vorbereitetes Field-Mapping (verwende diese Zuordnungen!)
+Das folgende Mapping wurde bereits für diese Perspektive erstellt. Nutze es als Grundlage:
+
+${JSON.stringify(fieldMapping, null, 2)}
+
+Die Mapping-Entscheidungen sind bereits getroffen - folge ihnen bei der Config-Erstellung!
+`;
+                    console.log(`ConfigGenerator._generateWithAI: Field-Mapping mit ${fieldMapping.field_mappings.length} Zuordnungen wird verwendet`);
+                }
+
                 const userPrompt = `## Template
 ${JSON.stringify(template, null, 2)}
 
+## WICHTIG: Template-spezifische Anforderungen
+${templateGuidance}
+${perspectiveGuidance}
+${fieldMappingSection}
 ## Daten
 ${JSON.stringify(data, null, 2)}
 
@@ -1883,14 +2441,13 @@ Befolge exakt das config-Format aus dem Prompt.`;
             },
 
             // Mapping: Prompt-Name → Dateiname
-            // HINWEIS: Nur noch die in charts.html benötigten Prompts
-            // - color_schema: nur in colors.html benötigt
             promptFiles: {
                 'waterfall': 'WATERFALL-CHART-PROMPT.md',
                 'bar': 'BAR-CHART-PROMPT.md',
                 'stacked_bar': 'STACKED-BAR-CHART-PROMPT.md',
-                'field_mapping': 'FIELD-MAPPING-PROMPT.md',
-                'layout_ranking': 'LAYOUT-RANKING-PROMPT.md'  // Intra-Typ Layout-Ranking
+                'field_mapping': 'FIELD-MAPPING-PROMPT.md',  // Field-Mapping für Daten-Transformation
+                'layout_ranking': 'LAYOUT-RANKING-PROMPT.md',  // Intra-Typ Layout-Ranking
+                'perspective_derivation': 'PERSPECTIVE-DERIVATION-PROMPT.md'  // Perspektiven aus Hierarchie ableiten
             },
 
             /**
@@ -2243,135 +2800,19 @@ Jede Config muss direkt vom Renderer verwendbar sein mit allen erforderlichen Fe
         // =====================================================
         // LAYOUT-RANKING API-CALL - ENTFERNT (Phase 1 Refactoring)
         // =====================================================
-        // Diese Funktion wurde entfernt, da ranking_mix nicht mehr verwendet wird.
-        // Stattdessen werden ALLE Templates des gewählten Typs direkt generiert.
-        // Die Funktion generateChartsWithRanking ist ebenfalls Legacy und wird nicht mehr aufgerufen.
-
         // =====================================================
-        // CONFIG-GENERATOR API-CALL
+        // LEGACY-CODE ENTFERNT (Bereinigung Januar 2026)
         // =====================================================
-        // Generiert ALLE Configs in einem einzigen API-Call (spart 9 API-Calls!)
-        async function generateAllConfigsViaAPI(apiKey, provider, rankings, catalog, extractedData, colors) {
-            // Lade Prompt aus .md-Datei
-            const configGeneratorPrompt = await PromptLoader.load('field_mapping');
-
-            // Baue Liste der zu generierenden Layouts
-            const layoutsToGenerate = rankings.slice(0, 10).map(r => {
-                const metadata = catalog.layouts.find(l => l.id === r.layoutId);
-                return {
-                    layoutId: r.layoutId,
-                    score: r.score,
-                    reason: r.reason,
-                    metadata: metadata
-                };
-            }).filter(l => l.metadata);
-
-            const userPrompt = `## Aufgabe
-Generiere für ALLE folgenden ${layoutsToGenerate.length} Layouts die vollständigen Chart-Konfigurationen.
-
-## Layouts (nach Ranking sortiert):
-${JSON.stringify(layoutsToGenerate.map(l => ({ id: l.layoutId, name: l.metadata.name, score: l.score })), null, 2)}
-
-## Layout-Metadaten:
-${JSON.stringify(layoutsToGenerate.map(l => l.metadata), null, 2)}
-
-## Extrahierte Daten:
-${JSON.stringify(extractedData, null, 2)}
-
-## Firmenfarben:
-${JSON.stringify(colors, null, 2)}
-
-## Output-Format
-Gib ein JSON-Array zurück mit GENAU ${layoutsToGenerate.length} Config-Objekten in der gleichen Reihenfolge wie die Layouts oben.
-Jedes Config-Objekt muss ein zusätzliches Feld "_layoutId" enthalten, das die Layout-ID angibt.
-
-Beispiel-Struktur:
-[
-  { "chartType": "waterfall", "layoutId": "WF01", "_layoutId": "WF01", "title": "...", ... },
-  { "chartType": "waterfall", "layoutId": "WF04", "_layoutId": "WF04", "title": "...", ... },
-  ...
-]
-
-Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
-
-            let response;
-            if (provider === 'anthropic') {
-                response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 16000,  // Mehr Tokens für alle 10 Configs
-                        messages: [
-                            { role: 'user', content: configGeneratorPrompt + '\n\n' + userPrompt }
-                        ]
-                    })
-                });
-            } else {
-                response = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-4o',
-                        max_tokens: 16000,
-                        messages: [
-                            { role: 'system', content: configGeneratorPrompt },
-                            { role: 'user', content: userPrompt }
-                        ]
-                    })
-                });
-            }
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(`Config API Error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
-            }
-
-            const data = await response.json();
-            const content = provider === 'anthropic'
-                ? data.content[0].text
-                : data.choices[0].message.content;
-
-            // Parse JSON-Array
-            const jsonMatch = content.match(/\[[\s\S]*\]/);
-            if (!jsonMatch) {
-                throw new Error('Keine gültige JSON-Array-Antwort vom Config-Generator');
-            }
-
-            const configs = JSON.parse(jsonMatch[0]);
-
-            // Füge Ranking-Metadaten hinzu
-            return configs.map((config, index) => {
-                const layoutInfo = layoutsToGenerate.find(l => l.layoutId === config._layoutId) || layoutsToGenerate[index];
-                if (layoutInfo) {
-                    config._rankingScore = layoutInfo.score;
-                    config._rankingReason = layoutInfo.reason;
-                    config._layoutName = layoutInfo.metadata?.name;
-                }
-                return config;
-            });
-        }
-
-        // =====================================================
-        // LEGACY: generateChartsWithRanking - ENTFERNT (Phase 1 Refactoring)
-        // =====================================================
-        // Diese Funktion wurde entfernt, da sie rankLayoutsViaAPI verwendet hat.
+        // Entfernte Funktionen:
+        // - generateAllConfigsViaAPI() - wurde nie aufgerufen
+        // - generateChartsWithRanking() - durch Template-Workflow ersetzt
         // Das System generiert nun ALLE Templates des gewählten Typs direkt
         // über den Template-basierten Workflow (TemplateLoader + ChartMixer).
-        // Siehe: selectTemplates() in ChartMixer
 
         // Hilfsfunktion: Keywords aus Analyse extrahieren
         function extractKeywordsFromAnalysis(analysis) {
             const keywords = [];
-            if (analysis?.positions) {
+            if (Array.isArray(analysis?.positions)) {
                 analysis.positions.forEach(p => {
                     if (p.label) {
                         keywords.push(p.label.toLowerCase());
@@ -2540,6 +2981,32 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
                         const extractedData = analysisResult.parsed.extractedData || {};
 
                         // =====================================================
+                        // PERSPEKTIVEN-ABLEITUNG: Verschiedene Blickwinkel aus Hierarchie
+                        // =====================================================
+                        const hierarchy = analysisResult.parsed?.hierarchy || null;
+                        const analysis = analysisResult.parsed?.analysis || {};
+                        let perspectives = [];
+
+                        if (hierarchy?.detected || (hierarchy && Object.keys(hierarchy).length > 0)) {
+                            console.log('Hierarchie erkannt, leite Perspektiven ab...');
+                            try {
+                                perspectives = await PerspectiveDeriver.derive(
+                                    hierarchy,
+                                    extractedData,
+                                    analysis,
+                                    chartType.replace('-', '_')
+                                );
+                                console.log(`${perspectives.length} Perspektiven abgeleitet:`, perspectives.map(p => p.name));
+                                aiReasoningData.derivedPerspectives = perspectives;
+                            } catch (perspectiveError) {
+                                console.warn('Perspektiven-Ableitung fehlgeschlagen:', perspectiveError.message);
+                                perspectives = [];
+                            }
+                        } else {
+                            console.log('Keine Hierarchie erkannt, verwende Standard-Perspektiven');
+                        }
+
+                        // =====================================================
                         // DUPLIKAT-ERKENNUNG: Fingerprints für generierte Configs
                         // =====================================================
                         const usedFingerprints = new Set();
@@ -2547,37 +3014,43 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
 
                         /**
                          * Erstellt einen strukturellen Fingerprint einer Config
-                         * um inhaltlich ähnliche Charts zu erkennen
+                         * um WIRKLICH identische Charts zu erkennen (nicht nur ähnliche)
+                         *
+                         * WICHTIG: Duplikat-Erkennung basiert auf DATEN, nicht auf Template!
+                         * - Gleiches Template mit VERSCHIEDENEN Perspektiven = KEIN Duplikat ✓
+                         * - Verschiedene Templates mit GLEICHEN Daten = KEIN Duplikat ✓
+                         * - Nur IDENTISCHE Perspektive + Titel + Datenstruktur = Duplikat ✗
+                         *
+                         * Ein Template darf mehrfach verwendet werden, wenn die Daten unterschiedlich sind!
                          */
                         function generateConfigFingerprint(config, chartType) {
                             try {
+                                // Perspektive-ID ist wichtig - verschiedene Perspektiven = verschiedene Charts
+                                const perspectiveId = config._perspectiveId || 'default';
+                                // Titel ist wichtig - verschiedene Perspektiven haben verschiedene Titel
+                                const titleHash = (config.title || '').toLowerCase().replace(/\s+/g, '');
+
                                 if (chartType === 'waterfall') {
-                                    // Fingerprint: Anzahl Bars + Typ-Sequenz + Vorzeichen der Werte
-                                    const barsSignature = config.bars?.map(b =>
-                                        `${b.type}:${Math.sign(b.value || 0)}`
+                                    // Fingerprint: Perspektive + Titel + Anzahl Bars + erste 3 Labels
+                                    const barLabels = config.bars?.slice(0, 3).map(b =>
+                                        (b.label || '').substring(0, 10)
                                     ).join('|') || '';
-                                    return `WF:${config.bars?.length || 0}:${barsSignature}`;
+                                    return `WF:${perspectiveId}:${titleHash}:${config.bars?.length || 0}:${barLabels}`;
                                 }
                                 if (chartType === 'bar') {
-                                    // Fingerprint: Anzahl Perioden + Anzahl Kategorien + Werte-Hash
+                                    // Fingerprint: Perspektive + Titel + Perioden + Kategorien
                                     const periodsCount = config.periods?.length || 0;
                                     const categoriesCount = config.categories?.length || 0;
-                                    const valuesHash = config.categories?.slice(0, 3).map(c =>
-                                        (c.values || []).slice(0, 2).map(v => Math.round(v / 1000)).join(',')
-                                    ).join('|') || '';
-                                    return `BAR:${periodsCount}:${categoriesCount}:${valuesHash}`;
+                                    return `BAR:${perspectiveId}:${titleHash}:${periodsCount}:${categoriesCount}`;
                                 }
                                 if (chartType === 'stacked_bar' || chartType === 'stacked-bar') {
-                                    // Fingerprint: Anzahl Kategorien + Anzahl Segmente + Werte-Hash
+                                    // Fingerprint: Perspektive + Titel + Kategorien + Segmente
                                     const categoriesCount = config.categories?.length || 0;
                                     const segmentsCount = config.segments?.length || 0;
-                                    const valuesHash = config.segments?.slice(0, 3).map(s =>
-                                        (s.values || []).slice(0, 2).map(v => Math.round(v / 1000)).join(',')
-                                    ).join('|') || '';
-                                    return `SB:${categoriesCount}:${segmentsCount}:${valuesHash}`;
+                                    return `SB:${perspectiveId}:${titleHash}:${categoriesCount}:${segmentsCount}`;
                                 }
-                                // Fallback: Generischer Hash
-                                return `GENERIC:${JSON.stringify(config).length}`;
+                                // Fallback: Perspektive + Titel + Größe
+                                return `GENERIC:${perspectiveId}:${titleHash}:${JSON.stringify(config).length}`;
                             } catch (e) {
                                 console.warn('Fingerprint-Generierung fehlgeschlagen:', e.message);
                                 return `ERROR:${Date.now()}`; // Eindeutiger Fallback
@@ -2588,27 +3061,70 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
                         const detectedLanguage = analysisResult.detectedLanguage || 'unknown';
                         console.log(`Erkannte Sprache der Quelldaten: ${detectedLanguage}`);
 
-                        for (const template of selectedTemplates) {
+                        // =====================================================
+                        // NEUE LOGIK: Templates können mit VERSCHIEDENEN Perspektiven kombiniert werden
+                        // Ein Template darf mehrfach verwendet werden, solange die Perspektive unterschiedlich ist
+                        // =====================================================
+
+                        // Erstelle Kombinationen: Perspektive × Template
+                        // Priorisiere: Jede Perspektive sollte mindestens ein Template bekommen
+                        const combinations = [];
+
+                        if (perspectives.length > 0) {
+                            // Strategie: Jede Perspektive bekommt Templates
+                            // Round-Robin-Verteilung für maximale Vielfalt
+                            for (let pIdx = 0; pIdx < perspectives.length; pIdx++) {
+                                const perspective = perspectives[pIdx];
+                                // Jede Perspektive bekommt mindestens 1 Template
+                                // Bei vielen Templates auch mehrere pro Perspektive
+                                const templatesPerPerspective = Math.max(1, Math.ceil(selectedTemplates.length / perspectives.length));
+
+                                for (let tOffset = 0; tOffset < templatesPerPerspective && combinations.length < chartCount; tOffset++) {
+                                    const tIdx = (pIdx + tOffset * perspectives.length) % selectedTemplates.length;
+                                    const template = selectedTemplates[tIdx];
+                                    combinations.push({ template, perspective });
+                                }
+                            }
+                            console.log(`Template-Perspektive-Kombinationen: ${combinations.length} (${perspectives.length} Perspektiven × Templates)`);
+                        } else {
+                            // Keine Perspektiven - jedes Template einmal
+                            for (const template of selectedTemplates) {
+                                if (combinations.length < chartCount) {
+                                    combinations.push({ template, perspective: null });
+                                }
+                            }
+                            console.log(`Keine Perspektiven - ${combinations.length} Templates einzeln`);
+                        }
+
+                        // Generiere Charts für jede Kombination
+                        for (const { template, perspective } of combinations) {
                             try {
-                                console.log(`Generiere Config für Template: ${template.template_id}...`);
+                                const perspectiveInfo = perspective
+                                    ? ` mit Perspektive '${perspective.name}'`
+                                    : '';
+                                console.log(`Generiere Config für Template: ${template.template_id}${perspectiveInfo}...`);
                                 const config = await ConfigGenerator.generate(
                                     template,
                                     extractedData,
                                     companyColors,
-                                    detectedLanguage
+                                    detectedLanguage,
+                                    perspective
                                 );
                                 if (config) {
-                                    // Prüfe auf Duplikate
+                                    // Prüfe auf Duplikate basierend auf PERSPEKTIVE + DATEN (nicht Template!)
+                                    // Ein Template darf mehrfach vorkommen, wenn die Daten unterschiedlich sind
                                     const fingerprint = generateConfigFingerprint(config, template.chart_type);
-                                    console.log(`Fingerprint für ${template.template_id}: ${fingerprint}`);
+                                    console.log(`Fingerprint für ${template.template_id}${perspectiveInfo}: ${fingerprint}`);
 
                                     if (!usedFingerprints.has(fingerprint)) {
                                         usedFingerprints.add(fingerprint);
+                                        // Füge Template-ID zur Config hinzu für späteres Matching
+                                        config._layoutId = template.template_id;
                                         chartConfigs.push(config);
-                                        console.log(`Config für ${template.template_id} erfolgreich hinzugefügt`);
+                                        console.log(`✓ Config für ${template.template_id}${perspectiveInfo} erfolgreich hinzugefügt`);
                                     } else {
                                         duplicatesSkipped++;
-                                        console.log(`⚠️ Duplikat erkannt für ${template.template_id}, überspringe (Fingerprint: ${fingerprint})`);
+                                        console.log(`⚠️ Duplikat erkannt für ${template.template_id}${perspectiveInfo}, überspringe (Fingerprint: ${fingerprint})`);
                                     }
                                 }
                             } catch (templateError) {
@@ -2618,6 +3134,7 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
                                 aiReasoningData.errors.push({
                                     phase: 'config-generation',
                                     template: template.template_id,
+                                    perspective: perspective?.name || null,
                                     error: templateError.message,
                                     timestamp: new Date().toISOString()
                                 });
@@ -2643,7 +3160,7 @@ Gib NUR das JSON-Array zurück, keine zusätzlichen Erklärungen.`;
                         // Hinweis wenn weniger Charts generiert wurden als angefordert
                         if (chartConfigs.length < chartCount) {
                             const reason = duplicatesSkipped > 0
-                                ? `${duplicatesSkipped} Duplikate wurden übersprungen, da sie strukturell identisch waren.`
+                                ? `${duplicatesSkipped} Duplikate wurden übersprungen, da sie strukturell zu ähnlich waren.`
                                 : 'Nicht genügend unterschiedliche Layouts verfügbar.';
                             console.log(`ℹ️ ${chartConfigs.length} von ${chartCount} Charts generiert. ${reason}`);
                             aiReasoningData.chartCountNote = reason;
@@ -4190,27 +4707,45 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             const reasoning = aiReasoningData.reasoning || {};
 
             // 1. DATENPROFIL - Überblick über die Quelldaten
+            const positionLabels = profile.position_labels || [];
+            const periodLabels = profile.period_labels || [];
+            const dataFrequency = profile.data_frequency || '';
+            const isCumulative = profile.is_cumulative || '';
+
+            // Formatiere Positionen für Anzeige (max. 5, dann "...")
+            const positionsDisplay = positionLabels.length > 0
+                ? (positionLabels.length <= 5
+                    ? positionLabels.join(', ')
+                    : positionLabels.slice(0, 5).join(', ') + ` ... (+${positionLabels.length - 5})`)
+                : '-';
+
+            // Formatiere Perioden für Anzeige
+            const periodsDisplay = periodLabels.length > 0
+                ? periodLabels.join(', ')
+                : '-';
+
+            // Zusatzinfo für Datentyp
+            const dataTypeInfo = [dataFrequency, isCumulative].filter(Boolean).join(', ');
+
             html += `
                 <div class="reasoning-section">
                     <div class="reasoning-section-title">Datenprofil</div>
                     <div class="reasoning-item">
                         <span class="reasoning-label">Report-Typ:</span>
-                        <span class="reasoning-value">${profile.report_type || 'Demo-Daten'}</span>
+                        <span class="reasoning-value">${profile.report_type || 'Demo-Daten'}${dataTypeInfo ? ` <span style="color: #6b7280;">(${dataTypeInfo})</span>` : ''}</span>
                     </div>
                     <div class="reasoning-item">
-                        <span class="reasoning-label">Datenpunkte:</span>
-                        <span class="reasoning-value">${profile.row_count || aiReasoningData.chartConfigs.length || '-'}</span>
+                        <span class="reasoning-label">Positionen (${positionLabels.length || profile.row_count || '-'}):</span>
+                        <span class="reasoning-value">${positionsDisplay}</span>
                     </div>
                     <div class="reasoning-item">
-                        <span class="reasoning-label">Perioden:</span>
-                        <span class="reasoning-value">${profile.period_count || '-'}</span>
+                        <span class="reasoning-label">Perioden (${periodLabels.length || profile.period_count || '-'}):</span>
+                        <span class="reasoning-value">${periodsDisplay}</span>
                     </div>
                     <div class="reasoning-item">
                         <span class="reasoning-label">Wertarten:</span>
                         <span class="reasoning-value">${(profile.available_value_types || []).join(', ') || 'IST'}</span>
                     </div>
-                    ${profile.has_budget ? '<div class="reasoning-item"><span class="reasoning-value">✓ Budget-Daten verfügbar</span></div>' : ''}
-                    ${profile.has_prior_year ? '<div class="reasoning-item"><span class="reasoning-value">✓ Vorjahres-Daten verfügbar</span></div>' : ''}
                 </div>
             `;
 
@@ -4219,11 +4754,12 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                 html += `
                     <div class="reasoning-section">
                         <div class="reasoning-section-title">Erkannte Datenmuster</div>
-                        <div class="reasoning-item" style="flex-direction: column; align-items: flex-start;">
-                            ${reasoning.dataInsights.map(insight => `
-                                <div style="margin-bottom: 4px;">• ${insight}</div>
-                            `).join('')}
-                        </div>
+                        ${reasoning.dataInsights.map((insight, i) => `
+                            <div class="reasoning-item">
+                                <span class="reasoning-label">Muster ${i + 1}:</span>
+                                <span class="reasoning-value">${insight}</span>
+                            </div>
+                        `).join('')}
                     </div>
                 `;
             }
@@ -4289,35 +4825,22 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                         <span class="reasoning-value">${chartTypeLabel[aiReasoningData.chartType] || aiReasoningData.chartType || 'Nicht festgelegt'}</span>
                     </div>
                     <div class="reasoning-item">
-                        <span class="reasoning-label">Anzahl Charts:</span>
-                        <span class="reasoning-value">${aiReasoningData.chartCount}</span>
-                    </div>
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">Generierungsmodus:</span>
-                        <span class="reasoning-value" style="color: ${generationMode === 'ai' ? '#16a34a' : '#d97706'}; font-weight: 500;">
-                            ${generationModeLabel}
+                        <span class="reasoning-label">Charts:</span>
+                        <span class="reasoning-value">
+                            ${aiReasoningData.chartCount} generiert${aiGeneratedCount > 0 ? ` <span style="color: #16a34a;">(${aiGeneratedCount} via KI)</span>` : ''}${aiReasoningData.duplicatesSkipped > 0 ? ` <span style="color: #9ca3af;">· ${aiReasoningData.duplicatesSkipped} Duplikate übersprungen</span>` : ''}
                         </span>
                     </div>
                     <div class="reasoning-item">
-                        <span class="reasoning-label">API-Key:</span>
-                        <span class="reasoning-value">${aiReasoningData.apiKeyPresent ? 'Vorhanden' : 'Nicht vorhanden'}</span>
+                        <span class="reasoning-label">Modus:</span>
+                        <span class="reasoning-value" style="color: ${generationMode === 'ai' ? '#16a34a' : '#d97706'}; font-weight: 500;">
+                            ${generationModeLabel}
+                        </span>
+                        ${aiReasoningData.apiKeyPresent ? '' : '<span style="color: #9ca3af; margin-left: 8px;">(kein API-Key)</span>'}
                     </div>
-                    ${aiGeneratedCount > 0 ? `
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">KI-generierte Charts:</span>
-                        <span class="reasoning-value">${aiGeneratedCount}</span>
-                    </div>
-                    ` : ''}
-                    ${aiReasoningData.duplicatesSkipped > 0 ? `
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">Duplikate übersprungen:</span>
-                        <span class="reasoning-value" style="color: #9ca3af;">${aiReasoningData.duplicatesSkipped}</span>
-                    </div>
-                    ` : ''}
                     ${aiReasoningData.chartCountNote ? `
                     <div class="reasoning-item" style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 4px;">
                         <span class="reasoning-value" style="color: #0369a1; font-size: 12px;">
-                            ℹ️ ${aiReasoningData.chartCountNote}
+                            ${aiReasoningData.chartCountNote}
                         </span>
                     </div>
                     ` : ''}
@@ -4554,12 +5077,16 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             selectedChartsForExport.clear();
             configsToRender.forEach((_, index) => selectedChartsForExport.add(index));
 
-            // Zeige Selection-Bar
+            // Zeige Selection-Bar und Export-Buttons
             const selectionBar = document.getElementById('selectionBar');
             if (selectionBar) {
                 selectionBar.style.display = 'flex';
                 document.getElementById('totalCharts').textContent = configsToRender.length;
                 updateSelectionCount();
+            }
+            const exportButtons = document.getElementById('exportButtons');
+            if (exportButtons) {
+                exportButtons.style.display = 'flex';
             }
 
             wrapper.innerHTML = configsToRender.map((config, index) => `

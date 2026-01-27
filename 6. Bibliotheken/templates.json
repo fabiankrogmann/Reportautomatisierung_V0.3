@@ -2,7 +2,7 @@
   "version": "1.0",
   "description": "Template-Bibliothek für KI-gestützte Finanzvisualisierung",
   "chart_types": ["waterfall", "stacked_bar", "bar"],
-  "total_templates": 30,
+  "total_templates": 40,
 
   "templates": {
     "waterfall": [
@@ -301,6 +301,224 @@
           "item_count": [4, 8]
         },
         "best_for": ["forecast_accuracy", "rolling_forecast", "fc_ist_analysis"]
+      },
+      {
+        "template_id": "WF-13",
+        "name": "monthly_bridge",
+        "display_name": "Monatsbrücke (M1→M12)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "bridge",
+          "target_audience": "finance",
+          "analysis_perspective": "trend"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "month_1_value",
+          "end_point": "month_12_value",
+          "item_count": [4, 13],
+          "period_count": 12
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true,
+          "show_percent_change": true
+        },
+        "best_for": ["monthly_variance", "month_over_month_analysis", "seasonal_bridge"]
+      },
+      {
+        "template_id": "WF-14",
+        "name": "budget_bridge_compare_right",
+        "display_name": "Budget Bridge (Vergleich rechts)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "bridge",
+          "target_audience": "finance",
+          "analysis_perspective": "variance",
+          "layout_variant": "compare_right"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "budget_value",
+          "end_point": "actual_value",
+          "item_count": [4, 10],
+          "compare_bars": {
+            "enabled": true,
+            "position": "right",
+            "scenarios": ["FC"],
+            "style": "narrow"
+          }
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true,
+          "show_percent_change": true
+        },
+        "best_for": ["budget_variance_with_fc", "three_scenario_bridge"]
+      },
+      {
+        "template_id": "WF-15",
+        "name": "budget_bridge_compare_left",
+        "display_name": "Budget Bridge (Vergleich links)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "bridge",
+          "target_audience": "finance",
+          "analysis_perspective": "variance",
+          "layout_variant": "compare_left"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "budget_value",
+          "end_point": "actual_value",
+          "item_count": [4, 10],
+          "compare_bars": {
+            "enabled": true,
+            "position": "left",
+            "scenarios": ["FC"],
+            "style": "narrow"
+          }
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true,
+          "show_percent_change": true
+        },
+        "best_for": ["budget_variance_with_fc", "three_scenario_bridge"]
+      },
+      {
+        "template_id": "WF-16",
+        "name": "yoy_bridge_compare_right",
+        "display_name": "YoY Bridge (Vergleich rechts)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "bridge",
+          "target_audience": "executive",
+          "analysis_perspective": "variance",
+          "layout_variant": "compare_right"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "prior_year_value",
+          "end_point": "current_year_value",
+          "item_count": [4, 10],
+          "compare_bars": {
+            "enabled": true,
+            "position": "right",
+            "scenarios": ["BUD", "FC"],
+            "style": "narrow"
+          }
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true,
+          "show_percent_change": true
+        },
+        "best_for": ["yoy_with_plan_fc", "comprehensive_variance"]
+      },
+      {
+        "template_id": "WF-17",
+        "name": "yoy_bridge_compare_left",
+        "display_name": "YoY Bridge (Vergleich links)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "bridge",
+          "target_audience": "executive",
+          "analysis_perspective": "variance",
+          "layout_variant": "compare_left"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "prior_year_value",
+          "end_point": "current_year_value",
+          "item_count": [4, 10],
+          "compare_bars": {
+            "enabled": true,
+            "position": "left",
+            "scenarios": ["BUD", "FC"],
+            "style": "narrow"
+          }
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true,
+          "show_percent_change": true
+        },
+        "best_for": ["yoy_with_plan_fc", "comprehensive_variance"]
+      },
+      {
+        "template_id": "WF-18",
+        "name": "fc_bridge_compare_right",
+        "display_name": "FC Bridge (Vergleich rechts)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "bridge",
+          "target_audience": "finance",
+          "analysis_perspective": "variance",
+          "layout_variant": "compare_right"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "forecast_value",
+          "end_point": "actual_value",
+          "item_count": [4, 8],
+          "compare_bars": {
+            "enabled": true,
+            "position": "right",
+            "scenarios": ["BUD"],
+            "style": "narrow"
+          }
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true,
+          "show_percent_change": true
+        },
+        "best_for": ["forecast_accuracy_with_budget", "rolling_forecast_variance"]
+      },
+      {
+        "template_id": "WF-19",
+        "name": "fc_bridge_compare_left",
+        "display_name": "FC Bridge (Vergleich links)",
+        "chart_type": "waterfall",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "variance",
+          "perspective": "bridge",
+          "target_audience": "finance",
+          "analysis_perspective": "variance",
+          "layout_variant": "compare_left"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "start_point": "forecast_value",
+          "end_point": "actual_value",
+          "item_count": [4, 8],
+          "compare_bars": {
+            "enabled": true,
+            "position": "left",
+            "scenarios": ["BUD"],
+            "style": "narrow"
+          }
+        },
+        "styling": {
+          "show_connectors": true,
+          "show_value_labels": true,
+          "show_percent_change": true
+        },
+        "best_for": ["forecast_accuracy_with_budget", "rolling_forecast_variance"]
       }
     ],
 
@@ -368,7 +586,7 @@
           "orientation": "vertical",
           "stack_mode": "absolute",
           "segment_count": [2, 6],
-          "period_count": [3, 6]
+          "period_count": [3, 12]
         },
         "styling": {
           "show_totals": true
@@ -475,6 +693,53 @@
           "categories": ["Budget", "IST", "Varianz"]
         },
         "best_for": ["budget_tracking", "plan_ist_comparison"]
+      },
+      {
+        "template_id": "SB-09",
+        "name": "monthly_trend_stacked",
+        "display_name": "Monatstrend (gestapelt)",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "composition",
+          "target_audience": "executive",
+          "analysis_perspective": "trend"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "stack_mode": "absolute",
+          "segment_count": [2, 8],
+          "period_count": 12
+        },
+        "styling": {
+          "show_totals": true,
+          "show_segment_labels": true
+        },
+        "best_for": ["monthly_composition_trend", "seasonal_composition", "cost_development"]
+      },
+      {
+        "template_id": "SB-10",
+        "name": "monthly_trend_stacked_percent",
+        "display_name": "Monatstrend (100%)",
+        "chart_type": "stacked_bar",
+        "metadata": {
+          "detail_level": "standard",
+          "comparison_type": "period_comparison",
+          "perspective": "composition",
+          "target_audience": "executive",
+          "analysis_perspective": "trend"
+        },
+        "structure": {
+          "orientation": "vertical",
+          "stack_mode": "percent",
+          "segment_count": [2, 8],
+          "period_count": 12
+        },
+        "styling": {
+          "show_percent_labels": true
+        },
+        "best_for": ["monthly_mix_evolution", "structural_shift_analysis"]
       }
     ],
 
@@ -694,7 +959,7 @@
     "variance": {
       "question": "Wo weichen wir vom Plan ab?",
       "primary_charts": ["waterfall", "bar"],
-      "templates": ["WF-03", "WF-04", "WF-08", "WF-12", "BC-03"]
+      "templates": ["WF-03", "WF-04", "WF-08", "WF-12", "WF-14", "WF-15", "WF-16", "WF-17", "WF-18", "WF-19", "BC-03"]
     },
     "comparison": {
       "question": "Wie stehen Perioden zueinander?",
@@ -708,8 +973,8 @@
     },
     "trend": {
       "question": "Wie entwickelt sich der Wert über Zeit?",
-      "primary_charts": ["bar"],
-      "templates": ["BC-05", "WF-11", "SB-03"]
+      "primary_charts": ["bar", "stacked_bar", "waterfall"],
+      "templates": ["BC-05", "WF-11", "WF-13", "SB-03", "SB-09", "SB-10"]
     },
     "ranking": {
       "question": "Was sind die größten Treiber?",

@@ -1,0 +1,14 @@
+Region,Product_Line,Revenue_USD_k,Gross_Profit_USD_k,Gross_Margin_%,EBIT_USD_k,EBIT_Margin_%
+North America,Product A,42500,18700,44.0%,8500,20.0%
+North America,Product B,35200,14800,42.0%,6150,17.5%
+North America,Product C,28800,12100,42.0%,4900,17.0%
+Europe,Product A,38500,17700,46.0%,8470,22.0%
+Europe,Product B,31200,13700,43.9%,5930,19.0%
+Europe,Product C,24500,10800,44.1%,4650,19.0%
+Asia Pacific,Product A,32000,13400,41.9%,5760,18.0%
+Asia Pacific,Product B,28500,11700,41.1%,4845,17.0%
+Asia Pacific,Product C,22000,8800,40.0%,3520,16.0%
+Latin America,Product A,12500,5000,40.0%,1875,15.0%
+Latin America,Product B,9800,3820,39.0%,1370,14.0%
+Latin America,Product C,8200,3120,38.0%,1066,13.0%
+Total,All Products,313700,133640,42.6%,57036,18.2%

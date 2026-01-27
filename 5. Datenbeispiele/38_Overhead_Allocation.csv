@@ -1,0 +1,16 @@
+Gemeinkosten_Art;Gesamtbetrag_EUR;Basis;Werk_A;Werk_B;Werk_C;Zentrale
+IT-Kosten;2850000;Mitarbeiter;1140000;855000;570000;285000
+HR-Kosten;1920000;Mitarbeiter;768000;576000;384000;192000
+Controlling;850000;Umsatz;340000;255000;170000;85000
+Gebäudeverwaltung;1250000;Fläche m²;500000;375000;250000;125000
+Geschäftsführung;1500000;Pauschal;450000;375000;300000;375000
+Rechtsabteilung;420000;Umsatz;168000;126000;84000;42000
+Qualitätsmanagement;680000;Produktionsmenge;272000;204000;136000;68000
+Umweltmanagement;320000;Fläche m²;128000;96000;64000;32000
+Gesamt;9790000;;3766000;2862000;1958000;1204000
+;;;;;;
+Verteilungsbasis;;;;;;
+Mitarbeiter (Anzahl);;;400;300;200;100
+Umsatz (Mio EUR);;;80;60;40;20
+Fläche (m²);;;20000;15000;10000;5000
+Produktionsmenge (Stk);;;400000;300000;200000;100000

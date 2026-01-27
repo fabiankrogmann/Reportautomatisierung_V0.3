@@ -139,8 +139,49 @@ const config = {
     scaleBreak: {
         enabled: false,     // Aktiviert Skalenbruch für Start/End-Balken
         breakAt: 5.0        // Y-Wert wo der Bruch erfolgt
+    },
+
+    // ============================================
+    // ABSCHNITT: Compare-Bars (Layout-Varianten WF-14 bis WF-19)
+    // ============================================
+    // Zeigt zusätzliche Szenario-Werte neben den Haupt-Bridge-Balken
+    compareConfig: {
+        enabled: false,        // Aktiviert Compare-Bars Feature
+        position: 'right',     // 'right' oder 'left' - Position der Vergleichsbalken
+        style: 'narrow',       // 'narrow' (schmaler) oder 'equal' (gleiche Breite)
+        scenarios: ['FC'],     // Welche Szenarien als Compare-Bars anzeigen
+        legend: true           // Legende für Compare-Bars anzeigen
     }
 };
+
+// ============================================
+// Compare-Bars Rendering (Layout-Varianten)
+// ============================================
+// Bei aktivierten Compare-Bars werden schmale Vergleichsbalken
+// neben den Hauptbalken gerendert.
+//
+// Beispiel-Struktur in bars[]:
+// {
+//     type: 'start',
+//     label: 'Budget',
+//     value: 2100000,
+//     compareBars: [
+//         { scenario: 'FC', value: 2180000 }
+//     ]
+// }
+//
+// Rendering-Logik:
+// - compareConfig.position = 'right': Hauptbalken links, Compare rechts
+// - compareConfig.position = 'left': Compare links, Hauptbalken rechts
+// - compareBarWidth = barWidth * 0.4 bei style: 'narrow'
+// - Farbe aus config.colors.compareScenarios['FC'] oder Fallback
+//
+// Horizontale Positionierung:
+// - Bei 'right': xMain = xBase, xCompare = xBase + mainWidth + gap
+// - Bei 'left': xCompare = xBase, xMain = xBase + compareWidth + gap
+//
+// Die Compare-Bars zeigen den gleichen Datenpunkt (z.B. Umsatz) aus einem
+// anderen Szenario, sodass der User direkt vergleichen kann.
 
 ## KRITISCH: NUR ECHTE DATEN - KEINE ERFUNDENEN EFFEKTE!
 

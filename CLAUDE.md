@@ -5,27 +5,34 @@ Automatisierte Chart-Generierung für Finanzreports mit Waterfall, Stacked Bar u
 ## Projektstruktur
 
 ```
-Reportautomatisierung_V0.1/
+Reportautomatisierung_V0.2/
 ├── 1. Konzept/                    # Konzeptdokumentation
-│   └── Konzept_KI_Finanzvisualisierung.md
+│   ├── Konzept_KI_Finanzvisualisierung.md
+│   └── ARCHITEKTUR-FINALE-V2.md   # Architektur-Entscheidungen
 ├── 3. HTML-Seiten/                # Frontend (Workflow)
-│   ├── upload.html                # 1. Daten-Upload + Analyse
+│   ├── upload.html                # 1. Daten-Upload + Analyse (PROMPT-1)
 │   ├── results.html               # 2. Ergebnisanzeige + Chart-Auswahl
 │   ├── colors.html                # 3. Farbschema (optional)
-│   └── charts.html                # 4. Chart-Generierung + Export
+│   └── charts.html                # 4. Chart-Generierung + Export (PROMPT-2, 3, 4-6)
 ├── 4. Prompts/                    # Prompt-Definitionen (Source of Truth)
-│   ├── COLOR-SCHEMA-PROMPT.md
-│   ├── FIELD-MAPPING-PROMPT.md
-│   ├── archiv/                    # Archivierte Prompts (nicht mehr verwendet)
+│   ├── PROMPT-1-UNIVERSAL-ANALYZER.md    # Datenanalyse + Extraktion
+│   ├── PROMPT-2-VARIANT-GENERATOR.md     # Varianten-Generierung
+│   ├── PROMPT-3-CONFIG-GENERATOR.md      # Config-Erstellung
+│   ├── COLOR-SCHEMA-PROMPT.md            # Farbschema (colors.html)
+│   ├── archiv/                           # Archivierte Prompts
+│   │   ├── DATA-ANALYZER-PROMPT (archiviert).md
+│   │   ├── PERSPECTIVE-DERIVATION-PROMPT (archiviert).md
+│   │   ├── LAYOUT-RANKING-PROMPT (archiviert).md
+│   │   ├── FIELD-MAPPING-PROMPT (archiviert).md
 │   │   └── RANKING-MIX-PROMPT.md.archived
 │   └── Prompts for Charts/
-│       ├── BAR-CHART-PROMPT.md
-│       ├── STACKED-BAR-CHART-PROMPT.md
-│       └── WATERFALL-CHART-PROMPT.md
-├── 5. Datenbeispiele/             # Testdaten (CSV, Excel)
-│   ├── GuV_Faktentabelle.csv
-│   ├── GuV_Report.xlsx
-│   └── ...
+│       ├── BAR-CHART-PROMPT.md           # → SVG direkt
+│       ├── STACKED-BAR-CHART-PROMPT.md   # → SVG direkt
+│       └── WATERFALL-CHART-PROMPT.md     # → SVG direkt
+├── 5. Datenbeispiele/             # 50 Testdateien (CSV, Excel)
+│   ├── 01_GuV_Monatssicht_IST_FC_BUD.xlsx
+│   ├── 02_GuV_Faktentabelle_SEL_CUM.csv
+│   └── ... (weitere 48 Dateien)
 ├── 6. Bibliotheken/               # Modulare Konfigurationen (JSON)
 │   ├── templates.json             # 30 Chart-Templates
 │   ├── color-schemes.json         # Farbpaletten (modular erweiterbar)
@@ -36,34 +43,114 @@ Reportautomatisierung_V0.1/
 │   ├── clean-coder.md
 │   └── documenter.md
 └── .claude/skills/                # Claude Code Skills
-    └── chart-prompt-sync.md       # Prompt-Synchronisation
+    └── chart-prompt-sync.md       # Prompt-Verwaltung
 ```
 
 ## Wichtige Regeln
+
+### Prompt-Pipeline (6 Prompts)
+
+Das System verwendet eine konsolidierte 6-stufige Prompt-Pipeline:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│   CSV/Excel Upload                                                               │
+│        │                                                                         │
+│        ▼                                                                         │
+│   ╔═══════════════════════════════╗                                             │
+│   ║ PROMPT 1: Universal Analyzer  ║  ← upload.html                              │
+│   ╚═══════════════════════════════╝  ← Output: analysis, extractedData, hierarchy│
+│        │                                                                         │
+│        │ User wählt Chart-Typ in results.html                                   │
+│        │ User wählt Farbschema in colors.html                                   │
+│        ▼                                                                         │
+│   ╔═══════════════════════════════╗                                             │
+│   ║ PROMPT 2: Variant Generator   ║  ← charts.html                              │
+│   ╚═══════════════════════════════╝  ← Output: variants[] (3-10 Varianten)      │
+│        │                                                                         │
+│        ▼                                                                         │
+│   ┌────────────────────────────────────────────────────────────────┐            │
+│   │           FÜR JEDE VARIANTE                                     │            │
+│   │                                                                 │            │
+│   │   ╔═══════════════════════════════╗                            │            │
+│   │   ║ PROMPT 3: Config Generator    ║  ← charts.html             │            │
+│   │   ╚═══════════════════════════════╝  ← Output: chartConfig     │            │
+│   │        │                                                        │            │
+│   │        ▼                                                        │            │
+│   │   ╔═══════════════════════════════╗                            │            │
+│   │   ║ PROMPT 4-6: Chart Prompt      ║  ← WATERFALL/BAR/STACKED   │            │
+│   │   ╚═══════════════════════════════╝  ← Output: fertiges SVG    │            │
+│   │        │                                                        │            │
+│   │        ▼                                                        │            │
+│   │   Fingerprint-Check → chartConfigs.push() oder skip            │            │
+│   └────────────────────────────────────────────────────────────────┘            │
+│        │                                                                         │
+│        ▼                                                                         │
+│   Export (ZIP/PPTX)                                                             │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Hinweis:** Die Chart-Prompts (4-6) generieren direkt fertiges SVG – kein separater SVG-Renderer nötig.
+
+### Prompt-Dateien
+
+| # | Prompt | Datei | Ersetzt | Output |
+|---|--------|-------|---------|--------|
+| 1 | Universal Analyzer | `PROMPT-1-UNIVERSAL-ANALYZER.md` | DATA-ANALYZER | analysisResult |
+| 2 | Variant Generator | `PROMPT-2-VARIANT-GENERATOR.md` | PERSPECTIVE-DERIVATION + LAYOUT-RANKING | variants[] |
+| 3 | Config Generator | `PROMPT-3-CONFIG-GENERATOR.md` | FIELD-MAPPING | chartConfig |
+| 4 | Waterfall Chart | `Prompts for Charts/WATERFALL-CHART-PROMPT.md` | - | **SVG** |
+| 5 | Bar Chart | `Prompts for Charts/BAR-CHART-PROMPT.md` | - | **SVG** |
+| 6 | Stacked Bar Chart | `Prompts for Charts/STACKED-BAR-CHART-PROMPT.md` | - | **SVG** |
+
+**Zusätzlich:**
+- `COLOR-SCHEMA-PROMPT.md` – für dynamische Farbgenerierung in colors.html
+
+**Archiviert (in `4. Prompts/archiv/`):**
+- DATA-ANALYZER-PROMPT (archiviert).md
+- PERSPECTIVE-DERIVATION-PROMPT (archiviert).md
+- LAYOUT-RANKING-PROMPT (archiviert).md
+- FIELD-MAPPING-PROMPT (archiviert).md
+
+### Spracherhaltung (KRITISCH)
+
+**GRUNDREGEL:**
+Alle Begriffe, Labels, Namen und Bezeichnungen aus den Quelldaten müssen EXAKT so beibehalten werden.
+
+**VERBOTEN:**
+- ✗ Übersetzen (DE→EN oder EN→DE)
+- ✗ Umformulieren oder "Verbessern"
+- ✗ Kürzen oder Abkürzen
+- ✗ Synonyme verwenden
+
+**ERLAUBT:**
+- ✓ Intelligente Aggregation (Positionen zu Blöcken zusammenfassen)
+- ✓ Neue Aggregate in Quellsprache benennen
+
+Diese Regel gilt für die gesamte Pipeline (alle Prompts).
 
 ### PromptLoader-System
 
 Die Markdown-Dateien in `4. Prompts/` sind die **Source of Truth**. Der `PromptLoader` in `charts.html` lädt diese Dateien **vollständig** und cached sie mit Hash-Validierung.
 
-#### Vollständiges Laden (keine Marker mehr!)
+**Single Source of Truth:**
+```
+4. Prompts/*.md  ←── Source of Truth (einzige Stelle!)
+       │
+       │ PromptLoader.load()
+       ▼
+   HTML-Seiten (laden zur Laufzeit)
+```
 
-**Seit Version 10:** Prompts werden **vollständig** geladen, keine Marker-Extraktion mehr.
-
-- Alle `<!-- PROMPT-START/END/INCLUDE -->` Marker wurden aus den Chart-Prompt-Dateien entfernt
-- Der komplette Prompt-Inhalt wird an die API gesendet
-- Bessere KI-Qualität durch mehr Kontext
-- Kostenoptimierung erfolgt über **Anthropic Prompt Caching** (nicht Marker)
+**WICHTIG:** Prompts werden NICHT in HTML eingebettet, sondern zur Laufzeit geladen!
 
 #### Hash-basierte Cache-Validierung
 
-Der PromptLoader erkennt automatisch Dateiänderungen:
-
 ```javascript
-// Cache-Struktur
 cache: {
     promptName: {
         content: "vollständiger Prompt-Inhalt",
-        hash: "a3f5b2c1",  // 32-bit Hash des Inhalts
+        hash: "a3f5b2c1",      // 32-bit Hash
         timestamp: 1706234567890,
         size: 51234,
         tokens: 12808
@@ -73,66 +160,20 @@ cache: {
 
 **Cache-Validierung:**
 - Bei jedem `load()` wird der Hash der Datei berechnet
-- Wenn Hash identisch → aus Cache laden (kein Re-Fetch nötig)
-- Wenn Hash unterschiedlich → neu laden und Cache aktualisieren
-- `validateCache()` prüft alle gecachten Prompts gegen aktuelle Dateien
-- `refreshInvalidCache()` lädt geänderte Prompts automatisch neu
-
-#### Prompt-Dateien bearbeiten
-
-Bei Änderungen an Prompts:
-1. Die `.md`-Datei in `4. Prompts/` aktualisieren
-2. Der PromptLoader erkennt die Änderung automatisch (Hash-Vergleich)
-3. Prompt wird beim nächsten API-Call neu geladen
-
-**Wichtig:** Die JavaScript-Konstanten in `charts.html` (z.B. `BAR_CHART_PROMPT`) existieren nicht mehr! Der PromptLoader lädt die `.md`-Dateien direkt.
-
-**Prompt-Mapping:**
-| Prompt-Name | Datei | Größe |
-|-------------|-------|-------|
-| `waterfall` | `Prompts for Charts/WATERFALL-CHART-PROMPT.md` | ~51 KB |
-| `bar` | `Prompts for Charts/BAR-CHART-PROMPT.md` | ~38 KB |
-| `stacked_bar` | `Prompts for Charts/STACKED-BAR-CHART-PROMPT.md` | ~39 KB |
-| `field_mapping` | `FIELD-MAPPING-PROMPT.md` | ~11 KB |
-| `color_schema` | `COLOR-SCHEMA-PROMPT.md` | ~19 KB |
-
-**Hinweis:** `ranking_mix` wurde entfernt (archiviert). Das System generiert nun alle Templates des gewählten Typs statt einer KI-basierten Auswahl.
+- Hash identisch → aus Cache laden
+- Hash unterschiedlich → neu laden und Cache aktualisieren
 
 ### Anthropic Prompt Caching
 
-**Kostenoptimierung durch Anthropic's Prompt Caching API:**
-
-Das System nutzt Anthropic's `cache_control` Feature um bis zu **90% Kosten** bei wiederholten API-Calls zu sparen.
-
-#### Wie es funktioniert
+Das System nutzt Anthropic's `cache_control` Feature für bis zu **90% Kosteneinsparung**:
 
 1. **Erster API-Call** (Cache-Write):
-   - System-Prompt wird mit `cache_control: { type: 'ephemeral' }` gesendet
-   - Anthropic cached den Prompt serverseitig (TTL: 5 Minuten)
-   - Kosten: +25% Aufschlag (einmalig)
+   - System-Prompt mit `cache_control: { type: 'ephemeral' }` senden
+   - +25% Aufschlag (einmalig)
 
 2. **Folgende API-Calls** (Cache-Hit):
-   - Gleicher System-Prompt wird aus Anthropic-Cache gelesen
-   - **90% günstiger** als normaler Input
-   - TTL wird bei Nutzung automatisch verlängert
-
-#### Console-Output
-
-```
-// Erster Call:
-APIClient: Prompt Caching aktiviert (~12808 Tokens, TTL: 5 Min)
-Cache geschrieben: 12808 Tokens (TTL: 5 Min, +25% einmalig)
-
-// Folgende Calls (innerhalb 5 Min):
-APIClient: Prompt Caching aktiviert (~12808 Tokens, TTL: 5 Min)
-✓ CACHE HIT: 12808 Tokens aus Anthropic-Cache gelesen (90% günstiger)
-```
-
-#### Voraussetzungen
-
-- Mindestens 1024 Tokens (Anthropic Minimum für Claude Sonnet)
-- Nur bei Anthropic-Provider (nicht OpenAI)
-- System-Prompt muss identisch sein (Byte für Byte)
+   - Gleicher Prompt aus Cache → 90% günstiger
+   - TTL wird bei Nutzung verlängert (5 Minuten)
 
 ### Chart-Typen
 
@@ -141,7 +182,7 @@ Nur 3 Chart-Typen sind implementiert:
 - **Stacked Bar** - Für Zusammensetzungen, Kostenstrukturen
 - **Bar Chart** - Für Vergleiche, Rankings, Trends
 
-**KEINE Line-Charts!** Falls jemand Line-Charts erwähnt oder implementieren möchte: Diese wurden bewusst entfernt.
+**KEINE Line-Charts!** Diese wurden bewusst entfernt.
 
 ### Datenfluss
 
@@ -158,26 +199,27 @@ Daten werden via `sessionStorage` zwischen den Seiten übergeben.
 
 ### Template-Bibliothek
 
-- 30 Templates in `6. Bibliotheken/templates.json`
-- 12 Waterfall + 8 Stacked Bar + 10 Bar Chart
-- Alle Templates des gewählten Typs werden generiert
+- 40 Templates in `6. Bibliotheken/templates.json`
+- 19 Waterfall (WF-01 bis WF-19, inkl. Layout-Varianten mit Compare-Bars)
+- 10 Stacked Bar (SB-01 bis SB-10)
+- 10 Bar Chart (BC-01 bis BC-10)
 
-### Chart-Typ-Auswahl (Phase 1 Refactoring)
+**Layout-Varianten (WF-14 bis WF-19):** Templates mit Compare-Bars Feature, das zusätzliche Szenario-Werte (z.B. FC, BUD) als schmale Vergleichsbalken neben den Haupt-Bridge-Bars anzeigt.
 
-**Neues Konzept:** User MUSS einen Chart-Typ wählen, kein automatischer Mix mehr.
+### Varianten-Generierung
 
-- **results.html:** Zeigt KI-Empfehlung (`primaryChart`), User wählt explizit
-- **charts.html:** Generiert ALLE Templates des gewählten Typs (bis zu 12)
-- **Export:** User wählt per Checkbox welche Charts exportiert werden
+Das System generiert 3-10 unterschiedliche Varianten pro Chart-Typ:
 
-**Code-Unterscheidung:**
-- `primaryChart`: KI-Empfehlung aus der Analyse (welcher Typ passt am besten)
-- `selectedChart`: User-Auswahl (MUSS gewählt werden, sonst "Weiter" deaktiviert)
+**MUSS-REGELN:**
+1. Keine Duplikate (jede Variante muss sich deutlich unterscheiden)
+2. Echter Mehrwert (jede Variante zeigt etwas Neues)
+3. Sinnvolle Anzahl (Qualität vor Quantität)
+4. Daten müssen existieren (keine Phantasie-Perspektiven)
 
-**Duplikat-Erkennung:**
-- Fingerprint-basierte Erkennung ähnlicher Chart-Configs
-- Charts mit identischem Fingerprint werden übersprungen
-- Reduziert Redundanz und API-Kosten
+**Duplikat-Erkennung (Daten-basiert):**
+```javascript
+fingerprint = `${chartType}:${perspectiveId}:${titleHash}:${dataStructure}`
+```
 
 ### Zwei Modi
 
@@ -190,9 +232,9 @@ Das System kennt nur **zwei Modi**:
 ## Skills
 
 ### `/chart-prompt-sync`
-Prompts zwischen .md und HTML synchronisieren. Verwende diesen Skill wenn:
+Prompt-Verwaltung. Verwende diesen Skill wenn:
 - Du einen Prompt ändern möchtest
-- Du prüfen willst ob Prompts synchron sind
+- Du prüfen willst ob Prompts aktuell sind
 - Du die Struktur eines Prompts verstehen möchtest
 
 ### `/architect`
@@ -205,12 +247,49 @@ Test-Erstellung. Generiert Test-Szenarien und Testdaten.
 Refactoring. Verbessert Code-Qualität ohne Funktionsänderungen.
 
 ### `/documenter`
-Dokumentation aktualisieren. Hält Konzept und README synchron.
+Dokumentation aktualisieren. Hält Konzept und CLAUDE.md synchron.
+
+### `/prompt-integrity`
+Integritätsprüfung der Prompt-Pipeline. Verwende diesen Skill wenn:
+- Ein neues Template hinzugefügt wurde
+- Änderungen an PROMPT-1, PROMPT-2 oder PROMPT-3 vorgenommen wurden
+- Neue Szenario- oder Zeitreihen-Perspektiven ergänzt wurden
+
+Prüft: Template-IDs, Szenario-Formeln, Zeitreihen-Templates, Spracherhaltung, Dokumentations-Sync.
+
+## Modulare Erweiterbarkeit
+
+### Ohne Code-Änderungen erweiterbar
+
+| Erweiterung | Datei | Beschreibung |
+|-------------|-------|--------------|
+| Neue Farbpalette | `color-schemes.json` | JSON-Eintrag hinzufügen |
+| Neues Template | `templates.json` | Template-Objekt hinzufügen |
+| Neues Trainingsbeispiel | `chart-examples.json` | Example hinzufügen |
+
+### Chart-Typ hinzufügen
+
+1. Prompt erstellen: `4. Prompts/Prompts for Charts/[TYP]-CHART-PROMPT.md`
+2. Templates definieren in `templates.json`
+3. Variant Generator erweitern
+4. UI anpassen in `results.html`
+5. Dokumentation aktualisieren
+
+### Feature hinzufügen (z.B. Skalenbrüche)
+
+Alle Features werden in den Chart-Prompts gepflegt:
+
+| Feature | Gepflegt in | Beispiel |
+|---------|-------------|----------|
+| Skalenbruch | WATERFALL-CHART-PROMPT.md | `scaleBreak: { enabled: true }` |
+| Bracket | WATERFALL-CHART-PROMPT.md | `bracket: { show: true, label: '+8.7%' }` |
+| Fußnoten | Alle Chart-Prompts | `footnotes: ["Quelle: ..."]` |
+| Connector Lines | WATERFALL-CHART-PROMPT.md | `connectorLine: true` |
 
 ## API-Unterstützung
 
 Das System unterstützt zwei API-Provider:
-- **Anthropic** (Claude) - Standard
+- **Anthropic** (Claude) - Standard, mit Prompt Caching
 - **OpenAI** (GPT-4) - Alternative
 
 User wählt Provider in `upload.html`.
@@ -218,107 +297,54 @@ User wählt Provider in `upload.html`.
 ## Entwicklungshinweise
 
 ### Lokale Entwicklung
-**WICHTIG:** Die HTML-Seiten müssen über einen lokalen HTTP-Server geöffnet werden (wegen CORS bei JSON-Dateien):
+**WICHTIG:** Die HTML-Seiten müssen über einen lokalen HTTP-Server geöffnet werden:
 ```bash
-cd /Users/fabiankrogmann/Claude/Reportautomatisierung_V0.1
+cd /Users/fabiankrogmann/Claude/Reportautomatisierung_V0.2
 python3 -m http.server 8000
 ```
 Dann im Browser: `http://localhost:8000/3.%20HTML-Seiten/upload.html`
 
 ### Debugging
 - Browser DevTools Console für JavaScript-Fehler
-- `sessionStorage` im Application-Tab prüfen für Datenfluss
+- `sessionStorage` im Application-Tab prüfen
 - API-Calls im Network-Tab beobachten
-- **Bei Problemen:** SessionStorage löschen (DevTools → Application → Storage → Session Storage → Einträge für localhost löschen)
+- **Bei Problemen:** SessionStorage löschen
 
-### Erweiterungen (Modular)
+### Testdateien (50 Stück)
 
-Das System ist modular aufgebaut. Folgende Erweiterungen sind **ohne Code-Änderungen** möglich:
+Die Testdateien in `5. Datenbeispiele/` decken alle gängigen Finanzreport-Formate ab:
 
-| Erweiterung | Datei | Beschreibung |
-|-------------|-------|--------------|
-| Neue Farbpalette | `color-schemes.json` | JSON-Eintrag hinzufügen → automatisch in colors.html sichtbar |
-| Neue Beispiel-Config | `chart-examples.json` | Trainingsbeispiele für KI-Generierung |
-| Neues Template | `templates.json` | Neue Chart-Variante für Template-Bibliothek |
-
-**NICHT erweiterbar ohne Code-Änderungen:**
-- Chart-Typen (nur Waterfall, Bar, Stacked Bar - bewusst limitiert)
-- API-Provider (nur Anthropic + OpenAI)
-
-### Modulare Dateien
-
-#### `color-schemes.json`
-Enthält alle Farbpaletten. Format:
-```json
-{
-  "schemes": {
-    "schemeId": {
-      "name": "Anzeigename",
-      "description": "Beschreibung",
-      "colors": ["#hex1", "#hex2", ...],
-      "chart_mapping": { ... }
-    }
-  }
-}
-```
-
-#### `chart-examples.json`
-Enthält Beispiel-Konfigurationen für jeden Chart-Typ. Die KI nutzt diese als Formatvorlage.
-```json
-{
-  "examples": {
-    "waterfall": [
-      { "id": "...", "language": "de", "config": { ... } }
-    ],
-    "bar": [ ... ],
-    "stacked_bar": [ ... ]
-  }
-}
-```
+| Kategorie | Anzahl |
+|-----------|--------|
+| GuV / P&L | 8 |
+| Bilanz | 6 |
+| Cashflow | 5 |
+| Segmente | 7 |
+| Sales | 6 |
+| Kosten | 6 |
+| Personal | 3 |
+| KPIs/Bridges | 5 |
+| Sonderformate | 4 |
 
 ## Bekannte Probleme & Lösungen
 
 ### JSON Parse Errors bei KI-Generierung
-**Problem:** API-Antworten werden manchmal abgeschnitten, was zu ungültigem JSON führt.
-**Lösung:** `parseJSON()` in charts.html hat eine 5-Schritt-Reparatur-Strategie:
-1. Offene Strings schließen
-2. Klammern zählen
-3. Unvollständige Elemente entfernen
-4. Fehlende Klammern hinzufügen
-5. Aggressives Kürzen als Fallback
-
-**maxTokens:** Auf 16384 gesetzt um Abschneiden zu minimieren.
+**Problem:** API-Antworten werden manchmal abgeschnitten.
+**Lösung:** 5-Schritt-Reparatur-Strategie in `parseJSON()`.
 
 ### Chart-Auswahl für Export
-**Neu in Phase 1:** User kann per Checkbox wählen, welche Charts exportiert werden sollen.
-- Alle Charts sind standardmäßig ausgewählt
-- "Alle auswählen" / "Keine auswählen" Buttons in der Selection-Bar
-- "Ausgewählte als ZIP/PPTX" Buttons im Header
+User kann per Checkbox wählen, welche Charts exportiert werden sollen.
 
 ### PromptLoader Debug-Informationen
-Im Browser-Console werden beim Laden der Prompts folgende Infos angezeigt:
-- Dateiname, Größe (Zeichen), Token-Schätzung
-- Hash für Cache-Validierung
-- Cache-Status (fresh, cache, reload)
-
-**Beispiel-Output:**
 ```
 PromptLoader: 'waterfall' geladen (51234 Zeichen, ~12808 Tokens, Hash: a3f5b2c1)
 PromptLoader: 'bar' aus Cache (Hash: b7e2d4a9, ~9523 Tokens)
-PromptLoader: Alle 6 Prompts geladen (143.2 KB, ~35800 Tokens gesamt)
 ```
 
-### Anthropic Cache Debug-Informationen
-Bei API-Calls werden Cache-Statistiken angezeigt:
+## Dokumentations-Synchronisation
 
-```
-// Cache-Write (erster Call):
-APIClient: Prompt Caching aktiviert (~12808 Tokens, TTL: 5 Min)
-Cache geschrieben: 12808 Tokens (TTL: 5 Min, +25% einmalig)
-APIClient: Input-Tokens gesamt: 13500, Output: 2048
+**WICHTIG:** Bei JEDER Änderung müssen beide Dateien aktuell gehalten werden:
+- `1. Konzept/Konzept_KI_Finanzvisualisierung.md`
+- `CLAUDE.md`
 
-// Cache-Hit (Folge-Calls):
-APIClient: Prompt Caching aktiviert (~12808 Tokens, TTL: 5 Min)
-✓ CACHE HIT: 12808 Tokens aus Anthropic-Cache gelesen (90% günstiger)
-APIClient: Input-Tokens gesamt: 13500, Output: 1856
-```
+Verwende `/documenter` Skill für systematische Aktualisierung.

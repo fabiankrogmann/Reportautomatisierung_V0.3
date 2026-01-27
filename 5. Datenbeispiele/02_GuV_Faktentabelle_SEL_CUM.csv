@@ -1,0 +1,49 @@
+Position;Periode;Szenario;SEL_Wert_TEUR;CUM_Wert_TEUR
+Umsatzerlöse;2025-12;IST;21000;206600
+Umsatzerlöse;2025-12;FC;21800;215000
+Umsatzerlöse;2025-12;BUD;20500;198000
+Bestandsveränderungen;2025-12;IST;450;1860
+Bestandsveränderungen;2025-12;FC;480;2100
+Bestandsveränderungen;2025-12;BUD;400;1750
+Aktivierte Eigenleistungen;2025-12;IST;125;1138
+Aktivierte Eigenleistungen;2025-12;FC;135;1250
+Aktivierte Eigenleistungen;2025-12;BUD;115;1050
+Sonstige betriebliche Erträge;2025-12;IST;580;4690
+Sonstige betriebliche Erträge;2025-12;FC;620;5100
+Sonstige betriebliche Erträge;2025-12;BUD;540;4400
+Gesamtleistung;2025-12;IST;22155;214288
+Gesamtleistung;2025-12;FC;23035;223450
+Gesamtleistung;2025-12;BUD;21555;205200
+Materialaufwand;2025-12;IST;-10800;-106400
+Materialaufwand;2025-12;FC;-11000;-108500
+Materialaufwand;2025-12;BUD;-10500;-102000
+Personalaufwand;2025-12;IST;-4850;-53200
+Personalaufwand;2025-12;FC;-4950;-54500
+Personalaufwand;2025-12;BUD;-4700;-51500
+Abschreibungen;2025-12;IST;-750;-8460
+Abschreibungen;2025-12;FC;-770;-8650
+Abschreibungen;2025-12;BUD;-720;-8200
+Sonstige betriebliche Aufwendungen;2025-12;IST;-2100;-20660
+Sonstige betriebliche Aufwendungen;2025-12;FC;-2150;-21200
+Sonstige betriebliche Aufwendungen;2025-12;BUD;-2000;-19800
+EBIT;2025-12;IST;3655;25568
+EBIT;2025-12;FC;4165;30600
+EBIT;2025-12;BUD;3635;23700
+Zinserträge;2025-12;IST;22;175
+Zinserträge;2025-12;FC;25;195
+Zinserträge;2025-12;BUD;20;160
+Zinsaufwendungen;2025-12;IST;-275;-2855
+Zinsaufwendungen;2025-12;FC;-280;-2900
+Zinsaufwendungen;2025-12;BUD;-265;-2750
+Finanzergebnis;2025-12;IST;-253;-2680
+Finanzergebnis;2025-12;FC;-255;-2705
+Finanzergebnis;2025-12;BUD;-245;-2590
+EBT;2025-12;IST;3402;22888
+EBT;2025-12;FC;3910;27895
+EBT;2025-12;BUD;3390;21110
+Steuern vom Einkommen;2025-12;IST;-1021;-6866
+Steuern vom Einkommen;2025-12;FC;-1173;-8369
+Steuern vom Einkommen;2025-12;BUD;-1017;-6333
+Jahresüberschuss;2025-12;IST;2381;16022
+Jahresüberschuss;2025-12;FC;2737;19526
+Jahresüberschuss;2025-12;BUD;2373;14777

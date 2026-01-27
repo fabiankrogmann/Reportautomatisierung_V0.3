@@ -1,0 +1,318 @@
+{
+  "_meta": {
+    "description": "Mock-Responses für Prompt-Pipeline-Tests ohne API-Calls",
+    "version": "1.0",
+    "created": "2026-01-26"
+  },
+
+  "scenarios": {
+    "hierarchical_sales": {
+      "description": "Hierarchische Sales-Daten (Cluster → Regionen → Länder)",
+      "data_analyzer": {
+        "analysis": {
+          "dataFormat": "matrix-complex",
+          "rowCount": 24,
+          "columnCount": 8,
+          "detectedUnit": "TEUR",
+          "scaleFactor": 1000,
+          "timeRange": {
+            "type": "multi-period",
+            "periods": ["2023", "2024", "2025"],
+            "year": "2025"
+          },
+          "valueTypes": ["IST", "PLAN", "VJ"],
+          "positions": {
+            "summary": ["Total", "DACH Gesamt", "Nordics Gesamt", "Southern Europe Gesamt"],
+            "detail": ["Deutschland", "Österreich", "Schweiz", "Schweden", "Norwegen", "Italien", "Spanien"],
+            "groups": ["DACH", "Nordics", "Southern Europe"],
+            "expenses": [],
+            "income": []
+          },
+          "dataQuality": {
+            "completeness": 95,
+            "consistency": 90,
+            "issues": []
+          }
+        },
+        "recommendation": {
+          "primaryChart": "bar",
+          "alternativeCharts": ["stacked-bar"],
+          "reasoning": "Hierarchische Daten mit Cluster-Struktur eignen sich für Bar-Charts mit verschiedenen Aggregationsebenen."
+        },
+        "extractedData": {
+          "bar": {
+            "periods": [
+              { "label": "2023", "type": "IST" },
+              { "label": "2024", "type": "IST" },
+              { "label": "2025", "type": "PLAN" }
+            ],
+            "categories": [
+              { "name": "DACH", "cluster": true, "values": [4500000, 4800000, 5100000] },
+              { "name": "Deutschland", "parent": "DACH", "values": [2800000, 3000000, 3200000] },
+              { "name": "Österreich", "parent": "DACH", "values": [1000000, 1050000, 1100000] },
+              { "name": "Schweiz", "parent": "DACH", "values": [700000, 750000, 800000] },
+              { "name": "Nordics", "cluster": true, "values": [2200000, 2400000, 2600000] },
+              { "name": "Schweden", "parent": "Nordics", "values": [1200000, 1300000, 1400000] },
+              { "name": "Norwegen", "parent": "Nordics", "values": [1000000, 1100000, 1200000] },
+              { "name": "Southern Europe", "cluster": true, "values": [1800000, 2000000, 2200000] },
+              { "name": "Italien", "parent": "Southern Europe", "values": [1000000, 1100000, 1200000] },
+              { "name": "Spanien", "parent": "Southern Europe", "values": [800000, 900000, 1000000] }
+            ]
+          }
+        },
+        "hierarchy": {
+          "detected": true,
+          "aggregationLevel": {
+            "columnName": "Cluster",
+            "values": ["DACH", "Nordics", "Southern Europe"]
+          },
+          "detailLevel": {
+            "columnName": "Region",
+            "values": ["Deutschland", "Österreich", "Schweiz", "Schweden", "Norwegen", "Italien", "Spanien"]
+          },
+          "chartVariations": [
+            { "type": "aggregated", "chartType": "bar", "focus": "all-clusters" },
+            { "type": "detail", "chartType": "bar", "focus": "all-regions" },
+            { "type": "cluster-detail", "chartType": "bar", "focus": "DACH" },
+            { "type": "cluster-detail", "chartType": "bar", "focus": "Nordics" },
+            { "type": "cluster-detail", "chartType": "bar", "focus": "Southern Europe" }
+          ]
+        },
+        "metadata": {
+          "suggestedTitle": "Sales Performance by Region",
+          "suggestedSubtitle": "in TEUR, 2023-2025",
+          "dataSource": "sales_by_cluster.csv"
+        }
+      },
+
+      "perspective_derivation": {
+        "perspectives": [
+          {
+            "id": "p1",
+            "name": "Cluster-Übersicht",
+            "description": "Vergleich aller 3 Cluster (DACH, Nordics, Southern Europe)",
+            "dimension": "Cluster",
+            "filter": null,
+            "comparison": null,
+            "aggregationLevel": "summary",
+            "priority": 1
+          },
+          {
+            "id": "p2",
+            "name": "Regionen-Detail",
+            "description": "Alle 7 Regionen/Länder im direkten Vergleich",
+            "dimension": "Region",
+            "filter": null,
+            "comparison": null,
+            "aggregationLevel": "detail",
+            "priority": 2
+          },
+          {
+            "id": "p3",
+            "name": "DACH-Breakdown",
+            "description": "Detailansicht DACH (Deutschland, Österreich, Schweiz)",
+            "dimension": "Region",
+            "filter": "DACH",
+            "comparison": null,
+            "aggregationLevel": "filtered",
+            "priority": 3
+          },
+          {
+            "id": "p4",
+            "name": "Nordics-Breakdown",
+            "description": "Detailansicht Nordics (Schweden, Norwegen)",
+            "dimension": "Region",
+            "filter": "Nordics",
+            "comparison": null,
+            "aggregationLevel": "filtered",
+            "priority": 4
+          },
+          {
+            "id": "p5",
+            "name": "Southern Europe-Breakdown",
+            "description": "Detailansicht Southern Europe (Italien, Spanien)",
+            "dimension": "Region",
+            "filter": "Southern Europe",
+            "comparison": null,
+            "aggregationLevel": "filtered",
+            "priority": 5
+          },
+          {
+            "id": "p6",
+            "name": "Top-Regionen Ranking",
+            "description": "Alle Regionen nach Umsatz sortiert",
+            "dimension": "Region",
+            "filter": null,
+            "comparison": "Ranking",
+            "aggregationLevel": "detail",
+            "priority": 6
+          },
+          {
+            "id": "p7",
+            "name": "YoY Cluster-Vergleich",
+            "description": "Cluster-Entwicklung 2024 vs 2023",
+            "dimension": "Cluster",
+            "filter": null,
+            "comparison": "YoY",
+            "aggregationLevel": "summary",
+            "priority": 7
+          }
+        ]
+      },
+
+      "layout_ranking": {
+        "selectedTemplates": ["BC-01", "BC-02", "BC-03", "BC-04", "BC-05", "BC-06", "BC-07", "BC-08"],
+        "reasoning": "8 Bar-Chart Templates ausgewählt für hierarchische Sales-Daten mit Cluster-Struktur. YoY-Vergleich möglich (2023-2025 Daten vorhanden)."
+      }
+    },
+
+    "guv_waterfall": {
+      "description": "Standard GuV-Daten für Waterfall-Chart",
+      "data_analyzer": {
+        "analysis": {
+          "dataFormat": "matrix-simple",
+          "rowCount": 12,
+          "columnCount": 5,
+          "detectedUnit": "TEUR",
+          "scaleFactor": 1000,
+          "timeRange": {
+            "type": "cumulative",
+            "periods": ["JAN-DEZ"],
+            "year": "2025"
+          },
+          "valueTypes": ["IST", "BUD", "VJ"],
+          "positions": {
+            "summary": ["Gesamtleistung", "EBITDA", "EBIT", "EBT", "Jahresüberschuss"],
+            "detail": ["Umsatzerlöse", "Bestandsveränderungen", "Aktivierte Eigenleistungen"],
+            "expenses": ["Materialaufwand", "Personalaufwand", "Sonstige betriebliche Aufwendungen", "Abschreibungen"],
+            "income": ["Umsatzerlöse", "Sonstige betriebliche Erträge"]
+          }
+        },
+        "recommendation": {
+          "primaryChart": "waterfall",
+          "alternativeCharts": ["bar"],
+          "reasoning": "GuV-Struktur mit klarem Fluss von Umsatz zu Ergebnis - ideal für Waterfall-Darstellung."
+        },
+        "extractedData": {
+          "waterfall": {
+            "dataType": "guv",
+            "positions": [
+              { "name": "Umsatzerlöse", "type": "start", "value": 2195000, "ist": 2195000, "bud": 2100000, "vj": 2050000 },
+              { "name": "Bestandsveränderungen", "type": "increase", "value": 28000 },
+              { "name": "Aktivierte Eigenleistungen", "type": "increase", "value": 15000 },
+              { "name": "Gesamtleistung", "type": "subtotal", "value": 2238000 },
+              { "name": "Materialaufwand", "type": "decrease", "value": -1168000 },
+              { "name": "Personalaufwand", "type": "decrease", "value": -618000 },
+              { "name": "Sonstige Aufwendungen", "type": "decrease", "value": -156000 },
+              { "name": "EBITDA", "type": "subtotal", "value": 296000 },
+              { "name": "Abschreibungen", "type": "decrease", "value": -116500 },
+              { "name": "EBIT", "type": "end", "value": 179500 }
+            ]
+          }
+        },
+        "hierarchy": {
+          "detected": false
+        },
+        "metadata": {
+          "suggestedTitle": "GuV Bridge Dezember 2025",
+          "suggestedSubtitle": "in TEUR, kumuliert JAN-DEZ"
+        }
+      },
+
+      "perspective_derivation": {
+        "perspectives": [
+          {
+            "id": "p1",
+            "name": "GuV Summary",
+            "description": "Aggregierte GuV mit Hauptpositionen (5-7 Bars)",
+            "dimension": "Position",
+            "filter": null,
+            "comparison": null,
+            "aggregationLevel": "summary",
+            "priority": 1
+          },
+          {
+            "id": "p2",
+            "name": "GuV Detail",
+            "description": "Vollständige GuV mit allen Positionen (10-15 Bars)",
+            "dimension": "Position",
+            "filter": null,
+            "comparison": null,
+            "aggregationLevel": "detail",
+            "priority": 2
+          },
+          {
+            "id": "p3",
+            "name": "IST vs Budget",
+            "description": "Bridge von Budget zu IST-Werten",
+            "dimension": "Position",
+            "filter": null,
+            "comparison": "Budget",
+            "aggregationLevel": "summary",
+            "priority": 3
+          },
+          {
+            "id": "p4",
+            "name": "YoY Bridge",
+            "description": "Bridge von Vorjahr zu aktuellem Jahr",
+            "dimension": "Position",
+            "filter": null,
+            "comparison": "YoY",
+            "aggregationLevel": "summary",
+            "priority": 4
+          }
+        ]
+      },
+
+      "layout_ranking": {
+        "selectedTemplates": ["WF-01", "WF-02", "WF-03", "WF-04", "WF-06", "WF-07", "WF-08", "WF-10"],
+        "reasoning": "8 Waterfall-Templates für GuV-Daten. Budget- und VJ-Daten vorhanden, daher Bridge-Templates inkludiert."
+      }
+    }
+  },
+
+  "chart_configs": {
+    "bar_cluster_overview": {
+      "_mockId": "bar_cluster_overview",
+      "_perspectiveId": "p1",
+      "_perspectiveName": "Cluster-Übersicht",
+      "title": "Sales by Cluster",
+      "subtitle": "in TEUR, 2023-2025",
+      "periods": ["2023", "2024", "2025"],
+      "categories": [
+        { "name": "DACH", "values": [4500, 4800, 5100] },
+        { "name": "Nordics", "values": [2200, 2400, 2600] },
+        { "name": "Southern Europe", "values": [1800, 2000, 2200] }
+      ]
+    },
+    "bar_dach_breakdown": {
+      "_mockId": "bar_dach_breakdown",
+      "_perspectiveId": "p3",
+      "_perspectiveName": "DACH-Breakdown",
+      "title": "DACH Region Details",
+      "subtitle": "in TEUR, 2023-2025",
+      "periods": ["2023", "2024", "2025"],
+      "categories": [
+        { "name": "Deutschland", "values": [2800, 3000, 3200] },
+        { "name": "Österreich", "values": [1000, 1050, 1100] },
+        { "name": "Schweiz", "values": [700, 750, 800] }
+      ]
+    },
+    "waterfall_guv_summary": {
+      "_mockId": "waterfall_guv_summary",
+      "_perspectiveId": "p1",
+      "_perspectiveName": "GuV Summary",
+      "title": "GuV Bridge 2025",
+      "subtitle": "in TEUR",
+      "bars": [
+        { "label": "Umsatzerlöse", "value": 2195, "type": "start" },
+        { "label": "Sonstige Erträge", "value": 43, "type": "increase" },
+        { "label": "Materialaufwand", "value": -1168, "type": "decrease" },
+        { "label": "Personalaufwand", "value": -618, "type": "decrease" },
+        { "label": "Sonstige Aufwendungen", "value": -156, "type": "decrease" },
+        { "label": "Abschreibungen", "value": -117, "type": "decrease" },
+        { "label": "EBIT", "value": 180, "type": "end" }
+      ]
+    }
+  }
+}

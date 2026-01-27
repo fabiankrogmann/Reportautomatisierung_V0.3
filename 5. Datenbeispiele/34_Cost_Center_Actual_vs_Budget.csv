@@ -1,0 +1,16 @@
+Kostenstelle;KST_Nr;Verantwortlicher;IST_TEUR;BUD_TEUR;Abweichung_TEUR;Abweichung_%;Status
+Geschäftsführung;1000;Dr. Müller;2850;2750;100;3.6%;Überschritten
+Finanzen & Controlling;1100;Schmidt;1920;2000;-80;-4.0%;Im Budget
+Personal;1200;Weber;1450;1400;50;3.6%;Überschritten
+IT;1300;Fischer;3280;3100;180;5.8%;Überschritten
+Marketing;2000;Becker;3850;4000;-150;-3.8%;Im Budget
+Vertrieb Inland;2100;Wagner;5200;5000;200;4.0%;Überschritten
+Vertrieb Export;2200;Hoffmann;3800;3900;-100;-2.6%;Im Budget
+Produktion Werk 1;3000;Schulz;28500;28000;500;1.8%;Überschritten
+Produktion Werk 2;3100;Koch;22800;23500;-700;-3.0%;Im Budget
+Qualitätssicherung;3200;Bauer;2100;2200;-100;-4.5%;Im Budget
+Logistik;3300;Richter;4500;4300;200;4.7%;Überschritten
+F&E;4000;Klein;8200;8500;-300;-3.5%;Im Budget
+Einkauf;5000;Wolf;1850;1800;50;2.8%;Überschritten
+Gebäudemanagement;6000;Schröder;2200;2100;100;4.8%;Überschritten
+Gesamt;;;92500;92550;-50;-0.1%;Im Budget

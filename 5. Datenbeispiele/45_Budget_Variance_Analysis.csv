@@ -1,0 +1,21 @@
+Position,Budget_TEUR,Actual_TEUR,Variance_TEUR,Variance_%,Variance_Type,Explanation
+Revenue,198000,205700,7700,3.9%,Favorable,Höhere Nachfrage in Q4
+  Product Sales,165000,172500,7500,4.5%,Favorable,Starkes Neukundengeschäft
+  Service Revenue,33000,33200,200,0.6%,Favorable,Leicht über Plan
+COGS,-102000,-106400,-4400,-4.3%,Unfavorable,Materialpreissteigerungen
+  Materials,-68000,-72500,-4500,-6.6%,Unfavorable,Rohstoffpreise gestiegen
+  Direct Labor,-22000,-22200,-200,-0.9%,Unfavorable,Leichte Überstunden
+  Manufacturing OH,-12000,-11700,300,2.5%,Favorable,Effizienzverbesserungen
+Gross Profit,96000,99300,3300,3.4%,Favorable,
+Operating Expenses,-62000,-63500,-1500,-2.4%,Unfavorable,
+  Sales & Marketing,-24000,-24800,-800,-3.3%,Unfavorable,Zusätzliche Kampagnen
+  General & Admin,-18000,-18200,-200,-1.1%,Unfavorable,IT-Kosten
+  R&D,-12000,-12500,-500,-4.2%,Unfavorable,Neue Projekte
+  Other OpEx,-8000,-8000,0,0.0%,On Budget,
+EBITDA,34000,35800,1800,5.3%,Favorable,
+Depreciation,-8200,-8460,-260,-3.2%,Unfavorable,Mehr Investitionen
+EBIT,25800,27340,1540,6.0%,Favorable,
+Net Finance Cost,-2500,-2680,-180,-7.2%,Unfavorable,Höhere Zinsen
+EBT,23300,24660,1360,5.8%,Favorable,
+Income Tax,-6990,-7398,-408,-5.8%,Unfavorable,Höherer Gewinn
+Net Income,16310,17262,952,5.8%,Favorable,

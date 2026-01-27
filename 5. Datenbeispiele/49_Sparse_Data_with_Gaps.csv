@@ -1,0 +1,19 @@
+Entity,Period,Revenue_EUR,COGS_EUR,Gross_Profit_EUR,EBITDA_EUR,Headcount,Comments
+Germany,2025-01,5500000,-2860000,2640000,935000,185,
+Germany,2025-02,5200000,,,882000,186,COGS data missing
+Germany,2025-03,6100000,-3172000,2928000,,,EBITDA/HC not reported
+Austria,2025-01,980000,-510000,470000,166000,42,
+Austria,2025-02,,,,,,No data reported
+Austria,2025-03,1120000,-582000,538000,191000,44,
+Switzerland,2025-01,1350000,-675000,675000,243000,35,CHF converted
+Switzerland,2025-02,1280000,-640000,640000,,35,EBITDA pending
+Switzerland,2025-03,,-702000,,252000,36,Revenue reconciling
+UK,2025-01,3200000,-1664000,1536000,544000,78,GBP converted
+UK,2025-02,3050000,,1464000,518500,,COGS/HC missing
+UK,2025-03,3480000,-1810000,1670000,591600,82,
+France,2025-01,,,,,,Entity not operational
+France,2025-02,,,,,,Entity not operational
+France,2025-03,850000,-442000,408000,136000,18,Started operations
+Total,2025-01,11030000,,,1888000,340,Some data gaps
+Total,2025-02,,,,,,Incomplete
+Total,2025-03,,,,,,Incomplete

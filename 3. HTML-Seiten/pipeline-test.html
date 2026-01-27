@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline-Test - Prompt-Datenfluss</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #00d9ff;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        select, button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        select {
+            background: #2a2a4a;
+            border: 1px solid #444;
+            color: #eee;
+            min-width: 200px;
+        }
+
+        button {
+            background: #00d9ff;
+            border: none;
+            color: #1a1a2e;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #00b8d4;
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: #444;
+            color: #eee;
+        }
+
+        button.secondary:hover {
+            background: #555;
+        }
+
+        .pipeline {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .stage {
+            flex: 0 0 350px;
+            background: #2a2a4a;
+            border-radius: 12px;
+            border: 2px solid #444;
+            overflow: hidden;
+        }
+
+        .stage.active {
+            border-color: #00d9ff;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .stage.completed {
+            border-color: #00ff88;
+        }
+
+        .stage-header {
+            background: #333;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stage-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stage-number {
+            background: #00d9ff;
+            color: #1a1a2e;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .stage.completed .stage-number {
+            background: #00ff88;
+        }
+
+        .stage-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #444;
+        }
+
+        .stage.active .stage-status {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+
+        .stage.completed .stage-status {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+
+        .stage-content {
+            padding: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .section {
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .data-box {
+            background: #1a1a2e;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 11px;
+            max-height: 200px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .decision {
+            background: #3a2a4a;
+            border-left: 3px solid #ff00ff;
+            padding: 10px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 10px;
+        }
+
+        .decision-label {
+            font-size: 10px;
+            color: #ff00ff;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .decision-value {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .arrow {
+            flex: 0 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #444;
+            font-size: 24px;
+        }
+
+        .arrow.active {
+            color: #00d9ff;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin: 2px;
+        }
+
+        .tag.cluster { background: #4a3a6a; color: #d0b0ff; }
+        .tag.region { background: #3a4a6a; color: #b0d0ff; }
+        .tag.perspective { background: #3a6a4a; color: #b0ffb0; }
+
+        .log-entry {
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 11px;
+            font-family: monospace;
+        }
+
+        .log-entry.info { background: #2a3a4a; border-left: 3px solid #00d9ff; }
+        .log-entry.success { background: #2a4a3a; border-left: 3px solid #00ff88; }
+        .log-entry.warning { background: #4a4a2a; border-left: 3px solid #ffff00; }
+        .log-entry.error { background: #4a2a2a; border-left: 3px solid #ff4444; }
+
+        .log-time {
+            color: #666;
+            margin-right: 8px;
+        }
+
+        #logContainer {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: #2a2a4a;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .summary-card h4 {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .summary-card .value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00d9ff;
+        }
+
+        .summary-card .detail {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pipeline-Test</h1>
+    <p class="subtitle">Visualisierung des Prompt-Datenflusses ohne API-Calls</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Test-Szenario</label>
+            <select id="scenarioSelect">
+                <option value="hierarchical_sales">Hierarchische Sales (Cluster → Regionen)</option>
+                <option value="guv_waterfall">GuV-Daten (Waterfall)</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>Chart-Typ (User-Auswahl)</label>
+            <select id="chartTypeSelect">
+                <option value="bar">Bar Chart</option>
+                <option value="waterfall">Waterfall</option>
+                <option value="stacked-bar">Stacked Bar</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>&nbsp;</label>
+            <button onclick="runPipeline()">Pipeline ausführen</button>
+        </div>
+        <div class="control-group">
+            <label>&nbsp;</label>
+            <button class="secondary" onclick="clearAll()">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <div class="pipeline">
+        <!-- Stage 1: DATA_ANALYZER -->
+        <div class="stage" id="stage1">
+            <div class="stage-header">
+                <div class="stage-title">
+                    <span class="stage-number">1</span>
+                    DATA_ANALYZER
+                </div>
+                <span class="stage-status">Warten</span>
+            </div>
+            <div class="stage-content">
+                <div class="section">
+                    <div class="section-title">Input</div>
+                    <div class="data-box" id="stage1-input">CSV-Rohdaten werden hier angezeigt...</div>
+                </div>
+                <div class="section">
+                    <div class="section-title">Entscheidungen</div>
+                    <div id="stage1-decisions"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">Output → sessionStorage</div>
+                    <div class="data-box" id="stage1-output"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow" id="arrow1">→</div>
+
+        <!-- Stage 2: PERSPECTIVE_DERIVATION -->
+        <div class="stage" id="stage2">
+            <div class="stage-header">
+                <div class="stage-title">
+                    <span class="stage-number">2</span>
+                    PERSPECTIVE_DERIVATION
+                </div>
+                <span class="stage-status">Warten</span>
+            </div>
+            <div class="stage-content">
+                <div class="section">
+                    <div class="section-title">Input (aus Stage 1)</div>
+                    <div class="data-box" id="stage2-input"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">Generierte Perspektiven</div>
+                    <div id="stage2-perspectives"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">Output</div>
+                    <div class="data-box" id="stage2-output"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow" id="arrow2">→</div>
+
+        <!-- Stage 3: LAYOUT_RANKING -->
+        <div class="stage" id="stage3">
+            <div class="stage-header">
+                <div class="stage-title">
+                    <span class="stage-number">3</span>
+                    LAYOUT_RANKING
+                </div>
+                <span class="stage-status">Warten</span>
+            </div>
+            <div class="stage-content">
+                <div class="section">
+                    <div class="section-title">Input</div>
+                    <div class="data-box" id="stage3-input"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">Ausgewählte Templates</div>
+                    <div id="stage3-templates"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">Reasoning</div>
+                    <div class="data-box" id="stage3-reasoning"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow" id="arrow3">→</div>
+
+        <!-- Stage 4: CHART_PROMPT (Loop) -->
+        <div class="stage" id="stage4">
+            <div class="stage-header">
+                <div class="stage-title">
+                    <span class="stage-number">4</span>
+                    CHART_PROMPT (Loop)
+                </div>
+                <span class="stage-status">Warten</span>
+            </div>
+            <div class="stage-content">
+                <div class="section">
+                    <div class="section-title">Template + Perspektive Zuordnung</div>
+                    <div id="stage4-assignments"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">Generierte Configs (Mock)</div>
+                    <div class="data-box" id="stage4-configs"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="summary-grid" id="summaryGrid" style="display: none;">
+        <div class="summary-card">
+            <h4>Erkannte Hierarchie</h4>
+            <div class="value" id="summaryHierarchy">-</div>
+            <div class="detail" id="summaryHierarchyDetail"></div>
+        </div>
+        <div class="summary-card">
+            <h4>Generierte Perspektiven</h4>
+            <div class="value" id="summaryPerspectives">0</div>
+            <div class="detail" id="summaryPerspectivesDetail"></div>
+        </div>
+        <div class="summary-card">
+            <h4>Ausgewählte Templates</h4>
+            <div class="value" id="summaryTemplates">0</div>
+            <div class="detail" id="summaryTemplatesDetail"></div>
+        </div>
+        <div class="summary-card">
+            <h4>Erwartete API-Calls</h4>
+            <div class="value" id="summaryApiCalls">0</div>
+            <div class="detail">Mit Mock: 0 Calls, 0 Kosten</div>
+        </div>
+    </div>
+
+    <div id="logContainer">
+        <div class="section-title">Execution Log</div>
+        <div id="logEntries"></div>
+    </div>
+
+    <script>
+        // Mock-Daten laden
+        let mockData = null;
+        let currentScenario = null;
+
+        async function loadMockData() {
+            try {
+                const response = await fetch('../6. Bibliotheken/mock-responses.json');
+                mockData = await response.json();
+                log('info', 'Mock-Responses geladen');
+            } catch (error) {
+                log('error', 'Fehler beim Laden der Mock-Daten: ' + error.message);
+            }
+        }
+
+        function log(type, message) {
+            const container = document.getElementById('logEntries');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span class="log-time">${time}</span>${message}`;
+            container.insertBefore(entry, container.firstChild);
+        }
+
+        function setStageStatus(stageId, status) {
+            const stage = document.getElementById(stageId);
+            const statusEl = stage.querySelector('.stage-status');
+
+            stage.classList.remove('active', 'completed');
+
+            if (status === 'active') {
+                stage.classList.add('active');
+                statusEl.textContent = 'Aktiv';
+            } else if (status === 'completed') {
+                stage.classList.add('completed');
+                statusEl.textContent = 'Fertig';
+            } else {
+                statusEl.textContent = 'Warten';
+            }
+        }
+
+        function setArrowActive(arrowId, active) {
+            const arrow = document.getElementById(arrowId);
+            if (active) {
+                arrow.classList.add('active');
+            } else {
+                arrow.classList.remove('active');
+            }
+        }
+
+        async function runPipeline() {
+            if (!mockData) {
+                log('error', 'Mock-Daten nicht geladen!');
+                return;
+            }
+
+            const scenario = document.getElementById('scenarioSelect').value;
+            const chartType = document.getElementById('chartTypeSelect').value;
+            currentScenario = mockData.scenarios[scenario];
+
+            if (!currentScenario) {
+                log('error', 'Szenario nicht gefunden: ' + scenario);
+                return;
+            }
+
+            log('info', `Starte Pipeline mit Szenario: ${scenario}, Chart-Typ: ${chartType}`);
+
+            // Reset all stages
+            ['stage1', 'stage2', 'stage3', 'stage4'].forEach(s => setStageStatus(s, 'waiting'));
+            ['arrow1', 'arrow2', 'arrow3'].forEach(a => setArrowActive(a, false));
+
+            // Stage 1: DATA_ANALYZER
+            await runStage1(currentScenario.data_analyzer);
+            await sleep(500);
+
+            // Stage 2: PERSPECTIVE_DERIVATION
+            await runStage2(currentScenario.data_analyzer.hierarchy, currentScenario.perspective_derivation, chartType);
+            await sleep(500);
+
+            // Stage 3: LAYOUT_RANKING
+            await runStage3(currentScenario.layout_ranking, chartType);
+            await sleep(500);
+
+            // Stage 4: CHART_PROMPT Loop
+            await runStage4(currentScenario.perspective_derivation.perspectives, currentScenario.layout_ranking.selectedTemplates);
+
+            // Show summary
+            showSummary(currentScenario);
+        }
+
+        async function runStage1(analyzerOutput) {
+            setStageStatus('stage1', 'active');
+            log('info', 'Stage 1: DATA_ANALYZER startet...');
+
+            // Input anzeigen
+            document.getElementById('stage1-input').textContent =
+                'CSV-Rohdaten: ' + currentScenario.description;
+
+            // Entscheidungen
+            const decisionsEl = document.getElementById('stage1-decisions');
+            decisionsEl.innerHTML = '';
+
+            // Datenformat
+            addDecision(decisionsEl, 'Erkanntes Format', analyzerOutput.analysis.dataFormat);
+
+            // Chart-Empfehlung
+            addDecision(decisionsEl, 'Empfohlener Chart-Typ', analyzerOutput.recommendation.primaryChart);
+
+            // Hierarchie
+            if (analyzerOutput.hierarchy.detected) {
+                addDecision(decisionsEl, 'Hierarchie erkannt',
+                    `${analyzerOutput.hierarchy.aggregationLevel.columnName} → ${analyzerOutput.hierarchy.detailLevel.columnName}`);
+
+                // Cluster-Tags
+                const clusters = analyzerOutput.hierarchy.aggregationLevel.values;
+                const tagsHtml = clusters.map(c => `<span class="tag cluster">${c}</span>`).join('');
+                addDecision(decisionsEl, 'Cluster-Werte', tagsHtml);
+            } else {
+                addDecision(decisionsEl, 'Hierarchie', 'Nicht erkannt');
+            }
+
+            // Output
+            document.getElementById('stage1-output').textContent =
+                JSON.stringify({
+                    hierarchy: analyzerOutput.hierarchy,
+                    recommendation: analyzerOutput.recommendation,
+                    extractedData: '... (gekürzt)'
+                }, null, 2);
+
+            log('success', 'Stage 1: Datenanalyse abgeschlossen');
+            setStageStatus('stage1', 'completed');
+            setArrowActive('arrow1', true);
+        }
+
+        async function runStage2(hierarchy, perspectiveOutput, chartType) {
+            setStageStatus('stage2', 'active');
+            log('info', 'Stage 2: PERSPECTIVE_DERIVATION startet...');
+
+            // Input
+            document.getElementById('stage2-input').textContent = JSON.stringify({
+                hierarchy: hierarchy,
+                chartType: chartType
+            }, null, 2);
+
+            // Perspektiven anzeigen
+            const perspectivesEl = document.getElementById('stage2-perspectives');
+            perspectivesEl.innerHTML = '';
+
+            perspectiveOutput.perspectives.forEach((p, i) => {
+                const div = document.createElement('div');
+                div.className = 'decision';
+                div.innerHTML = `
+                    <div class="decision-label">Perspektive ${i + 1} (${p.id})</div>
+                    <div class="decision-value">${p.name}</div>
+                    <div style="font-size: 11px; color: #888; margin-top: 4px;">
+                        Dimension: ${p.dimension} |
+                        Filter: ${p.filter || 'Keine'} |
+                        Level: ${p.aggregationLevel}
+                    </div>
+                `;
+                perspectivesEl.appendChild(div);
+            });
+
+            // Output
+            document.getElementById('stage2-output').textContent =
+                JSON.stringify(perspectiveOutput.perspectives.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    filter: p.filter
+                })), null, 2);
+
+            log('success', `Stage 2: ${perspectiveOutput.perspectives.length} Perspektiven generiert`);
+            setStageStatus('stage2', 'completed');
+            setArrowActive('arrow2', true);
+        }
+
+        async function runStage3(rankingOutput, chartType) {
+            setStageStatus('stage3', 'active');
+            log('info', 'Stage 3: LAYOUT_RANKING startet...');
+
+            // Input
+            document.getElementById('stage3-input').textContent = JSON.stringify({
+                chartType: chartType,
+                availableTemplates: '12 Templates',
+                requestedCount: 8
+            }, null, 2);
+
+            // Templates anzeigen
+            const templatesEl = document.getElementById('stage3-templates');
+            templatesEl.innerHTML = rankingOutput.selectedTemplates
+                .map(t => `<span class="tag perspective">${t}</span>`)
+                .join('');
+
+            // Reasoning
+            document.getElementById('stage3-reasoning').textContent = rankingOutput.reasoning;
+
+            log('success', `Stage 3: ${rankingOutput.selectedTemplates.length} Templates ausgewählt`);
+            setStageStatus('stage3', 'completed');
+            setArrowActive('arrow3', true);
+        }
+
+        async function runStage4(perspectives, templates) {
+            setStageStatus('stage4', 'active');
+            log('info', 'Stage 4: CHART_PROMPT Loop startet...');
+
+            const assignmentsEl = document.getElementById('stage4-assignments');
+            assignmentsEl.innerHTML = '';
+
+            // Template + Perspektive Zuordnung (Rotation)
+            templates.forEach((template, i) => {
+                const perspective = perspectives[i % perspectives.length];
+                const div = document.createElement('div');
+                div.className = 'log-entry info';
+                div.innerHTML = `
+                    <strong>${template}</strong> → Perspektive: <span class="tag perspective">${perspective.name}</span>
+                    ${perspective.filter ? `(Filter: ${perspective.filter})` : ''}
+                `;
+                assignmentsEl.appendChild(div);
+
+                log('info', `Template ${template} bekommt Perspektive "${perspective.name}"`);
+            });
+
+            // Mock-Configs
+            document.getElementById('stage4-configs').textContent = JSON.stringify({
+                _note: 'Mock-Configs - in Produktion würde hier die KI Chart-Configs generieren',
+                configCount: templates.length,
+                perspectiveRotation: 'aktiv',
+                uniquePerspectives: perspectives.length
+            }, null, 2);
+
+            log('success', `Stage 4: ${templates.length} Chart-Configs würden generiert werden`);
+            setStageStatus('stage4', 'completed');
+        }
+
+        function showSummary(scenario) {
+            document.getElementById('summaryGrid').style.display = 'grid';
+
+            const hierarchy = scenario.data_analyzer.hierarchy;
+            const perspectives = scenario.perspective_derivation.perspectives;
+            const templates = scenario.layout_ranking.selectedTemplates;
+
+            // Hierarchie
+            document.getElementById('summaryHierarchy').textContent = hierarchy.detected ? 'Ja' : 'Nein';
+            document.getElementById('summaryHierarchyDetail').textContent = hierarchy.detected
+                ? `${hierarchy.aggregationLevel.columnName} (${hierarchy.aggregationLevel.values.length} Werte)`
+                : 'Flache Datenstruktur';
+
+            // Perspektiven
+            document.getElementById('summaryPerspectives').textContent = perspectives.length;
+            const filteredCount = perspectives.filter(p => p.filter).length;
+            document.getElementById('summaryPerspectivesDetail').textContent =
+                `davon ${filteredCount} gefilterte Cluster-Ansichten`;
+
+            // Templates
+            document.getElementById('summaryTemplates').textContent = templates.length;
+            document.getElementById('summaryTemplatesDetail').textContent = templates.join(', ');
+
+            // API-Calls
+            const apiCalls = 1 + 1 + 1 + templates.length; // Analyzer + Perspective + Ranking + Charts
+            document.getElementById('summaryApiCalls').textContent = apiCalls;
+
+            log('success', `Pipeline abgeschlossen! Gespart: ${apiCalls} API-Calls`);
+        }
+
+        function addDecision(container, label, value) {
+            const div = document.createElement('div');
+            div.className = 'decision';
+            div.innerHTML = `
+                <div class="decision-label">${label}</div>
+                <div class="decision-value">${value}</div>
+            `;
+            container.appendChild(div);
+        }
+
+        function clearAll() {
+            ['stage1', 'stage2', 'stage3', 'stage4'].forEach(s => {
+                setStageStatus(s, 'waiting');
+                document.querySelectorAll(`#${s} .data-box`).forEach(el => el.textContent = '');
+                document.querySelectorAll(`#${s} [id$="-decisions"], #${s} [id$="-perspectives"], #${s} [id$="-templates"], #${s} [id$="-assignments"]`)
+                    .forEach(el => el.innerHTML = '');
+            });
+            ['arrow1', 'arrow2', 'arrow3'].forEach(a => setArrowActive(a, false));
+            document.getElementById('summaryGrid').style.display = 'none';
+            document.getElementById('logEntries').innerHTML = '';
+            log('info', 'Pipeline zurückgesetzt');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', loadMockData);
+    </script>
+</body>
+</html>

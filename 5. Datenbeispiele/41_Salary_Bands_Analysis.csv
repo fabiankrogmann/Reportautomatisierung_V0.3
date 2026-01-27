@@ -1,0 +1,16 @@
+Salary_Band_CHF,Band_Min,Band_Max,Count,Avg_Salary_CHF,Total_Cost_CHF,Percent_of_Workforce
+Executive,250000,500000,8,385000,3080000,1.7%
+Senior Management,150000,249999,25,195000,4875000,5.3%
+Middle Management,100000,149999,52,122000,6344000,11.1%
+Professional Senior,85000,99999,78,91500,7137000,16.6%
+Professional,70000,84999,112,76800,8601600,23.9%
+Associate,55000,69999,98,62500,6125000,20.9%
+Entry Level,45000,54999,68,49800,3386400,14.5%
+Intern/Trainee,35000,44999,28,42000,1176000,6.0%
+Total,,,469,86702,40725000,100.0%
+,,,,,,
+Statistics,,,,,,
+Median Salary,,,,75000,,
+10th Percentile,,,,48000,,
+90th Percentile,,,,145000,,
+Gender Pay Gap,,,,3.2%,,

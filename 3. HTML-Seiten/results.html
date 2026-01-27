@@ -905,7 +905,7 @@
                         ${renderPositionsSection(analysis)}
                         ${renderDataQualitySection(analysis.dataQuality)}
                         ${renderConfigSection(configs)}
-                        ${renderRecommendationSection(recommendation)}
+                        ${renderRecommendationSection(recommendation, analysis)}
                         ${renderDataTableSection(item.csvData)}
                     </div>
                 </div>
@@ -1270,7 +1270,7 @@
             `;
         }
 
-        function renderRecommendationSection(recommendation) {
+        function renderRecommendationSection(recommendation, analysis = {}) {
             // Nur die 3 Chart-Typen (kein chart-mix mehr)
             const allCharts = ['waterfall', 'bar', 'stacked-bar'];
 
@@ -1282,29 +1282,84 @@
                 ? '<div style="color: #dc2626; font-size: 0.85rem; margin-top: 8px;">Bitte wählen Sie einen Chart-Typ aus.</div>'
                 : '';
 
+            // Zeige ausgewählten Typ (oder Empfehlung falls noch keine Auswahl)
+            const displayedChartType = selectedChartType !== null ? selectedChartType : recommendedChartType;
+            const isUserSelection = selectedChartType !== null && selectedChartType !== recommendedChartType;
+
             return `
                 <div class="section">
                     <div class="section-title">Chart-Typ wählen</div>
                     <div class="recommendation ${selectedChartType === null ? '' : (selectedChartType !== recommendedChartType ? 'changed' : '')}">
                         <div class="recommendation-header">
-                            <span class="recommendation-label">KI-Empfehlung</span>
-                            <span class="recommendation-chart">${getChartLabel(recommendedChartType)}</span>
+                            <span class="recommendation-label">${isUserSelection ? 'Ihre Auswahl' : 'KI-Empfehlung'}</span>
+                            <span class="recommendation-chart" id="selectedChartDisplay">${getChartLabel(displayedChartType)}</span>
                         </div>
                         <div class="recommendation-text" id="chartTypeDescription">${escapeHtml(reasoningText)}</div>
                         <div class="chart-type-selector">
-                            ${allCharts.map(chart => `
-                                <button class="chart-type-btn ${chart === selectedChartType ? 'selected' : ''} ${chart === recommendedChartType ? 'recommended' : ''}"
+                            ${allCharts.map(chart => {
+                                const isSelected = chart === selectedChartType;
+                                const isRecommended = chart === recommendedChartType;
+                                const showInactive = isRecommended && selectedChartType !== null && selectedChartType !== recommendedChartType;
+                                return `
+                                <button class="chart-type-btn ${isSelected ? 'selected' : ''} ${isRecommended ? 'recommended' : ''} ${isSelected && selectedChartType !== recommendedChartType ? 'changed-selection' : ''} ${showInactive ? 'inactive' : ''}"
                                         onclick="selectChartType('${chart}')"
                                         data-chart="${chart}">
                                     ${getChartLabel(chart)}
-                                    ${chart === recommendedChartType ? '<span class="recommended-tag">(Empf.)</span>' : ''}
-                                </button>
-                            `).join('')}
+                                    ${isRecommended ? '<span class="recommended-tag">(Empf.)</span>' : ''}
+                                </button>`;
+                            }).join('')}
                         </div>
                         ${noSelectionHint}
                         <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #6b7280;">
                             Alle verfügbaren Layouts des gewählten Chart-Typs werden generiert.
                         </div>
+                        ${renderPerspectivesPreview(analysis)}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Zeigt eine Vorschau der Perspektiven basierend auf der erkannten Hierarchie
+        function renderPerspectivesPreview(analysis) {
+            const hierarchy = analysis?.hierarchy || {};
+
+            // Nur anzeigen wenn Hierarchie erkannt wurde
+            if (!hierarchy.detected && (!hierarchy.aggregationLevel && !hierarchy.detailLevel)) {
+                return '';
+            }
+
+            const aggregation = hierarchy.aggregationLevel?.columnName || hierarchy.aggregationLevel || null;
+            const detail = hierarchy.detailLevel?.columnName || hierarchy.detailLevel || null;
+            const aggregationValues = hierarchy.aggregationLevel?.values || [];
+
+            // Erstelle Perspektiven-Vorschau
+            let perspectivesList = [];
+
+            if (aggregation) {
+                perspectivesList.push(`<li>Aggregierte Ansicht (${escapeHtml(aggregation)})</li>`);
+            }
+            if (detail) {
+                perspectivesList.push(`<li>Detail-Ansicht (${escapeHtml(detail)})</li>`);
+            }
+            if (aggregationValues.length > 0) {
+                const filterExamples = aggregationValues.slice(0, 2).map(v => escapeHtml(v)).join(', ');
+                perspectivesList.push(`<li>Gefilterte Ansichten (z.B. ${filterExamples})</li>`);
+            }
+
+            if (perspectivesList.length === 0) {
+                return '';
+            }
+
+            return `
+                <div style="margin-top: 16px; padding: 12px; background: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0;">
+                    <div style="font-weight: 600; font-size: 0.85rem; color: #166534; margin-bottom: 8px;">
+                        Hierarchie erkannt - Verschiedene Perspektiven werden generiert:
+                    </div>
+                    <ul style="font-size: 0.8rem; color: #15803d; margin: 0; padding-left: 20px;">
+                        ${perspectivesList.join('')}
+                    </ul>
+                    <div style="font-size: 0.75rem; color: #6b7280; margin-top: 8px;">
+                        Die KI generiert verschiedene Blickwinkel auf Ihre Daten.
                     </div>
                 </div>
             `;
@@ -1433,6 +1488,18 @@
                 }
             });
 
+            // Update die Anzeige oben rechts (zeigt nun ausgewählten Typ)
+            const selectedChartDisplay = document.getElementById('selectedChartDisplay');
+            if (selectedChartDisplay) {
+                selectedChartDisplay.textContent = getChartLabel(chartType);
+            }
+
+            // Update das Label (KI-Empfehlung vs Ihre Auswahl)
+            const recommendationLabel = document.querySelector('.recommendation-label');
+            if (recommendationLabel) {
+                recommendationLabel.textContent = isChangedFromRecommendation ? 'Ihre Auswahl' : 'KI-Empfehlung';
+            }
+
             // Update description based on chart type
             const descriptionEl = document.getElementById('chartTypeDescription');
             if (descriptionEl) {
@@ -1484,7 +1551,8 @@
             if (selectedChartType !== null && analysisResult?.parsed?.recommendation) {
                 const section = document.querySelector('.section:has(.recommendation)');
                 if (section) {
-                    section.outerHTML = renderRecommendationSection(analysisResult.parsed.recommendation);
+                    const analysis = analysisResult.parsed?.analysis || {};
+                    section.outerHTML = renderRecommendationSection(analysisResult.parsed.recommendation, analysis);
                 }
             }
         }
