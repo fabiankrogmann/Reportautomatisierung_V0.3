@@ -61,8 +61,9 @@ Du erhältst:
 ### 3. SINNVOLLE ANZAHL
 - Minimum: 3 (oder weniger wenn Daten zu simpel)
 - Maximum: 10
-- Qualität vor Quantität: Lieber 5 gute als 10 mittelmäßige
-- Bei einfachen Daten: Weniger Varianten sind OK
+- Strebe 7-10 Varianten an wenn die Daten es hergeben
+- Nur bei sehr einfachen Daten (1 Szenario, keine Zeitreihe): 3-5 Varianten OK
+- NUTZE die volle Bandbreite der verfügbaren Templates
 
 ### 4. DATEN MÜSSEN EXISTIEREN
 - Nur Varianten für tatsächlich vorhandene Daten
@@ -117,6 +118,16 @@ Optionen:
 - Saisonalitäts-Vergleich (gleicher Monat über mehrere Jahre)
 
 **WICHTIG:** Nur Perspektiven generieren, für die ausreichend Perioden in den Daten vorhanden sind!
+
+**SPARSE DATA HANDLING:**
+Wenn Zeitreihe Lücken hat (>20% fehlende Perioden):
+- ⚠️ KEINE Trend-Templates generieren (BC-05, SB-09, SB-10, WF-13)
+- Stattdessen: Snapshot-Varianten für verfügbare Perioden
+- Im notGeneratedReasons vermerken: "Sparse Data - Trend nicht möglich"
+
+Beispiel: Daten nur für Q1, Q3, Q4 (Q2 fehlt)
+→ Kein "Quarterly Trend" generieren
+→ Stattdessen: "Q4 vs Q1 Vergleich" oder "Q3-Q4 Detail"
 
 ### C. SZENARIO-PERSPEKTIVE
 Alle sinnvollen Kombinationen der vorhandenen Szenarien nutzen:
@@ -178,9 +189,39 @@ mindestens 2 passende Szenarien vorhanden sind!
 - Standard (10-15 Positionen)
 - Detail (alle Positionen)
 
+### F. ORIENTIERUNG (Horizontal vs. Vertikal)
+
+Wähle horizontale Templates wenn:
+- Mehr als 10 Kategorien/Positionen vorhanden ODER
+- Durchschnittliche Label-Länge > 25 Zeichen ODER
+- Explizit für Ranking-Darstellung (BC-04 ist immer horizontal)
+
+Horizontale Templates:
+- WF-05: P&L Horizontal (für breite Präsentationen)
+- SB-07: Kostenaufschlüsselung horizontal (für lange Labels)
+- BC-04: Ranking horizontal (Standard für Rankings)
+
+Ansonsten: Vertikale Orientierung (Standard)
+
 ---
 
 ## CHART-TYP-SPEZIFISCHE REGELN
+
+**BRIDGE-CHARAKTER ERKENNEN:**
+
+Manche Daten haben "Bridge-Charakter" (Start → Deltas → End), auch wenn
+ursprünglich ein anderer Chart-Typ empfohlen wurde. Erkennungsmerkmale:
+
+- "Anfangsbestand" / "Opening Balance" vorhanden
+- "Endbestand" / "Closing Balance" vorhanden
+- Zwischenwerte summieren sich zum Endwert
+- Working Capital, Cashflow, Bestandsveränderungen
+
+Bei erkanntem Bridge-Charakter:
+→ Erwäge ZUSÄTZLICH Waterfall-Varianten, auch wenn Stacked Bar gewählt wurde
+→ Im notGeneratedReasons vermerken falls Waterfall nicht generiert wurde
+
+---
 
 ### FÜR WATERFALL
 
@@ -225,8 +266,10 @@ Layout-Varianten generiert werden, die Vergleichsbalken neben den Bridge-Bars ze
 - WF-18/19: Nur wenn IST + FC + BUD vorhanden
 
 **Varianten-Strategie:**
-- Generiere BEIDE Varianten (links + rechts) nur wenn genug Platz (≤5 Varianten bisher)
-- Bei vielen Varianten: Nur EINE Layout-Variante wählen (Standard: rechts)
+- Bei 3+ Szenarien: IMMER mindestens eine Layout-Variante generieren
+- Generiere BEIDE Varianten (links + rechts) für maximale Auswahl
+- Links-Position (WF-15, WF-17, WF-19): Für Hervorhebung der Vergleichswerte
+- Rechts-Position (WF-14, WF-16, WF-18): Standard für LTR-Leserichtung
 - Jede Layout-Variante zählt als SEPARATE Variante mit eigenem uniqueValue
 
 **uniqueValue Beispiele:**

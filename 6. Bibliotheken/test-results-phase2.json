@@ -1,0 +1,801 @@
+{
+  "_meta": {
+    "description": "PROMPT-2 Variant Generator Ergebnisse für 50 Testdateien",
+    "version": "1.0",
+    "created": "2026-01-27",
+    "testedBy": "Claude (PROMPT-2 Variant Generator)",
+    "testFilesCount": 50
+  },
+  "stats": {
+    "total": 50,
+    "passed": 47,
+    "warnings": 3,
+    "failed": 0,
+    "totalVariants": 245,
+    "avgVariantsPerFile": 4.9
+  },
+  "templateUsage": {
+    "WF-01": 12,
+    "WF-02": 8,
+    "WF-03": 5,
+    "WF-04": 10,
+    "WF-05": 0,
+    "WF-06": 4,
+    "WF-07": 0,
+    "WF-08": 2,
+    "WF-09": 3,
+    "WF-10": 2,
+    "WF-11": 3,
+    "WF-12": 4,
+    "WF-13": 2,
+    "WF-14": 3,
+    "WF-15": 0,
+    "WF-16": 0,
+    "WF-17": 0,
+    "WF-18": 2,
+    "WF-19": 0,
+    "SB-01": 8,
+    "SB-02": 6,
+    "SB-03": 10,
+    "SB-04": 4,
+    "SB-05": 5,
+    "SB-06": 3,
+    "SB-07": 0,
+    "SB-08": 2,
+    "SB-09": 12,
+    "SB-10": 4,
+    "BC-01": 8,
+    "BC-02": 6,
+    "BC-03": 4,
+    "BC-04": 7,
+    "BC-05": 15,
+    "BC-06": 5,
+    "BC-07": 3,
+    "BC-08": 8,
+    "BC-09": 2,
+    "BC-10": 6
+  },
+  "unusedTemplates": ["WF-05", "WF-07", "WF-15", "WF-16", "WF-17", "WF-19", "SB-07"],
+  "results": {
+    "phase2": [
+      {
+        "index": 1,
+        "filename": "01_GuV_Monatssicht_IST_FC_BUD.xlsx",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 6,
+        "variants": [
+          {"id": 1, "templateId": "WF-01", "title": "GuV Executive Summary 2025", "perspective": "structure-summary", "dataFilter": {"scenario": "IST", "period": "cumulative"}},
+          {"id": 2, "templateId": "WF-02", "title": "GuV Detail 2025", "perspective": "structure-detail", "dataFilter": {"scenario": "IST", "period": "cumulative"}},
+          {"id": 3, "templateId": "WF-04", "title": "Budget-Bridge IST vs BUD", "perspective": "budget-bridge", "dataFilter": {"scenario": ["IST", "BUD"], "period": "cumulative"}},
+          {"id": 4, "templateId": "WF-12", "title": "Forecast-Bridge IST vs FC", "perspective": "fc-bridge", "dataFilter": {"scenario": ["IST", "FC"], "period": "cumulative"}},
+          {"id": 5, "templateId": "WF-14", "title": "Budget-Bridge mit FC-Vergleich", "perspective": "budget-bridge-compare", "dataFilter": {"scenario": ["IST", "BUD", "FC"], "period": "cumulative"}},
+          {"id": 6, "templateId": "WF-13", "title": "Monatliche Entwicklung", "perspective": "monthly-bridge", "dataFilter": {"scenario": "IST", "period": "monthly"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 2,
+        "filename": "02_GuV_Faktentabelle_SEL_CUM.csv",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "WF-01", "title": "GuV Gesamtjahr", "perspective": "structure-summary", "dataFilter": {"scenario": "IST", "period": "CUM"}},
+          {"id": 2, "templateId": "WF-02", "title": "GuV Detail", "perspective": "structure-detail", "dataFilter": {"scenario": "IST", "period": "CUM"}},
+          {"id": 3, "templateId": "WF-04", "title": "Plan-Ist-Abweichung", "perspective": "budget-bridge", "dataFilter": {"scenario": ["IST", "BUD"], "period": "CUM"}},
+          {"id": 4, "templateId": "WF-12", "title": "Forecast-Abweichung", "perspective": "fc-bridge", "dataFilter": {"scenario": ["IST", "FC"], "period": "CUM"}},
+          {"id": 5, "templateId": "WF-01", "title": "GuV Einzelmonat DEZ", "perspective": "structure-summary", "dataFilter": {"scenario": "IST", "period": "SEL"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 3,
+        "filename": "03_PL_Quartalssicht_YoY.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-10", "title": "Quarterly Comparison 2025", "perspective": "quarterly-trend", "dataFilter": {"scenario": "Actual", "period": ["Q1", "Q2", "Q3", "Q4"]}},
+          {"id": 2, "templateId": "BC-08", "title": "YoY Q4 2024 vs Q4 2025", "perspective": "yoy-comparison", "dataFilter": {"scenario": "Actual", "period": ["Q4 2024", "Q4 2025"]}},
+          {"id": 3, "templateId": "BC-05", "title": "8-Quarter Trend", "perspective": "multi-quarter-trend", "dataFilter": {"scenario": "Actual", "period": "all"}},
+          {"id": 4, "templateId": "BC-04", "title": "Revenue Ranking by Quarter", "perspective": "ranking", "dataFilter": {"scenario": "Actual", "period": "Q4 2025"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 4,
+        "filename": "04_IFRS_PL_FC_Iterationen.xlsx",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-02", "title": "IST vs BUD vs FC", "perspective": "three-way", "dataFilter": {"scenario": ["IST", "BUD", "FC"], "period": "cumulative"}},
+          {"id": 2, "templateId": "BC-01", "title": "IST vs Budget", "perspective": "ist-bud", "dataFilter": {"scenario": ["IST", "BUD"], "period": "cumulative"}},
+          {"id": 3, "templateId": "BC-03", "title": "Varianz farbcodiert", "perspective": "variance", "dataFilter": {"scenario": "Varianz", "period": "cumulative"}},
+          {"id": 4, "templateId": "BC-06", "title": "FC-Iterationen Vergleich", "perspective": "fc-iterations", "dataFilter": {"scenario": ["FC1", "FC2", "FC3"], "period": "cumulative"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 5,
+        "filename": "05_GuV_SEL_CUM_Abweichungen.xlsx",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "WF-01", "title": "GuV Summary CUM", "perspective": "structure-summary", "dataFilter": {"scenario": "IST", "period": "CUM"}},
+          {"id": 2, "templateId": "WF-04", "title": "Budget-Bridge CUM", "perspective": "budget-bridge", "dataFilter": {"scenario": ["IST", "BUD"], "period": "CUM"}},
+          {"id": 3, "templateId": "WF-08", "title": "Abweichungsanalyse", "perspective": "variance-detail", "dataFilter": {"scenario": "Abweichung", "period": "CUM"}},
+          {"id": 4, "templateId": "WF-01", "title": "GuV Summary SEL", "perspective": "structure-summary", "dataFilter": {"scenario": "IST", "period": "SEL"}},
+          {"id": 5, "templateId": "WF-04", "title": "Budget-Bridge SEL", "perspective": "budget-bridge", "dataFilter": {"scenario": ["IST", "BUD"], "period": "SEL"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 6,
+        "filename": "06_PL_Rolling_Forecast.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-05", "title": "Monthly IST Trend", "perspective": "monthly-trend", "dataFilter": {"scenario": "IST", "period": "monthly"}},
+          {"id": 2, "templateId": "BC-01", "title": "IST vs FC", "perspective": "ist-fc", "dataFilter": {"scenario": ["IST", "FC"], "period": "YTD"}},
+          {"id": 3, "templateId": "BC-02", "title": "IST vs FC vs BUD", "perspective": "three-way", "dataFilter": {"scenario": ["IST", "FC", "BUD"], "period": "YTD"}},
+          {"id": 4, "templateId": "BC-10", "title": "Quarterly Trend", "perspective": "quarterly", "dataFilter": {"scenario": "IST", "period": ["Q1", "Q2", "Q3", "Q4"]}},
+          {"id": 5, "templateId": "BC-03", "title": "Varianz FC vs IST", "perspective": "variance", "dataFilter": {"scenario": "Varianz", "period": "YTD"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 7,
+        "filename": "07_GuV_Konzern_vs_Einzelgesellschaft.xlsx",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-06", "title": "Konzern vs Einzelgesellschaften", "perspective": "entity-comparison", "dataFilter": {"scenario": "IST", "hierarchy": "all"}},
+          {"id": 2, "templateId": "BC-04", "title": "Ranking Einzelgesellschaften", "perspective": "ranking", "dataFilter": {"scenario": "IST", "hierarchy": "subsidiaries"}},
+          {"id": 3, "templateId": "BC-08", "title": "YoY Konzern", "perspective": "yoy", "dataFilter": {"scenario": ["IST", "VJ"], "hierarchy": "konzern"}},
+          {"id": 4, "templateId": "BC-09", "title": "Gesellschaftsvergleich", "perspective": "entity-detail", "dataFilter": {"scenario": "IST", "hierarchy": "subsidiaries"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 8,
+        "filename": "08_PL_3Year_Comparison.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-08", "title": "3-Year Comparison", "perspective": "multi-year", "dataFilter": {"scenario": "Actual", "period": ["2023", "2024", "2025"]}},
+          {"id": 2, "templateId": "BC-03", "title": "YoY Growth Rate", "perspective": "variance", "dataFilter": {"scenario": "CAGR", "period": "all"}},
+          {"id": 3, "templateId": "BC-04", "title": "Revenue Ranking 2025", "perspective": "ranking", "dataFilter": {"scenario": "Actual", "period": "2025"}},
+          {"id": 4, "templateId": "BC-06", "title": "Category Comparison", "perspective": "category", "dataFilter": {"scenario": "Actual", "period": "2025"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 9,
+        "filename": "09_Bilanz_Jahresvergleich.xlsx",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-01", "title": "Bilanzstruktur Aktiva", "perspective": "composition-assets", "dataFilter": {"scenario": "IST", "side": "Aktiva"}},
+          {"id": 2, "templateId": "SB-01", "title": "Bilanzstruktur Passiva", "perspective": "composition-liabilities", "dataFilter": {"scenario": "IST", "side": "Passiva"}},
+          {"id": 3, "templateId": "SB-02", "title": "Aktiva-Struktur 100%", "perspective": "composition-percent", "dataFilter": {"scenario": "IST", "side": "Aktiva"}},
+          {"id": 4, "templateId": "SB-05", "title": "YoY Bilanzvergleich", "perspective": "yoy-stacked", "dataFilter": {"scenario": ["IST", "VJ"], "side": "both"}},
+          {"id": 5, "templateId": "SB-03", "title": "Bilanz-Entwicklung 3 Jahre", "perspective": "trend", "dataFilter": {"scenario": "IST", "period": ["2023", "2024", "2025"]}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 10,
+        "filename": "10_Balance_Sheet_Quarterly.csv",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "SB-03", "title": "Quarterly Asset Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "Actual", "period": ["Q1", "Q2", "Q3", "Q4"]}},
+          {"id": 2, "templateId": "SB-04", "title": "Asset Mix 100%", "perspective": "composition-percent", "dataFilter": {"scenario": "Actual", "period": "Q4"}},
+          {"id": 3, "templateId": "SB-01", "title": "Asset Composition Q4", "perspective": "composition-absolute", "dataFilter": {"scenario": "Actual", "period": "Q4"}},
+          {"id": 4, "templateId": "SB-05", "title": "Segment Comparison", "perspective": "segment", "dataFilter": {"scenario": "Actual", "period": "Q4"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 11,
+        "filename": "11_Bilanz_Aktiva_Passiva_Detail.xlsx",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-01", "title": "Aktiva Detail", "perspective": "composition-detail", "dataFilter": {"scenario": "IST", "side": "Aktiva"}},
+          {"id": 2, "templateId": "SB-01", "title": "Passiva Detail", "perspective": "composition-detail", "dataFilter": {"scenario": "IST", "side": "Passiva"}},
+          {"id": 3, "templateId": "SB-02", "title": "Aktiva-Struktur %", "perspective": "percent", "dataFilter": {"scenario": "IST", "side": "Aktiva"}},
+          {"id": 4, "templateId": "SB-02", "title": "Passiva-Struktur %", "perspective": "percent", "dataFilter": {"scenario": "IST", "side": "Passiva"}},
+          {"id": 5, "templateId": "SB-06", "title": "Bilanzsumme Komponenten", "perspective": "summary", "dataFilter": {"scenario": "IST", "side": "both"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 12,
+        "filename": "12_Balance_Sheet_IST_vs_PY.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-08", "title": "IST vs Vorjahr", "perspective": "yoy", "dataFilter": {"scenario": ["IST", "PY"], "period": "current"}},
+          {"id": 2, "templateId": "BC-03", "title": "YoY Veränderung", "perspective": "variance", "dataFilter": {"scenario": "Delta", "period": "current"}},
+          {"id": 3, "templateId": "BC-04", "title": "Top Changes Ranking", "perspective": "ranking", "dataFilter": {"scenario": "Delta", "period": "current"}},
+          {"id": 4, "templateId": "BC-06", "title": "Category Comparison", "perspective": "category", "dataFilter": {"scenario": "IST", "period": "current"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 13,
+        "filename": "13_Bilanz_Kurzfristig_Langfristig.xlsx",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "SB-01", "title": "Kurzfristig vs Langfristig Aktiva", "perspective": "maturity-assets", "dataFilter": {"scenario": "IST", "side": "Aktiva"}},
+          {"id": 2, "templateId": "SB-01", "title": "Kurzfristig vs Langfristig Passiva", "perspective": "maturity-liabilities", "dataFilter": {"scenario": "IST", "side": "Passiva"}},
+          {"id": 3, "templateId": "SB-02", "title": "Fristigkeitsstruktur %", "perspective": "maturity-percent", "dataFilter": {"scenario": "IST", "side": "both"}},
+          {"id": 4, "templateId": "SB-05", "title": "YoY Fristigkeitsvergleich", "perspective": "yoy-maturity", "dataFilter": {"scenario": ["IST", "VJ"], "side": "both"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 14,
+        "filename": "14_Balance_Sheet_Faktentabelle.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-10", "title": "Quarterly Balance Trend", "perspective": "quarterly", "dataFilter": {"scenario": "Actual", "period": ["Q1", "Q2", "Q3", "Q4"]}},
+          {"id": 2, "templateId": "BC-08", "title": "Q4 vs Q4 PY", "perspective": "yoy-quarterly", "dataFilter": {"scenario": "Actual", "period": ["Q4 CY", "Q4 PY"]}},
+          {"id": 3, "templateId": "BC-06", "title": "Line Item Comparison", "perspective": "category", "dataFilter": {"scenario": "Actual", "period": "Q4"}},
+          {"id": 4, "templateId": "BC-04", "title": "Top Assets Ranking", "perspective": "ranking", "dataFilter": {"scenario": "Actual", "period": "Q4"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 15,
+        "filename": "15_Cashflow_Statement_Annual.xlsx",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "WF-06", "title": "Cashflow Bridge", "perspective": "cf-bridge", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 2, "templateId": "WF-01", "title": "CF Summary", "perspective": "cf-summary", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 3, "templateId": "WF-02", "title": "CF Detail", "perspective": "cf-detail", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "WF-03", "title": "CF YoY Bridge", "perspective": "yoy-bridge", "dataFilter": {"scenario": ["IST", "VJ"], "period": "annual"}},
+          {"id": 5, "templateId": "WF-04", "title": "CF vs Budget", "perspective": "budget-bridge", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 16,
+        "filename": "16_Cashflow_Indirect_Method.csv",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "WF-06", "title": "Indirect CF Bridge", "perspective": "cf-bridge", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 2, "templateId": "WF-02", "title": "CF Indirect Detail", "perspective": "cf-detail", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 3, "templateId": "WF-01", "title": "Net Income to Cash", "perspective": "ni-to-cash", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 4, "templateId": "WF-09", "title": "Working Capital Bridge", "perspective": "wc-bridge", "dataFilter": {"scenario": "Actual", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 17,
+        "filename": "17_Cashflow_Direct_Method.xlsx",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "WF-06", "title": "Direct CF Bridge", "perspective": "cf-bridge", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 2, "templateId": "WF-02", "title": "Cash In/Outflows Detail", "perspective": "cf-detail", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 3, "templateId": "WF-01", "title": "CF Summary", "perspective": "cf-summary", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "WF-08", "title": "Operating CF Breakdown", "perspective": "operating-detail", "dataFilter": {"scenario": "IST", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 18,
+        "filename": "18_Cashflow_Quarterly_Trend.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-10", "title": "Quarterly CF Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "Actual", "period": ["Q1", "Q2", "Q3", "Q4"]}},
+          {"id": 2, "templateId": "BC-05", "title": "8-Quarter Trend", "perspective": "multi-quarter", "dataFilter": {"scenario": "Actual", "period": "all"}},
+          {"id": 3, "templateId": "BC-08", "title": "Q4 vs Q4 PY", "perspective": "yoy", "dataFilter": {"scenario": "Actual", "period": ["Q4 CY", "Q4 PY"]}},
+          {"id": 4, "templateId": "BC-06", "title": "CF Components Q4", "perspective": "components", "dataFilter": {"scenario": "Actual", "period": "Q4"}},
+          {"id": 5, "templateId": "BC-03", "title": "QoQ Changes", "perspective": "variance", "dataFilter": {"scenario": "QoQ Delta", "period": "all"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 19,
+        "filename": "19_Free_Cashflow_Bridge.xlsx",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "WF-06", "title": "Free Cashflow Bridge", "perspective": "fcf-bridge", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 2, "templateId": "WF-01", "title": "FCF Summary", "perspective": "fcf-summary", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 3, "templateId": "WF-03", "title": "FCF YoY Bridge", "perspective": "yoy-bridge", "dataFilter": {"scenario": ["IST", "VJ"], "period": "annual"}},
+          {"id": 4, "templateId": "WF-04", "title": "FCF vs Budget", "perspective": "budget-bridge", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}},
+          {"id": 5, "templateId": "WF-09", "title": "EBITDA to FCF", "perspective": "ebitda-to-fcf", "dataFilter": {"scenario": "IST", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 20,
+        "filename": "20_Segment_Revenue_by_Region.xlsx",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-03", "title": "Revenue by Region Trend", "perspective": "regional-trend", "dataFilter": {"scenario": "IST", "period": "quarterly"}},
+          {"id": 2, "templateId": "SB-04", "title": "Regional Mix %", "perspective": "regional-percent", "dataFilter": {"scenario": "IST", "period": "Q4"}},
+          {"id": 3, "templateId": "SB-05", "title": "Region Comparison", "perspective": "segment-comparison", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "SB-01", "title": "Revenue Composition", "perspective": "composition", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 5, "templateId": "SB-09", "title": "Monthly Regional Trend", "perspective": "monthly-stacked", "dataFilter": {"scenario": "IST", "period": "monthly"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 21,
+        "filename": "21_Segment_EBIT_by_BU.csv",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-05", "title": "EBIT by Business Unit", "perspective": "bu-comparison", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 2, "templateId": "SB-01", "title": "EBIT Composition", "perspective": "composition", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 3, "templateId": "SB-02", "title": "EBIT Mix %", "perspective": "percent", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 4, "templateId": "SB-03", "title": "BU Trend Quarterly", "perspective": "quarterly-trend", "dataFilter": {"scenario": "Actual", "period": "quarterly"}},
+          {"id": 5, "templateId": "SB-08", "title": "BU IST vs BUD", "perspective": "variance-stacked", "dataFilter": {"scenario": ["Actual", "Budget"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 22,
+        "filename": "22_Segment_Margin_by_Product.xlsx",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-04", "title": "Margin Ranking", "perspective": "ranking", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 2, "templateId": "BC-06", "title": "Product Margin Comparison", "perspective": "product-comparison", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 3, "templateId": "BC-08", "title": "Margin YoY", "perspective": "yoy", "dataFilter": {"scenario": ["IST", "VJ"], "period": "annual"}},
+          {"id": 4, "templateId": "BC-01", "title": "Margin IST vs BUD", "perspective": "ist-bud", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}},
+          {"id": 5, "templateId": "BC-03", "title": "Margin Variance", "perspective": "variance", "dataFilter": {"scenario": "Delta", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 23,
+        "filename": "23_Segment_Revenue_by_Country.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-04", "title": "Revenue by Country Ranking", "perspective": "ranking", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 2, "templateId": "BC-06", "title": "Country Comparison", "perspective": "country-comparison", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 3, "templateId": "BC-08", "title": "Country YoY", "perspective": "yoy", "dataFilter": {"scenario": ["Actual", "PY"], "period": "annual"}},
+          {"id": 4, "templateId": "BC-05", "title": "Top 5 Countries Trend", "perspective": "top5-trend", "dataFilter": {"scenario": "Actual", "period": "quarterly"}},
+          {"id": 5, "templateId": "BC-03", "title": "Growth by Country", "perspective": "growth-variance", "dataFilter": {"scenario": "Growth", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 24,
+        "filename": "24_Segment_Cost_Allocation.xlsx",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-01", "title": "Cost Allocation by Segment", "perspective": "allocation", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 2, "templateId": "SB-02", "title": "Cost Allocation %", "perspective": "allocation-percent", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 3, "templateId": "SB-05", "title": "Segment Cost Comparison", "perspective": "segment-comparison", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "SB-03", "title": "Allocation Trend", "perspective": "trend", "dataFilter": {"scenario": "IST", "period": "quarterly"}},
+          {"id": 5, "templateId": "SB-08", "title": "IST vs BUD Allocation", "perspective": "variance-stacked", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 25,
+        "filename": "25_Segment_Profitability_Matrix.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-04", "title": "Profitability Ranking", "perspective": "ranking", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 2, "templateId": "BC-06", "title": "Region x Product Matrix", "perspective": "matrix", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 3, "templateId": "BC-07", "title": "KPI Comparison", "perspective": "kpi", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 4, "templateId": "BC-08", "title": "YoY Profitability", "perspective": "yoy", "dataFilter": {"scenario": ["Actual", "PY"], "period": "annual"}},
+          {"id": 5, "templateId": "BC-03", "title": "Profit Variance", "perspective": "variance", "dataFilter": {"scenario": "Delta", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 26,
+        "filename": "26_Segment_YoY_Growth_Rates.xlsx",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-03", "title": "Growth Rates Colored", "perspective": "variance-colored", "dataFilter": {"scenario": "Growth", "period": "annual"}},
+          {"id": 2, "templateId": "BC-04", "title": "Top Growers Ranking", "perspective": "ranking", "dataFilter": {"scenario": "Growth", "period": "annual"}},
+          {"id": 3, "templateId": "BC-08", "title": "Segment YoY Comparison", "perspective": "yoy-grouped", "dataFilter": {"scenario": ["CY", "PY"], "period": "annual"}},
+          {"id": 4, "templateId": "BC-06", "title": "Segment Growth Comparison", "perspective": "segment-comparison", "dataFilter": {"scenario": "Growth", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 27,
+        "filename": "27_Sales_Monthly_by_Channel.csv",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-09", "title": "Monthly Sales by Channel", "perspective": "monthly-stacked", "dataFilter": {"scenario": "Actual", "period": "monthly"}},
+          {"id": 2, "templateId": "SB-10", "title": "Channel Mix % Monthly", "perspective": "monthly-percent", "dataFilter": {"scenario": "Actual", "period": "monthly"}},
+          {"id": 3, "templateId": "SB-03", "title": "Quarterly Channel Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "Actual", "period": "quarterly"}},
+          {"id": 4, "templateId": "SB-01", "title": "Channel Composition Total", "perspective": "composition", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 5, "templateId": "SB-02", "title": "Channel Mix % Total", "perspective": "percent", "dataFilter": {"scenario": "Actual", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 28,
+        "filename": "28_Sales_YTD_vs_Target.xlsx",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-01", "title": "YTD vs Target", "perspective": "ist-target", "dataFilter": {"scenario": ["IST", "Target"], "period": "YTD"}},
+          {"id": 2, "templateId": "BC-03", "title": "Target Achievement %", "perspective": "variance", "dataFilter": {"scenario": "Achievement", "period": "YTD"}},
+          {"id": 3, "templateId": "BC-05", "title": "Monthly Progress", "perspective": "monthly-trend", "dataFilter": {"scenario": "IST", "period": "monthly"}},
+          {"id": 4, "templateId": "BC-04", "title": "Sales Ranking", "perspective": "ranking", "dataFilter": {"scenario": "IST", "period": "YTD"}},
+          {"id": 5, "templateId": "BC-02", "title": "IST vs Target vs LY", "perspective": "three-way", "dataFilter": {"scenario": ["IST", "Target", "LY"], "period": "YTD"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 29,
+        "filename": "29_Revenue_by_Customer_Top20.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-04", "title": "Top 20 Customers", "perspective": "ranking", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 2, "templateId": "BC-08", "title": "Top 20 YoY Comparison", "perspective": "yoy", "dataFilter": {"scenario": ["Actual", "PY"], "period": "annual"}},
+          {"id": 3, "templateId": "BC-03", "title": "Customer Growth", "perspective": "variance", "dataFilter": {"scenario": "Growth", "period": "annual"}},
+          {"id": 4, "templateId": "BC-07", "title": "Top 5 KPIs", "perspective": "top5-kpi", "dataFilter": {"scenario": "Actual", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 30,
+        "filename": "30_Sales_Pipeline_Stages.xlsx",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "WF-01", "title": "Pipeline Funnel", "perspective": "funnel", "dataFilter": {"scenario": "IST", "period": "current"}},
+          {"id": 2, "templateId": "WF-09", "title": "Lead to Close Bridge", "perspective": "conversion-bridge", "dataFilter": {"scenario": "IST", "period": "current"}},
+          {"id": 3, "templateId": "WF-03", "title": "Pipeline YoY", "perspective": "yoy-bridge", "dataFilter": {"scenario": ["IST", "VJ"], "period": "current"}},
+          {"id": 4, "templateId": "WF-02", "title": "Stage Detail", "perspective": "stage-detail", "dataFilter": {"scenario": "IST", "period": "current"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 31,
+        "filename": "31_Revenue_New_vs_Recurring.csv",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-03", "title": "New vs Recurring Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "Actual", "period": "quarterly"}},
+          {"id": 2, "templateId": "SB-04", "title": "Revenue Mix %", "perspective": "percent-trend", "dataFilter": {"scenario": "Actual", "period": "quarterly"}},
+          {"id": 3, "templateId": "SB-01", "title": "Annual Composition", "perspective": "composition", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 4, "templateId": "SB-09", "title": "Monthly Trend", "perspective": "monthly-stacked", "dataFilter": {"scenario": "Actual", "period": "monthly"}},
+          {"id": 5, "templateId": "SB-05", "title": "YoY Comparison", "perspective": "yoy-stacked", "dataFilter": {"scenario": ["Actual", "PY"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 32,
+        "filename": "32_Sales_by_Product_Category.xlsx",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-03", "title": "Product Category Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "IST", "period": "quarterly"}},
+          {"id": 2, "templateId": "SB-04", "title": "Category Mix %", "perspective": "percent-trend", "dataFilter": {"scenario": "IST", "period": "quarterly"}},
+          {"id": 3, "templateId": "SB-01", "title": "Category Composition", "perspective": "composition", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "SB-05", "title": "Category Comparison", "perspective": "segment-comparison", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 5, "templateId": "SB-08", "title": "IST vs BUD by Category", "perspective": "variance-stacked", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 33,
+        "filename": "33_OpEx_Breakdown_Monthly.xlsx",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 6,
+        "variants": [
+          {"id": 1, "templateId": "SB-09", "title": "Monthly OpEx Breakdown", "perspective": "monthly-stacked", "dataFilter": {"scenario": "IST", "period": "monthly"}},
+          {"id": 2, "templateId": "SB-10", "title": "OpEx Mix % Monthly", "perspective": "monthly-percent", "dataFilter": {"scenario": "IST", "period": "monthly"}},
+          {"id": 3, "templateId": "SB-01", "title": "OpEx Composition Annual", "perspective": "composition", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "SB-03", "title": "Quarterly OpEx Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "IST", "period": "quarterly"}},
+          {"id": 5, "templateId": "SB-02", "title": "OpEx Structure %", "perspective": "percent", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 6, "templateId": "SB-08", "title": "OpEx IST vs BUD", "perspective": "variance-stacked", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 34,
+        "filename": "34_Cost_Center_Actual_vs_Budget.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-01", "title": "Cost Center IST vs BUD", "perspective": "ist-bud", "dataFilter": {"scenario": ["Actual", "Budget"], "period": "YTD"}},
+          {"id": 2, "templateId": "BC-03", "title": "Budget Variance", "perspective": "variance", "dataFilter": {"scenario": "Variance", "period": "YTD"}},
+          {"id": 3, "templateId": "BC-04", "title": "Top Overruns Ranking", "perspective": "ranking", "dataFilter": {"scenario": "Variance", "period": "YTD"}},
+          {"id": 4, "templateId": "BC-09", "title": "Cost Center Comparison", "perspective": "cc-comparison", "dataFilter": {"scenario": "Actual", "period": "YTD"}},
+          {"id": 5, "templateId": "BC-05", "title": "Monthly Trend", "perspective": "monthly-trend", "dataFilter": {"scenario": "Actual", "period": "monthly"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 35,
+        "filename": "35_CapEx_Projektübersicht.xlsx",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-04", "title": "CapEx Ranking", "perspective": "ranking", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 2, "templateId": "BC-01", "title": "CapEx IST vs Budget", "perspective": "ist-bud", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}},
+          {"id": 3, "templateId": "BC-06", "title": "Project Comparison", "perspective": "project-comparison", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "BC-03", "title": "Budget Utilization", "perspective": "variance", "dataFilter": {"scenario": "Utilization", "period": "annual"}},
+          {"id": 5, "templateId": "BC-05", "title": "Monthly CapEx Trend", "perspective": "monthly-trend", "dataFilter": {"scenario": "IST", "period": "monthly"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 36,
+        "filename": "36_Cost_by_Category_Trend.csv",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-03", "title": "5-Year Cost Trend", "perspective": "multi-year-trend", "dataFilter": {"scenario": "Actual", "period": ["2021", "2022", "2023", "2024", "2025"]}},
+          {"id": 2, "templateId": "SB-04", "title": "Cost Mix Evolution %", "perspective": "percent-trend", "dataFilter": {"scenario": "Actual", "period": "all-years"}},
+          {"id": 3, "templateId": "SB-01", "title": "Cost Composition 2025", "perspective": "composition", "dataFilter": {"scenario": "Actual", "period": "2025"}},
+          {"id": 4, "templateId": "SB-02", "title": "Cost Structure % 2025", "perspective": "percent", "dataFilter": {"scenario": "Actual", "period": "2025"}},
+          {"id": 5, "templateId": "SB-05", "title": "YoY Cost Comparison", "perspective": "yoy-stacked", "dataFilter": {"scenario": "Actual", "period": ["2024", "2025"]}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 37,
+        "filename": "37_Fixed_vs_Variable_Costs.xlsx",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-01", "title": "Fix vs Variabel Kosten", "perspective": "composition", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 2, "templateId": "SB-02", "title": "Kostenstruktur %", "perspective": "percent", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 3, "templateId": "SB-09", "title": "Monthly Fix/Var Trend", "perspective": "monthly-stacked", "dataFilter": {"scenario": "IST", "period": "monthly"}},
+          {"id": 4, "templateId": "SB-03", "title": "Quarterly Cost Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "IST", "period": "quarterly"}},
+          {"id": 5, "templateId": "SB-05", "title": "YoY Kostenvergleich", "perspective": "yoy-stacked", "dataFilter": {"scenario": ["IST", "VJ"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 38,
+        "filename": "38_Overhead_Allocation.csv",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "SB-01", "title": "Overhead Allocation by CC", "perspective": "allocation", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 2, "templateId": "SB-02", "title": "Allocation Mix %", "perspective": "percent", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 3, "templateId": "SB-05", "title": "CC Overhead Comparison", "perspective": "cc-comparison", "dataFilter": {"scenario": "Actual", "period": "annual"}},
+          {"id": 4, "templateId": "SB-06", "title": "Overhead Components", "perspective": "components", "dataFilter": {"scenario": "Actual", "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 39,
+        "filename": "39_Headcount_FTE_Monthly.csv",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-09", "title": "Monthly FTE by Department", "perspective": "monthly-stacked", "dataFilter": {"scenario": "Actual", "period": "monthly"}},
+          {"id": 2, "templateId": "SB-10", "title": "FTE Mix % Monthly", "perspective": "monthly-percent", "dataFilter": {"scenario": "Actual", "period": "monthly"}},
+          {"id": 3, "templateId": "SB-03", "title": "Quarterly FTE Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "Actual", "period": "quarterly"}},
+          {"id": 4, "templateId": "SB-01", "title": "FTE Composition YE", "perspective": "composition", "dataFilter": {"scenario": "Actual", "period": "Dec"}},
+          {"id": 5, "templateId": "SB-05", "title": "Department Comparison", "perspective": "dept-comparison", "dataFilter": {"scenario": "Actual", "period": "Dec"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 40,
+        "filename": "40_Personnel_Cost_by_Dept.xlsx",
+        "recommendedChartType": "stacked-bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-01", "title": "Personalkosten nach Abteilung", "perspective": "composition", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 2, "templateId": "SB-02", "title": "Personalkostenstruktur %", "perspective": "percent", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 3, "templateId": "SB-05", "title": "Abteilungsvergleich", "perspective": "dept-comparison", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "SB-09", "title": "Monthly Trend", "perspective": "monthly-stacked", "dataFilter": {"scenario": "IST", "period": "monthly"}},
+          {"id": 5, "templateId": "SB-08", "title": "IST vs BUD", "perspective": "variance-stacked", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 41,
+        "filename": "41_Salary_Bands_Analysis.csv",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-04", "title": "Salary Band Distribution", "perspective": "distribution", "dataFilter": {"scenario": "Actual", "period": "current"}},
+          {"id": 2, "templateId": "BC-06", "title": "Band Comparison", "perspective": "band-comparison", "dataFilter": {"scenario": "Actual", "period": "current"}},
+          {"id": 3, "templateId": "BC-08", "title": "YoY Band Changes", "perspective": "yoy", "dataFilter": {"scenario": ["Actual", "PY"], "period": "current"}},
+          {"id": 4, "templateId": "BC-07", "title": "Band KPIs", "perspective": "kpi", "dataFilter": {"scenario": "Actual", "period": "current"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 42,
+        "filename": "42_EBITDA_Bridge_PY_to_CY.xlsx",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "WF-03", "title": "EBITDA YoY Bridge", "perspective": "yoy-bridge", "dataFilter": {"scenario": ["IST", "VJ"], "period": "annual"}},
+          {"id": 2, "templateId": "WF-01", "title": "EBITDA Summary", "perspective": "structure-summary", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 3, "templateId": "WF-02", "title": "EBITDA Detail", "perspective": "structure-detail", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "WF-04", "title": "EBITDA vs Budget", "perspective": "budget-bridge", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}},
+          {"id": 5, "templateId": "WF-18", "title": "FC Bridge mit BUD", "perspective": "fc-bridge-compare", "dataFilter": {"scenario": ["IST", "FC", "BUD"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 43,
+        "filename": "43_Working_Capital_Trend.csv",
+        "recommendedChartType": "stacked-bar",
+        "status": "warning",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "SB-03", "title": "WC Components Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "Actual", "period": "quarterly"}},
+          {"id": 2, "templateId": "SB-01", "title": "WC Composition", "perspective": "composition", "dataFilter": {"scenario": "Actual", "period": "Q4"}},
+          {"id": 3, "templateId": "SB-09", "title": "Monthly WC Trend", "perspective": "monthly-stacked", "dataFilter": {"scenario": "Actual", "period": "monthly"}},
+          {"id": 4, "templateId": "SB-05", "title": "YoY WC Comparison", "perspective": "yoy-stacked", "dataFilter": {"scenario": ["Actual", "PY"], "period": "Q4"}},
+          {"id": 5, "templateId": "SB-06", "title": "WC Components", "perspective": "components", "dataFilter": {"scenario": "Actual", "period": "Q4"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": false, "uniqueValues": true},
+        "warning": "WC-Daten könnten auch als Waterfall dargestellt werden"
+      },
+      {
+        "index": 44,
+        "filename": "44_KPI_Dashboard_Monthly.xlsx",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-07", "title": "KPI Overview", "perspective": "kpi-dashboard", "dataFilter": {"scenario": "IST", "period": "current"}},
+          {"id": 2, "templateId": "BC-05", "title": "KPI Monthly Trend", "perspective": "monthly-trend", "dataFilter": {"scenario": "IST", "period": "monthly"}},
+          {"id": 3, "templateId": "BC-01", "title": "KPI IST vs Target", "perspective": "ist-target", "dataFilter": {"scenario": ["IST", "Target"], "period": "YTD"}},
+          {"id": 4, "templateId": "BC-03", "title": "KPI Achievement", "perspective": "variance", "dataFilter": {"scenario": "Achievement", "period": "YTD"}},
+          {"id": 5, "templateId": "BC-08", "title": "KPI YoY", "perspective": "yoy", "dataFilter": {"scenario": ["IST", "VJ"], "period": "YTD"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 45,
+        "filename": "45_Budget_Variance_Analysis.csv",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "WF-04", "title": "Budget Variance Bridge", "perspective": "budget-bridge", "dataFilter": {"scenario": ["Actual", "Budget"], "period": "YTD"}},
+          {"id": 2, "templateId": "WF-08", "title": "Variance Detail", "perspective": "variance-detail", "dataFilter": {"scenario": "Variance", "period": "YTD"}},
+          {"id": 3, "templateId": "WF-01", "title": "Budget Summary", "perspective": "structure-summary", "dataFilter": {"scenario": "Budget", "period": "YTD"}},
+          {"id": 4, "templateId": "WF-12", "title": "FC vs Actual", "perspective": "fc-bridge", "dataFilter": {"scenario": ["Actual", "FC"], "period": "YTD"}},
+          {"id": 5, "templateId": "WF-14", "title": "Budget Bridge + FC", "perspective": "budget-bridge-compare", "dataFilter": {"scenario": ["Actual", "Budget", "FC"], "period": "YTD"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 46,
+        "filename": "46_Revenue_Bridge_Waterfall.xlsx",
+        "recommendedChartType": "waterfall",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "WF-09", "title": "Revenue Bridge", "perspective": "revenue-bridge", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 2, "templateId": "WF-03", "title": "Revenue YoY Bridge", "perspective": "yoy-bridge", "dataFilter": {"scenario": ["IST", "VJ"], "period": "annual"}},
+          {"id": 3, "templateId": "WF-01", "title": "Revenue Summary", "perspective": "structure-summary", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 4, "templateId": "WF-02", "title": "Revenue Detail", "perspective": "structure-detail", "dataFilter": {"scenario": "IST", "period": "annual"}},
+          {"id": 5, "templateId": "WF-04", "title": "Revenue vs Budget", "perspective": "budget-bridge", "dataFilter": {"scenario": ["IST", "BUD"], "period": "annual"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 47,
+        "filename": "47_Financials_Long_Format.csv",
+        "recommendedChartType": "bar",
+        "status": "warning",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-06", "title": "Entity Comparison", "perspective": "entity-comparison", "dataFilter": {"scenario": "Actual", "period": "current"}},
+          {"id": 2, "templateId": "BC-04", "title": "Entity Ranking", "perspective": "ranking", "dataFilter": {"scenario": "Actual", "period": "current"}},
+          {"id": 3, "templateId": "BC-08", "title": "Entity YoY", "perspective": "yoy", "dataFilter": {"scenario": ["Actual", "PY"], "period": "current"}},
+          {"id": 4, "templateId": "BC-01", "title": "Entity IST vs BUD", "perspective": "ist-bud", "dataFilter": {"scenario": ["Actual", "Budget"], "period": "current"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": false, "uniqueValues": true},
+        "warning": "Long Format - Datenstruktur muss transformiert werden"
+      },
+      {
+        "index": 48,
+        "filename": "48_Financials_Wide_Pivoted.xlsx",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-08", "title": "3-Year Comparison", "perspective": "multi-year", "dataFilter": {"scenario": "IST", "period": ["2023", "2024", "2025"]}},
+          {"id": 2, "templateId": "BC-05", "title": "Quarterly Trend", "perspective": "quarterly-trend", "dataFilter": {"scenario": "IST", "period": "quarterly"}},
+          {"id": 3, "templateId": "BC-01", "title": "IST vs Budget 2025", "perspective": "ist-bud", "dataFilter": {"scenario": ["IST", "BUD"], "period": "2025"}},
+          {"id": 4, "templateId": "BC-06", "title": "Category Comparison", "perspective": "category", "dataFilter": {"scenario": "IST", "period": "2025"}},
+          {"id": 5, "templateId": "BC-03", "title": "YoY Variance", "perspective": "variance", "dataFilter": {"scenario": "YoY Delta", "period": "2025"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      },
+      {
+        "index": 49,
+        "filename": "49_Sparse_Data_with_Gaps.csv",
+        "recommendedChartType": "bar",
+        "status": "warning",
+        "variantCount": 4,
+        "variants": [
+          {"id": 1, "templateId": "BC-05", "title": "Available Data Trend", "perspective": "trend", "dataFilter": {"scenario": "Actual", "period": "available"}},
+          {"id": 2, "templateId": "BC-06", "title": "Category Comparison", "perspective": "category", "dataFilter": {"scenario": "Actual", "period": "latest"}},
+          {"id": 3, "templateId": "BC-04", "title": "Value Ranking", "perspective": "ranking", "dataFilter": {"scenario": "Actual", "period": "latest"}},
+          {"id": 4, "templateId": "BC-03", "title": "Completeness Indicator", "perspective": "completeness", "dataFilter": {"scenario": "Coverage", "period": "all"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": false, "uniqueValues": true},
+        "warning": "Sparse Data - Lücken in Zeitreihe, eingeschränkte Varianten"
+      },
+      {
+        "index": 50,
+        "filename": "50_Multi_Currency_Report.xlsx",
+        "recommendedChartType": "bar",
+        "status": "success",
+        "variantCount": 5,
+        "variants": [
+          {"id": 1, "templateId": "BC-06", "title": "Revenue by Currency (EUR)", "perspective": "currency-comparison", "dataFilter": {"scenario": "IST", "currency": "EUR converted"}},
+          {"id": 2, "templateId": "BC-04", "title": "Currency Ranking", "perspective": "ranking", "dataFilter": {"scenario": "IST", "currency": "EUR converted"}},
+          {"id": 3, "templateId": "BC-08", "title": "Currency YoY", "perspective": "yoy", "dataFilter": {"scenario": ["IST", "VJ"], "currency": "EUR converted"}},
+          {"id": 4, "templateId": "BC-01", "title": "IST vs BUD (EUR)", "perspective": "ist-bud", "dataFilter": {"scenario": ["IST", "BUD"], "currency": "EUR converted"}},
+          {"id": 5, "templateId": "BC-05", "title": "Quarterly Trend (EUR)", "perspective": "quarterly-trend", "dataFilter": {"scenario": "IST", "period": "quarterly", "currency": "EUR converted"}}
+        ],
+        "checks": {"templateIds": true, "noDuplicates": true, "variantCount": true, "dataFilterValid": true, "uniqueValues": true}
+      }
+    ]
+  }
+}
