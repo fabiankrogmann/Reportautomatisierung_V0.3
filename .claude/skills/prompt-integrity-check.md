@@ -10,6 +10,9 @@ Verwende diesen Skill wenn:
 - Ein neues Template zu `templates.json` hinzugefügt wurde
 - Änderungen an PROMPT-1, PROMPT-2 oder PROMPT-3 vorgenommen wurden
 - Neue Szenario- oder Zeitreihen-Perspektiven ergänzt wurden
+- Feature-Module erstellt oder geändert wurden (`Features/Waterfall/*.md`)
+- Feature-Katalog oder Template-Matrix geändert wurden
+- `availableFeatures` oder `featureHints` in templates.json geändert wurden
 - Der User explizit `/prompt-integrity` oder "Integritätsprüfung" anfordert
 
 ## Zu prüfende Dateien
@@ -20,6 +23,12 @@ Verwende diesen Skill wenn:
 | PROMPT-2 | `4. Prompts/PROMPT-2-VARIANT-GENERATOR.md` |
 | PROMPT-3 | `4. Prompts/PROMPT-3-CONFIG-GENERATOR.md` |
 | Templates | `6. Bibliotheken/templates.json` |
+| Feature-Katalog | `4. Prompts/Features/Waterfall/_FEATURE-CATALOG.md` |
+| Template-Matrix | `4. Prompts/Features/Waterfall/_TEMPLATE-MATRIX.md` |
+| Feature-Module | `4. Prompts/Features/Waterfall/*.md` (8 Dateien) |
+| Waterfall-Prompt | `4. Prompts/Prompts for Charts/WATERFALL-CHART-PROMPT.md` |
+| Bar-Prompt | `4. Prompts/Prompts for Charts/BAR-CHART-PROMPT.md` |
+| Stacked-Bar-Prompt | `4. Prompts/Prompts for Charts/STACKED-BAR-CHART-PROMPT.md` |
 | Konzept | `1. Konzept/Konzept_KI_Finanzvisualisierung.md` |
 | CLAUDE.md | `CLAUDE.md` |
 
@@ -43,9 +52,23 @@ PROMPT-2 Output           →  PROMPT-3 erwartet
 variant.templateId        →  templateDefinition.template_id
 variant.dataFilter        →  Für Datenfilterung
 variant.perspective       →  Für perspective-spezifische Logik
+
+PROMPT-3 Output           →  Chart-Prompt erwartet
+─────────────────────────────────────────────────
+chartConfig.type          →  Bestimmt welcher Chart-Prompt
+chartConfig.features      →  Feature-Rendering (config.features.*)
+chartConfig.data          →  Balken-/Segment-Daten
+chartConfig.axes          →  Achsen-Konfiguration
+chartConfig.styling       →  Farben, Schriften
+
+Feature-Dateien           →  PROMPT-3 erwartet
+─────────────────────────────────────────────────
+_FEATURE-CATALOG.md       →  featureCatalog (Aktivierungsregeln)
+_TEMPLATE-MATRIX.md       →  Feature-Kompatibilität pro Template
+templates.json            →  availableFeatures[], featureHints{}
 ```
 
-**Check:** Alle Output-Felder werden korrekt referenziert?
+**Check:** Alle Output-Felder werden korrekt referenziert? Feature-Inputs vollständig?
 
 ### 2. TEMPLATE-ID-KONSISTENZ
 
@@ -123,6 +146,68 @@ Prüfe ob Konzept und CLAUDE.md mit templates.json synchron sind:
 
 **Check:** Alle Zahlen stimmen überein?
 
+### 7. FEATURE-TEMPLATE-KONSISTENZ
+
+Prüfe ob `availableFeatures[]` in templates.json mit Feature-Katalog und Template-Matrix übereinstimmt:
+
+**7a: availableFeatures stimmen mit Template-Matrix überein?**
+- Für jedes WF-Template: Vergleiche `availableFeatures[]` mit `_TEMPLATE-MATRIX.md`
+- [ ] Keine Feature-IDs falsch geschrieben?
+- [ ] Keine Features in verbotenen Template-Kategorien?
+
+**7b: Template-Kategorie-Konflikte:**
+| Feature | Verbotene Kategorien |
+|---------|---------------------|
+| scaleBreak | Trend, Compare-Bars |
+| categoryBrackets | Variance, Trend |
+| grouping | Variance, Trend, Compare-Bars |
+
+**7c: featureHints nur für existierende availableFeatures?**
+
+### 8. FEATURE-KATALOG-VOLLSTÄNDIGKEIT
+
+Prüfe ob alle Features bidirektional konsistent sind:
+
+- [ ] Jede Feature-ID in `availableFeatures[]` existiert in `_FEATURE-CATALOG.md`?
+- [ ] Jedes Feature im Katalog kommt in mindestens einem Template vor?
+- [ ] Jedes Feature hat: Aktivierungsregel + Parameter-Berechnung + Konflikte-Eintrag?
+
+### 9. FEATURE-MODUL-DATEIEN
+
+Prüfe ob für jedes Feature im Katalog eine `.md`-Datei existiert:
+
+| Feature-ID | Erwartete Datei |
+|------------|----------------|
+| bracket | BRACKET.md |
+| scaleBreak | SCALE-BREAK.md |
+| categoryBrackets | CATEGORY-BRACKET.md |
+| footnotes | FOOTNOTES.md |
+| arrows | ARROWS.md |
+| benchmarkLines | BENCHMARK-LINES.md |
+| negativeBridges | NEGATIVE-BRIDGES.md |
+| grouping | GROUPING.md |
+
+- [ ] Alle 8 Dateien existieren?
+- [ ] Jede enthält 10 Pflicht-Sektionen? (Metadata → Beispiele)
+- [ ] Template-Kompatibilität stimmt mit Template-Matrix überein?
+
+### 10. FEATURE-KONFLIKTE-KONSISTENZ
+
+Prüfe ob Konflikte in 3 Quellen übereinstimmen:
+- `_FEATURE-CATALOG.md` (Konflikte-Tabelle)
+- `PROMPT-3-CONFIG-GENERATOR.md` (Konflikt-Auflösung)
+- Feature-Modul-Dateien (Sektion 8)
+
+**9 erwartete Konflikte:** bracket↔arrows, scaleBreak↔Compare-Bars, scaleBreak↔Trend, scaleBreak↔negativeBridges, categoryBrackets↔Variance, categoryBrackets↔Trend, grouping↔Variance, grouping↔Trend, grouping↔Compare-Bars
+
+### 11. FEATURE-INCLUDE-MARKER
+
+Prüfe ob Chart-Prompts korrekte Feature-Integration haben:
+
+- [ ] Waterfall-Prompt enthält `FEATURE-INCLUDE` Marker für alle 8 Features?
+- [ ] Rendering-Logik für `config.features.[featureId]` vorhanden?
+- [ ] Rendering-Reihenfolge: scaleBreak → negativeBridges → Basis → Connectors → Values → benchmarkLines → categoryBrackets → grouping → bracket/arrows → footnotes?
+
 ## Output-Format
 
 Nach der Prüfung, erstelle einen Bericht:
@@ -168,3 +253,19 @@ Bei gefundenen Problemen, schlage konkrete Fixes vor:
 **Dokumentation veraltet:**
 > templates.json hat 34 Templates, Konzept zeigt noch 30.
 > → Aktualisiere Abschnitt 3.1 im Konzept.
+
+**Feature-Template-Konflikt:**
+> WF-11 (Trend-Kategorie) enthält `grouping` in availableFeatures, aber Grouping ist für Trend-Templates nicht erlaubt.
+> → Entferne `grouping` aus availableFeatures von WF-11 in templates.json.
+
+**Fehlende Feature-Modul-Datei:**
+> Feature `benchmarkLines` im Katalog, aber `Features/Waterfall/BENCHMARK-LINES.md` existiert nicht.
+> → Erstelle Feature-Modul im 10-Sektionen-Format.
+
+**Inkonsistenter Feature-Konflikt:**
+> Konflikt `scaleBreak ↔ negativeBridges` in _FEATURE-CATALOG.md definiert, aber nicht in PROMPT-3 als Auflösungsregel.
+> → Ergänze Konflikt-Auflösung in PROMPT-3 Sektion "Feature-Konflikte".
+
+**Fehlender Feature-Include-Marker:**
+> Feature `grouping` aktiv in Katalog, aber kein `FEATURE-INCLUDE: grouping` Marker im WATERFALL-CHART-PROMPT.md.
+> → Ergänze Marker und Rendering-Logik im Chart-Prompt.

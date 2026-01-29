@@ -28,7 +28,7 @@ upload.html → results.html → colors.html → charts.html
 
 | Komponente | Funktion |
 |------------|----------|
-| **Template-Bibliothek** | 34 vordefinierte Layout-Templates (JSON) |
+| **Template-Bibliothek** | 40 vordefinierte Layout-Templates (JSON, inkl. Feature-Metadaten) |
 | **Prompt-System** | 6 KI-Prompts für Chart-Generierung |
 | **VariantGenerator** | Erzeugt 3-10 Chart-Varianten pro Typ |
 | **ConfigGenerator** | Erzeugt Chart-Konfigurationen via KI |
@@ -128,7 +128,7 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 | Komponente | Aufgabe | Typ |
 |------------|---------|-----|
 | **PromptLoader** | Lädt Prompts aus .md-Dateien (Single Source of Truth) | Statisch |
-| **TemplateLoader** | Verwaltet 30 Chart-Templates | Statisch |
+| **TemplateLoader** | Verwaltet 40 Chart-Templates | Statisch |
 | **VariantGenerator** | Erzeugt 3-10 unterschiedliche Chart-Varianten | KI |
 | **APIClient** | Zentrale API-Integration (Anthropic/OpenAI) | Integration |
 | **ConfigGenerator** | Generiert Chart-Konfigurationen via KI | KI |
@@ -166,7 +166,7 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 
 ## 3. Template-Bibliothek
 
-Die Bibliothek umfasst 34 Templates in `6. Bibliotheken/templates.json`, verteilt auf drei Chart-Typen.
+Die Bibliothek umfasst 40 Templates in `6. Bibliotheken/templates.json`, verteilt auf drei Chart-Typen.
 
 ### 3.1 Verteilung nach Chart-Typ
 
@@ -336,6 +336,11 @@ Das System verwendet eine konsolidierte 6-stufige Prompt-Pipeline:
 
 **Hinweis:** Die Chart-Prompts (4-6) generieren direkt das fertige SVG – kein separater SVG-Renderer nötig.
 
+**Feature-Dateien (für Waterfall):**
+- `Features/Waterfall/_FEATURE-CATALOG.md` – Aktivierungsregeln, Konflikte (Input für PROMPT-3)
+- `Features/Waterfall/_TEMPLATE-MATRIX.md` – Feature-Kompatibilität pro Template
+- `Features/Waterfall/[FEATURE].md` – 8 Feature-Module (Rendering-Logik, CSS, Edge-Cases)
+
 **Zusätzlich:**
 - `COLOR-SCHEMA-PROMPT.md` – für dynamische Farbgenerierung in colors.html
 
@@ -410,6 +415,7 @@ Erzeugt die vollständige, render-fertige Chart-Konfiguration.
 - extractedData (von Prompt 1)
 - templateDefinition (aus Bibliothek)
 - colorScheme (User-Auswahl)
+- featureCatalog (Feature-Aktivierungsregeln aus `_FEATURE-CATALOG.md`)
 
 **Output-Struktur:**
 ```json
@@ -421,24 +427,39 @@ Erzeugt die vollständige, render-fertige Chart-Konfiguration.
     "data": [
       { "label": "Umsatzerlöse", "value": 2195000, "type": "start", "color": "#4472C4" }
     ],
+    "features": {
+      "bracket": { "enabled": true, "mode": "budget", "label": "+9.8% vs. Budget", "_reason": "Budget und Actual vorhanden" },
+      "scaleBreak": { "enabled": false, "_reason": "Ratio 2.1 < 3" },
+      "footnotes": { "enabled": true, "items": ["Angaben in TEUR"], "_reason": "Unit in Metadaten" }
+    },
     "axes": { "y": { "label": "TEUR", "min": 0 } },
     "styling": { "barWidth": 0.6, "connectorLine": true }
   }
 }
 ```
 
+**Hinweis:** Feature-Analyse nur für Waterfall-Charts. Bar Chart und Stacked Bar: Platzhalter (noch nicht implementiert).
+```
+
 ### 4.6 Chart-Prompts (SVG-Output)
 
 Die Chart-Prompts (Waterfall, Bar, Stacked Bar) generieren **direkt fertiges SVG** – kein separater Renderer nötig.
 
-**Features die in Chart-Prompts gepflegt werden:**
+**Features werden in modularen Feature-Dateien gepflegt:**
 
-| Feature | Gepflegt in | Beispiel |
-|---------|-------------|----------|
-| Skalenbruch | WATERFALL-CHART-PROMPT.md | `scaleBreak: { enabled: true }` |
-| Bracket | WATERFALL-CHART-PROMPT.md | `bracket: { show: true, label: '+8.7%' }` |
-| Fußnoten | Alle Chart-Prompts | `footnotes: ["Quelle: ..."]` |
-| Connector Lines | WATERFALL-CHART-PROMPT.md | `connectorLine: true` |
+| Feature | ID | Modul | Kategorie |
+|---------|-----|-------|-----------|
+| Bracket (Prozentänderung) | `bracket` | `Features/Waterfall/BRACKET.md` | annotation |
+| Scale-Break (Skalenbruch) | `scaleBreak` | `Features/Waterfall/SCALE-BREAK.md` | layout |
+| Category-Brackets | `categoryBrackets` | `Features/Waterfall/CATEGORY-BRACKET.md` | annotation |
+| Footnotes (Fußnoten) | `footnotes` | `Features/Waterfall/FOOTNOTES.md` | annotation |
+| Arrows (Verbindungen) | `arrows` | `Features/Waterfall/ARROWS.md` | annotation |
+| Benchmark-Lines | `benchmarkLines` | `Features/Waterfall/BENCHMARK-LINES.md` | layout |
+| Negative Bridges | `negativeBridges` | `Features/Waterfall/NEGATIVE-BRIDGES.md` | layout |
+| Grouping (Gruppierung) | `grouping` | `Features/Waterfall/GROUPING.md` | layout |
+
+Features werden von PROMPT-3 autonom aktiviert und von den Chart-Prompts gerendert.
+Aktivierungsregeln und Konflikte: `_FEATURE-CATALOG.md`
 
 ### 4.7 PromptLoader-System
 
@@ -795,6 +816,7 @@ APIClient.call(systemPrompt, userPrompt, {
 3. **Variant Generator erweitern:** Template-IDs für neuen Typ ergänzen
 4. **UI anpassen:** Neuen Typ in `results.html` Auswahl hinzufügen
 5. **Dokumentation:** CLAUDE.md + Konzept aktualisieren
+6. **Feature-Verzeichnis:** `4. Prompts/Features/[TYP]/` mit `_FEATURE-CATALOG.md`, `_TEMPLATE-MATRIX.md` und Feature-Modulen erstellen
 
 ### 11.3 Layout/Template hinzufügen
 
@@ -809,21 +831,24 @@ APIClient.call(systemPrompt, userPrompt, {
 ```
 2. **Fertig!** – Variant Generator erkennt neue Templates automatisch
 
-### 11.4 Feature hinzufügen (z.B. neues Chart-Feature)
+### 11.4 Feature hinzufügen
 
-1. Feature im entsprechenden Chart-Prompt dokumentieren
-2. Config-Struktur definieren (JSON-Schema)
-3. Rendering-Logik im Prompt beschreiben
-4. Beispiele hinzufügen
+1. **Feature-Datei erstellen:** `4. Prompts/Features/[ChartType]/[FEATURE].md` im 10-Sektionen-Format (Metadata, Beschreibung, Kompatibilität, Aktivierungsregeln, Config-Schema, Rendering-Logik, CSS, Konflikte, Edge-Cases, Beispiele)
+2. **Aktivierungsregel:** In `_FEATURE-CATALOG.md` mit natürlicher Sprache + Pseudo-Code
+3. **Template-Matrix:** In `_TEMPLATE-MATRIX.md` eintragen welche Templates das Feature unterstützen
+4. **templates.json:** `availableFeatures[]` und ggf. `featureHints{}` pro Template ergänzen
+5. **Chart-Prompt:** `<!-- FEATURE-INCLUDE: [featureId] -->` Marker hinzufügen
+6. **Testen:** Feature isoliert mit Beispieldaten validieren
 
 ### 11.5 Design-Prinzipien
 
 - **Prompts sind unabhängig:** Jeder Chart-Prompt funktioniert eigenständig
-- **Templates sind deklarativ:** JSON-Struktur, keine Logik
-- **Variant Generator ist generisch:** Arbeitet mit beliebigen Template-IDs
-- **Keine Hardcoding:** Chart-Typen aus Prompts/Templates, nicht im Code
+- **Templates sind deklarativ:** JSON-Struktur mit Feature-Metadaten, keine Logik
+- **Features sind modular:** Ein Feature = Eine Datei, Compile-Time Loading
+- **KI-gesteuerte Aktivierung:** PROMPT-3 entscheidet autonom welche Features aktiv sind
+- **Begründungspflicht:** Jedes Feature hat `_reason` für Transparenz
+- **Keine Hardcoding:** Chart-Typen, Templates und Features extern gepflegt
 - **Prompts extern:** `.md`-Dateien zur Laufzeit laden, NIE in HTML einbetten
-- **Features in Chart-Prompts:** Skalenbrüche, Brackets, Fußnoten etc.
 
 ---
 

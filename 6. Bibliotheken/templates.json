@@ -40,7 +40,13 @@
           "show_connectors": true,
           "show_value_labels": true
         },
-        "best_for": ["monthly_business_review", "board_presentation", "executive_summary"]
+        "best_for": ["monthly_business_review", "board_presentation", "executive_summary"],
+        "availableFeatures": ["bracket", "categoryBrackets", "scaleBreak", "grouping", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "standard" },
+          "categoryBrackets": { "recommended": true },
+          "grouping": { "style": "bracket" }
+        }
       },
       {
         "template_id": "WF-02",
@@ -78,7 +84,13 @@
           "show_connectors": true,
           "show_value_labels": true
         },
-        "best_for": ["finance_review", "detailed_analysis", "controller_report"]
+        "best_for": ["finance_review", "detailed_analysis", "controller_report"],
+        "availableFeatures": ["bracket", "categoryBrackets", "scaleBreak", "grouping", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "standard" },
+          "categoryBrackets": { "recommended": true },
+          "grouping": { "style": "bracket", "recommended": true }
+        }
       },
       {
         "template_id": "WF-03",
@@ -109,7 +121,11 @@
           "show_value_labels": true,
           "show_percent_change": true
         },
-        "best_for": ["yoy_analysis", "variance_reporting", "management_review"]
+        "best_for": ["yoy_analysis", "variance_reporting", "management_review"],
+        "availableFeatures": ["bracket", "scaleBreak", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "yoy" }
+        }
       },
       {
         "template_id": "WF-04",
@@ -134,7 +150,12 @@
           "show_value_labels": true,
           "show_percent_change": true
         },
-        "best_for": ["budget_variance", "plan_ist_analysis", "controlling"]
+        "best_for": ["budget_variance", "plan_ist_analysis", "controlling"],
+        "availableFeatures": ["bracket", "scaleBreak", "benchmarkLines", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "budget" },
+          "benchmarkLines": { "recommended": true }
+        }
       },
       {
         "template_id": "WF-05",
@@ -158,7 +179,13 @@
           "show_connectors": true,
           "show_value_labels": true
         },
-        "best_for": ["wide_presentations", "landscape_reports"]
+        "best_for": ["wide_presentations", "landscape_reports"],
+        "availableFeatures": ["bracket", "categoryBrackets", "scaleBreak", "grouping", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "standard" },
+          "categoryBrackets": { "recommended": true },
+          "grouping": { "style": "bracket" }
+        }
       },
       {
         "template_id": "WF-06",
@@ -184,7 +211,13 @@
             { "type": "end", "label": "End Cash" }
           ]
         },
-        "best_for": ["cashflow_analysis", "liquidity_planning", "treasury"]
+        "best_for": ["cashflow_analysis", "liquidity_planning", "treasury"],
+        "availableFeatures": ["bracket", "categoryBrackets", "scaleBreak", "grouping", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "standard" },
+          "categoryBrackets": { "recommended": true },
+          "grouping": { "style": "bracket", "recommended": true }
+        }
       },
       {
         "template_id": "WF-07",
@@ -204,7 +237,11 @@
           "end_point": "net_margin",
           "item_count": [3, 6]
         },
-        "best_for": ["margin_analysis", "profitability_review"]
+        "best_for": ["margin_analysis", "profitability_review"],
+        "availableFeatures": ["bracket", "categoryBrackets", "scaleBreak", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "standard" }
+        }
       },
       {
         "template_id": "WF-08",
@@ -222,7 +259,11 @@
           "orientation": "vertical",
           "item_count": [5, 12]
         },
-        "best_for": ["cost_controlling", "variance_analysis", "operations_review"]
+        "best_for": ["cost_controlling", "variance_analysis", "operations_review"],
+        "availableFeatures": ["bracket", "scaleBreak", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "variance" }
+        }
       },
       {
         "template_id": "WF-09",
@@ -242,7 +283,11 @@
           "end_point": "current_revenue",
           "item_count": [4, 8]
         },
-        "best_for": ["revenue_analysis", "sales_review", "growth_analysis"]
+        "best_for": ["revenue_analysis", "sales_review", "growth_analysis"],
+        "availableFeatures": ["bracket", "scaleBreak", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "yoy" }
+        }
       },
       {
         "template_id": "WF-10",
@@ -260,7 +305,13 @@
           "orientation": "vertical",
           "item_count": [4, 10]
         },
-        "best_for": ["segment_reporting", "division_analysis", "business_unit_review"]
+        "best_for": ["segment_reporting", "division_analysis", "business_unit_review"],
+        "availableFeatures": ["bracket", "categoryBrackets", "scaleBreak", "grouping", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "standard" },
+          "categoryBrackets": { "recommended": true },
+          "grouping": { "style": "bracket", "recommended": true }
+        }
       },
       {
         "template_id": "WF-11",
@@ -280,7 +331,11 @@
           "end_point": "q4_value",
           "item_count": [4, 6]
         },
-        "best_for": ["quarterly_review", "ytd_analysis"]
+        "best_for": ["quarterly_review", "ytd_analysis"],
+        "availableFeatures": ["bracket", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "cagr" }
+        }
       },
       {
         "template_id": "WF-12",
@@ -300,7 +355,12 @@
           "end_point": "actual_value",
           "item_count": [4, 8]
         },
-        "best_for": ["forecast_accuracy", "rolling_forecast", "fc_ist_analysis"]
+        "best_for": ["forecast_accuracy", "rolling_forecast", "fc_ist_analysis"],
+        "availableFeatures": ["bracket", "scaleBreak", "benchmarkLines", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "fc" },
+          "benchmarkLines": { "recommended": true }
+        }
       },
       {
         "template_id": "WF-13",
@@ -326,7 +386,11 @@
           "show_value_labels": true,
           "show_percent_change": true
         },
-        "best_for": ["monthly_variance", "month_over_month_analysis", "seasonal_bridge"]
+        "best_for": ["monthly_variance", "month_over_month_analysis", "seasonal_bridge"],
+        "availableFeatures": ["bracket", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "cagr" }
+        }
       },
       {
         "template_id": "WF-14",
@@ -358,7 +422,12 @@
           "show_value_labels": true,
           "show_percent_change": true
         },
-        "best_for": ["budget_variance_with_fc", "three_scenario_bridge"]
+        "best_for": ["budget_variance_with_fc", "three_scenario_bridge"],
+        "availableFeatures": ["bracket", "benchmarkLines", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "multiple", "modes": ["budget", "fc"] },
+          "benchmarkLines": { "recommended": true }
+        }
       },
       {
         "template_id": "WF-15",
@@ -390,7 +459,12 @@
           "show_value_labels": true,
           "show_percent_change": true
         },
-        "best_for": ["budget_variance_with_fc", "three_scenario_bridge"]
+        "best_for": ["budget_variance_with_fc", "three_scenario_bridge"],
+        "availableFeatures": ["bracket", "benchmarkLines", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "multiple", "modes": ["budget", "fc"] },
+          "benchmarkLines": { "recommended": true }
+        }
       },
       {
         "template_id": "WF-16",
@@ -422,7 +496,12 @@
           "show_value_labels": true,
           "show_percent_change": true
         },
-        "best_for": ["yoy_with_plan_fc", "comprehensive_variance"]
+        "best_for": ["yoy_with_plan_fc", "comprehensive_variance"],
+        "availableFeatures": ["bracket", "benchmarkLines", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "multiple", "modes": ["yoy", "fc"] },
+          "benchmarkLines": { "recommended": true }
+        }
       },
       {
         "template_id": "WF-17",
@@ -454,7 +533,12 @@
           "show_value_labels": true,
           "show_percent_change": true
         },
-        "best_for": ["yoy_with_plan_fc", "comprehensive_variance"]
+        "best_for": ["yoy_with_plan_fc", "comprehensive_variance"],
+        "availableFeatures": ["bracket", "benchmarkLines", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "multiple", "modes": ["yoy", "fc"] },
+          "benchmarkLines": { "recommended": true }
+        }
       },
       {
         "template_id": "WF-18",
@@ -486,7 +570,12 @@
           "show_value_labels": true,
           "show_percent_change": true
         },
-        "best_for": ["forecast_accuracy_with_budget", "rolling_forecast_variance"]
+        "best_for": ["forecast_accuracy_with_budget", "rolling_forecast_variance"],
+        "availableFeatures": ["bracket", "benchmarkLines", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "multiple", "modes": ["fc", "budget"] },
+          "benchmarkLines": { "recommended": true }
+        }
       },
       {
         "template_id": "WF-19",
@@ -518,7 +607,12 @@
           "show_value_labels": true,
           "show_percent_change": true
         },
-        "best_for": ["forecast_accuracy_with_budget", "rolling_forecast_variance"]
+        "best_for": ["forecast_accuracy_with_budget", "rolling_forecast_variance"],
+        "availableFeatures": ["bracket", "benchmarkLines", "negativeBridges", "arrows", "footnotes"],
+        "featureHints": {
+          "bracket": { "mode": "multiple", "modes": ["fc", "budget"] },
+          "benchmarkLines": { "recommended": true }
+        }
       }
     ],
 

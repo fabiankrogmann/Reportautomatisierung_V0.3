@@ -59,8 +59,9 @@ BEISPIELE:
 Du erhältst:
 1. **variant** - Die zu generierende Variante (von PROMPT-2)
 2. **extractedData** - Die extrahierten Rohdaten (von PROMPT-1)
-3. **templateDefinition** - Das Template aus der Bibliothek
+3. **templateDefinition** - Das Template aus der Bibliothek (inkl. `availableFeatures`)
 4. **colorScheme** - Das gewählte Farbschema mit Hex-Codes
+5. **featureCatalog** - Feature-Aktivierungsregeln für den Chart-Typ (aus `_FEATURE-CATALOG.md`)
 
 ---
 
@@ -70,7 +71,176 @@ Du erhältst:
 2. **Daten auf Template mappen** gemäß templateDefinition.structure
 3. **Labels beibehalten** (Original-Sprache!)
 4. **Farben zuweisen** gemäß colorScheme
-5. **Vollständige Config erstellen** (render-fertig)
+5. **Features analysieren und aktivieren** (NEU — siehe Feature-Analyse)
+6. **Vollständige Config erstellen** (render-fertig, inkl. `features: {}` Block)
+
+---
+
+## FEATURE-ANALYSE (Autonome Feature-Aktivierung)
+
+### Ziel
+Die KI entscheidet autonom welche Features basierend auf den konkreten Daten,
+dem Template-Typ und den Aktivierungsregeln im Feature-Katalog sinnvoll sind.
+Jedes Feature wird mit berechneten Parametern und einer Begründung versehen.
+
+### Input für Feature-Analyse
+- `templateDefinition.availableFeatures[]` — Liste der verfügbaren Features für dieses Template
+- `templateDefinition.featureHints{}` — Empfehlungen für Feature-Modi (z.B. bracket.mode)
+- `featureCatalog` — Vollständige Aktivierungsregeln, Pseudo-Code, Konflikte
+- `extractedData` — Die konkreten Zahlen für Parameter-Berechnung
+
+### Ablauf (5 Schritte)
+
+**Schritt 1: Verfügbare Features filtern**
+Nur Features aus `templateDefinition.availableFeatures[]` werden geprüft.
+Features die nicht in dieser Liste stehen → `enabled: false` mit Begründung.
+
+**Schritt 2: Aktivierungsregeln prüfen**
+Für jedes verfügbare Feature: Prüfe die Pseudo-Code-Bedingungen aus dem
+Feature-Katalog gegen die konkreten Daten.
+
+**Schritt 3: Parameter autonom berechnen**
+Für jedes aktivierte Feature: Berechne alle Parameter nach den Formeln
+aus dem Feature-Katalog. Dokumentiere Zwischenwerte für Transparenz.
+
+**Schritt 4: Konflikte auflösen**
+Prüfe die Konflikt-Tabelle aus dem Feature-Katalog.
+Bei Konflikten: Höher priorisiertes Feature behalten, anderes deaktivieren.
+
+Konflikte (Waterfall):
+| Feature A | Feature B | Lösung |
+|-----------|-----------|--------|
+| bracket | arrows | Bracket hat Priorität |
+| scaleBreak | negativeBridges | negativeBridges hat Priorität (Scale-Break deaktivieren) |
+| scaleBreak | Trend/Compare-Bars | Scale-Break deaktivieren |
+| categoryBrackets | Variance/Trend | Category-Brackets deaktivieren |
+| grouping | Variance/Trend/Compare-Bars | Grouping deaktivieren |
+
+**Schritt 5: Feature-Config generieren**
+Für jedes Feature (verfügbar oder nicht): Generiere einen Eintrag mit
+`enabled`, berechneten Parametern und `_reason`.
+
+### Output-Format für Features
+
+```json
+{
+    "features": {
+        "bracket": {
+            "enabled": true,
+            "mode": "budget",
+            "fromIndex": 0,
+            "toIndex": 6,
+            "label": "+9.8% vs. Budget",
+            "_reason": "Budget (1.000) und IST (1.098) vorhanden, Δ = +9.8% > 5% Schwelle"
+        },
+        "scaleBreak": {
+            "enabled": true,
+            "breakAt": 85000,
+            "style": "zigzag",
+            "_reason": "Start (1.000.000) / Ø Delta (42.400) = 25.9 > 3"
+        },
+        "categoryBrackets": {
+            "enabled": false,
+            "_reason": "Nicht für Variance-Templates (WF-04)"
+        },
+        "benchmarkLines": {
+            "enabled": false,
+            "_reason": "Kein expliziter Target-Wert in den Daten"
+        },
+        "grouping": {
+            "enabled": false,
+            "_reason": "Nicht für Variance-Templates"
+        },
+        "negativeBridges": {
+            "enabled": false,
+            "_reason": "Alle kumulativen Werte positiv"
+        },
+        "arrows": {
+            "enabled": false,
+            "_reason": "Bracket bereits aktiv (Konflikt)"
+        },
+        "footnotes": {
+            "enabled": true,
+            "items": ["Angaben in TEUR", "Quelle: Geschäftsbericht 2024"],
+            "_reason": "Einheit (TEUR) und Quelle aus Metadaten vorhanden"
+        }
+    }
+}
+```
+
+### Feature-Analyse Beispiel (Schritt-für-Schritt)
+
+**Gegeben:**
+- Template: WF-04 (Budget Bridge), Kategorie: variance
+- availableFeatures: ["bracket", "scaleBreak", "benchmarkLines", "arrows", "footnotes"]
+- Bars: 7 Stück (1 Start, 5 Deltas, 1 End)
+- Start-Wert: 1.000.000 (Budget)
+- End-Wert: 1.098.000 (IST)
+- Szenarien: BUD, IST
+
+**Analyse:**
+
+1. **bracket** — In availableFeatures ✓
+   - bars.length = 7 >= 4 ✓
+   - hasBarType('start') = true ✓
+   - hasBarType('end') = true ✓
+   - |(1.098.000 - 1.000.000) / 1.000.000| = 9.8% > 5% ✓
+   - featureHints.bracket.mode = "budget" → Label: "+9.8% vs. Budget"
+   → **enabled: true**, mode: "budget", label: "+9.8% vs. Budget"
+
+2. **scaleBreak** — In availableFeatures ✓
+   - templateCategory = "variance" → erlaubt ✓
+   - avgDelta = (85.000 + 42.000 + 35.000 + 22.000 + 28.000) / 5 = 42.400
+   - maxBar = max(1.000.000, 1.098.000) = 1.098.000
+   - ratio = 1.098.000 / 42.400 = 25.9 > 3 ✓
+   → **enabled: true**, breakAt: 84.800
+
+3. **benchmarkLines** — In availableFeatures ✓
+   - Kein TARGET oder GUIDANCE in metadata.scenarios
+   → **enabled: false**, _reason: "Kein expliziter Target-Wert"
+
+4. **arrows** — In availableFeatures ✓
+   - bracket bereits enabled → Konflikt!
+   → **enabled: false**, _reason: "Bracket bereits aktiv (Konflikt)"
+
+5. **footnotes** — In availableFeatures ✓
+   - metadata.unit = "TEUR" → items: ["Angaben in TEUR"]
+   → **enabled: true**, items: ["Angaben in TEUR"]
+
+═══════════════════════════════════════════════════════════════════════════════
+█  PLATZHALTER: BAR CHART FEATURE-ANALYSE                                    █
+█                                                                             █
+█  TODO: Feature-Katalog und Feature-Module für Bar Charts erstellen          █
+█  Verzeichnis: Features/Bar/                                                 █
+█  Benötigt: _FEATURE-CATALOG.md, _TEMPLATE-MATRIX.md                       █
+█  Geplante Features:                                                         █
+█  - bracket (Gesamt-Änderung)                                               █
+█  - cagr (Compound Annual Growth Rate)                                      █
+█  - scaleBreak (Skalenbruch)                                                █
+█  - varianceIndicators (Abweichungs-Pfeile)                                 █
+█  - footnotes (Fußnoten)                                                    █
+█  - benchmarkLines (Zielwert-Linien)                                        █
+█                                                                             █
+█  Bis zur Implementierung: Keine Feature-Analyse für Bar Charts.            █
+█  chartConfig.features wird NICHT generiert für type: "bar".                █
+═══════════════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════════════
+█  PLATZHALTER: STACKED BAR CHART FEATURE-ANALYSE                            █
+█                                                                             █
+█  TODO: Feature-Katalog und Feature-Module für Stacked Bar Charts erstellen █
+█  Verzeichnis: Features/StackedBar/                                         █
+█  Benötigt: _FEATURE-CATALOG.md, _TEMPLATE-MATRIX.md                       █
+█  Geplante Features:                                                         █
+█  - bracket (Gesamt-Änderung)                                               █
+█  - legend (Legende)                                                        █
+█  - varianceIndicators (Abweichungs-Pfeile)                                 █
+█  - footnotes (Fußnoten)                                                    █
+█  - percentageLabels (Prozent-Anteile in Segmenten)                         █
+█                                                                             █
+█  Bis zur Implementierung: Keine Feature-Analyse für Stacked Bar Charts.    █
+█  chartConfig.features wird NICHT generiert für type: "stacked-bar".        █
+═══════════════════════════════════════════════════════════════════════════════
 
 ---
 
@@ -251,6 +421,32 @@ month_py_delta = month_current - month_prior_year // Monat vs. Vorjahresmonat
                 "color": "#4472C4"
             }
         ],
+
+        "features": {
+            "bracket": {
+                "enabled": true,
+                "mode": "standard",
+                "fromIndex": 0,
+                "toIndex": 4,
+                "label": "-91.8%",
+                "_reason": "Start (2.195.000) und End (179.500) vorhanden, signifikante Veränderung"
+            },
+            "scaleBreak": {
+                "enabled": true,
+                "breakAt": 600000,
+                "style": "zigzag",
+                "_reason": "Umsatz (2.195.000) / Ø Delta (893.000) = 2.5 — knapp unter 3, aber wegen extremer Differenz aktiviert"
+            },
+            "categoryBrackets": {
+                "enabled": false,
+                "_reason": "Zu wenige Positionen für sinnvolle Gruppierung"
+            },
+            "footnotes": {
+                "enabled": true,
+                "items": ["Angaben in TEUR"],
+                "_reason": "Einheit aus Metadaten vorhanden"
+            }
+        },
 
         "axes": {
             "y": {
@@ -502,6 +698,9 @@ Bevor du die Config erstellst, prüfe:
 | Farben valide? | Hex-Codes aus colorScheme? | Farben korrigieren |
 | Typen korrekt? | start/increase/decrease/end logisch? | Typen korrigieren |
 | Summen prüfen | Bei Waterfall: Start + Deltas = End? | Werte anpassen |
+| Features vorhanden? | `features: {}` Block bei Waterfall? | Features hinzufügen |
+| Feature-Konflikte? | Keine widersprüchlichen Features aktiv? | Konflikte auflösen |
+| Feature-Begründung? | Jedes Feature hat `_reason`? | Begründung ergänzen |
 
 ### Mathematische Konsistenz (Waterfall)
 
@@ -543,6 +742,15 @@ start_value + sum(increase_values) + sum(decrease_values) == end_value
 6. **Metadata mitgeben**
    - templateId, variantId, perspective
    - Für Debugging und Nachverfolgung
+
+7. **Feature-Analyse (nur Waterfall)**
+   - Für type: "waterfall" MUSS ein `features: {}` Block generiert werden
+   - Verwende templateDefinition.availableFeatures als Basis
+   - Prüfe Aktivierungsregeln aus dem Feature-Katalog
+   - Berechne Parameter autonom (nach Formeln)
+   - Löse Konflikte auf (z.B. bracket vs. arrows)
+   - Dokumentiere jede Entscheidung mit `_reason`
+   - Für type: "bar" und "stacked-bar": KEIN features-Block (noch nicht implementiert)
 ```
 
 ---
@@ -551,18 +759,37 @@ start_value + sum(increase_values) + sum(decrease_values) == end_value
 
 ```
 PROMPT-1: Universal Analyzer
-        │ Output: extractedData
+        │ Output: extractedData (inkl. hierarchy, metadata)
         ▼
 PROMPT-2: Variant Generator
-        │ Output: variants[]
+        │ Output: variants[] (mit templateId, perspective)
         ▼
 PROMPT-3: Config Generator (dieser)
-        │ Input: variant, extractedData, template, colorScheme
-        │ Output: chartConfig
+        │ Input: variant, extractedData, template, colorScheme, featureCatalog
+        │ Analyse: Feature-Aktivierung autonom (nur Waterfall)
+        │ Output: chartConfig (inkl. features: {} für Waterfall)
         ▼
 PROMPT-4-6: Chart Prompts (Waterfall/Bar/Stacked)
-        │ Input: chartConfig
-        │ Output: fertiges SVG
+        │ Input: chartConfig + aktive Feature-Module
+        │ Output: fertiges SVG mit allen aktivierten Features
+```
+
+### Feature-Datenfluss (nur Waterfall)
+
+```
+templateDefinition.availableFeatures[]
+        │
+        ├── featureCatalog (Aktivierungsregeln)
+        │   └── Pseudo-Code + Parameter-Formeln
+        │
+        ├── extractedData (konkrete Zahlen)
+        │   └── Für Parameter-Berechnung
+        │
+        └── Ergebnis: chartConfig.features: {
+                bracket: { enabled: true, ... },
+                scaleBreak: { enabled: false, _reason: "..." },
+                ...
+            }
 ```
 
 ---
@@ -579,6 +806,10 @@ PROMPT-4-6: Chart Prompts (Waterfall/Bar/Stacked)
 | Farben | Alle Farben aus colorScheme | 100% |
 | Typ-Konsistenz | Waterfall-Typen korrekt | 100% |
 | Math-Konsistenz | Start + Deltas = End (Waterfall), Toleranz ±5 oder ±0.1% | 100% |
+| Feature-Block | `features: {}` bei Waterfall vorhanden | 100% |
+| Feature-Konflikte | Keine widersprüchlichen Features gleichzeitig aktiv | 100% |
+| Feature-Begründung | Jedes Feature hat `_reason` Feld | 100% |
+| Feature-Verfügbarkeit | Nur Features aus `availableFeatures` aktiviert | 100% |
 
 ---
 
@@ -636,6 +867,40 @@ PROMPT-4-6: Chart Prompts (Waterfall/Bar/Stacked)
             { "label": "Personalaufwand", "value": -618000, "type": "decrease", "color": "#C0504D" },
             { "label": "EBIT", "value": 179500, "type": "end", "color": "#4472C4" }
         ],
+
+        "features": {
+            "bracket": {
+                "enabled": true,
+                "mode": "standard",
+                "fromIndex": 0,
+                "toIndex": 3,
+                "label": "-91.8%",
+                "_reason": "4 Balken, Start+End vorhanden, signifikante Veränderung (-91.8%)"
+            },
+            "scaleBreak": {
+                "enabled": true,
+                "breakAt": 1786000,
+                "style": "zigzag",
+                "_reason": "Umsatz (2.195.000) / Ø Delta (893.000) = 2.5, grenzwertig aber sinnvoll"
+            },
+            "footnotes": {
+                "enabled": true,
+                "items": ["Angaben in TEUR"],
+                "_reason": "Einheit TEUR aus Metadaten"
+            },
+            "categoryBrackets": {
+                "enabled": false,
+                "_reason": "Nur 4 Balken, keine sinnvolle Gruppierung möglich"
+            },
+            "arrows": {
+                "enabled": false,
+                "_reason": "Bracket bereits aktiv (Konflikt)"
+            },
+            "negativeBridges": {
+                "enabled": false,
+                "_reason": "Alle kumulativen Werte positiv (End-Wert 179.500 > 0)"
+            }
+        },
 
         "axes": {
             "y": { "label": "TEUR", "min": 0 }

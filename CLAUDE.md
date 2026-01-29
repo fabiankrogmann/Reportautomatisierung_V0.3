@@ -5,7 +5,7 @@ Automatisierte Chart-Generierung für Finanzreports mit Waterfall, Stacked Bar u
 ## Projektstruktur
 
 ```
-Reportautomatisierung_V0.2/
+Reportautomatisierung_V0.3/
 ├── 1. Konzept/                    # Konzeptdokumentation
 │   ├── Konzept_KI_Finanzvisualisierung.md
 │   └── ARCHITEKTUR-FINALE-V2.md   # Architektur-Entscheidungen
@@ -25,6 +25,18 @@ Reportautomatisierung_V0.2/
 │   │   ├── LAYOUT-RANKING-PROMPT (archiviert).md
 │   │   ├── FIELD-MAPPING-PROMPT (archiviert).md
 │   │   └── RANKING-MIX-PROMPT.md.archived
+│   ├── Features/                         # Modulare Feature-Definitionen
+│   │   └── Waterfall/                    # Feature-Module für Waterfall-Charts
+│   │       ├── _FEATURE-CATALOG.md       # Aktivierungsregeln + Konflikte
+│   │       ├── _TEMPLATE-MATRIX.md       # Feature-Kompatibilität pro Template
+│   │       ├── BRACKET.md               # Prozentuale Veränderung
+│   │       ├── SCALE-BREAK.md           # Skalenbruch
+│   │       ├── CATEGORY-BRACKET.md      # Anteil-Annotationen
+│   │       ├── FOOTNOTES.md             # Fußnoten
+│   │       ├── ARROWS.md               # Balken-Verbindungen
+│   │       ├── BENCHMARK-LINES.md       # Horizontale Zielwert-Linien
+│   │       ├── NEGATIVE-BRIDGES.md      # Negative Waterfall-Logik
+│   │       └── GROUPING.md             # Balken-Gruppierung
 │   └── Prompts for Charts/
 │       ├── BAR-CHART-PROMPT.md           # → SVG direkt
 │       ├── STACKED-BAR-CHART-PROMPT.md   # → SVG direkt
@@ -34,7 +46,7 @@ Reportautomatisierung_V0.2/
 │   ├── 02_GuV_Faktentabelle_SEL_CUM.csv
 │   └── ... (weitere 48 Dateien)
 ├── 6. Bibliotheken/               # Modulare Konfigurationen (JSON)
-│   ├── templates.json             # 30 Chart-Templates
+│   ├── templates.json             # 40 Chart-Templates (inkl. Feature-Metadaten)
 │   ├── color-schemes.json         # Farbpaletten (modular erweiterbar)
 │   └── chart-examples.json        # Beispiel-Configs für KI-Training
 ├── 7. Skills/                     # Rollen-Definitionen
@@ -275,16 +287,54 @@ Prüft: Template-IDs, Szenario-Formeln, Zeitreihen-Templates, Spracherhaltung, D
 4. UI anpassen in `results.html`
 5. Dokumentation aktualisieren
 
-### Feature hinzufügen (z.B. Skalenbrüche)
+### Feature hinzufügen
 
-Alle Features werden in den Chart-Prompts gepflegt:
+Features sind in modularen Feature-Dateien organisiert:
 
-| Feature | Gepflegt in | Beispiel |
-|---------|-------------|----------|
-| Skalenbruch | WATERFALL-CHART-PROMPT.md | `scaleBreak: { enabled: true }` |
-| Bracket | WATERFALL-CHART-PROMPT.md | `bracket: { show: true, label: '+8.7%' }` |
-| Fußnoten | Alle Chart-Prompts | `footnotes: ["Quelle: ..."]` |
-| Connector Lines | WATERFALL-CHART-PROMPT.md | `connectorLine: true` |
+| Ort | Inhalt |
+|-----|--------|
+| `Features/[ChartType]/_FEATURE-CATALOG.md` | Aktivierungsregeln, Konflikte, Rendering-Reihenfolge |
+| `Features/[ChartType]/_TEMPLATE-MATRIX.md` | Feature-Kompatibilität pro Template |
+| `Features/[ChartType]/[FEATURE].md` | Rendering-Logik, CSS, Edge-Cases, Beispiele |
+| `templates.json` → `availableFeatures[]` | Welche Features für welches Template verfügbar |
+| `templates.json` → `featureHints{}` | Empfohlene Modi/Parameter |
+
+**Neues Feature erstellen:**
+1. Feature-Datei erstellen: `Features/[ChartType]/[FEATURE].md` (10-Sektionen-Format)
+2. Aktivierungsregel in `_FEATURE-CATALOG.md` ergänzen
+3. Template-Kompatibilität in `_TEMPLATE-MATRIX.md` eintragen
+4. `templates.json` um `availableFeatures` + `featureHints` erweitern
+5. FEATURE-INCLUDE Marker in Chart-Prompt ergänzen
+
+**Feature-Architektur:**
+- PROMPT-3 analysiert Features autonom (Aktivierungsregeln + Parameter-Berechnung)
+- Chart-Prompt rendert nur aktive Features (via `config.features`)
+- Feature-Module werden per Compile-Time Loading eingefügt (nur aktive Features)
+- Aktuell implementiert: 8 Waterfall-Features
+- Noch nicht implementiert: Bar Chart Features, Stacked Bar Features (Platzhalter in PROMPT-3)
+
+### Feature-Architektur (Waterfall)
+
+8 modulare Features in `4. Prompts/Features/Waterfall/`:
+
+| Feature | ID | Kategorie | Status |
+|---------|-----|-----------|--------|
+| Bracket | `bracket` | annotation | implementiert |
+| Scale-Break | `scaleBreak` | layout | implementiert |
+| Category-Brackets | `categoryBrackets` | annotation | implementiert |
+| Footnotes | `footnotes` | annotation | implementiert |
+| Arrows | `arrows` | annotation | implementiert |
+| Benchmark-Lines | `benchmarkLines` | layout | implementiert |
+| Negative Bridges | `negativeBridges` | layout | implementiert |
+| Grouping | `grouping` | layout | implementiert |
+
+**Prozess:**
+- PROMPT-3 erhält `featureCatalog` und entscheidet autonom welche Features aktiviert werden
+- Output: `chartConfig.features: { bracket: { enabled: true, ... }, ... }`
+- Chart-Prompt rendert Features basierend auf `config.features`
+- Feature-Konflikte werden automatisch aufgelöst (z.B. bracket vs. arrows)
+
+**Noch nicht implementiert:** Bar Chart Features, Stacked Bar Features (Platzhalter in PROMPT-3)
 
 ## API-Unterstützung
 
@@ -299,7 +349,7 @@ User wählt Provider in `upload.html`.
 ### Lokale Entwicklung
 **WICHTIG:** Die HTML-Seiten müssen über einen lokalen HTTP-Server geöffnet werden:
 ```bash
-cd /Users/fabiankrogmann/Claude/Reportautomatisierung_V0.2
+cd /Users/fabiankrogmann/Claude/Reportautomatisierung_V0.3
 python3 -m http.server 8000
 ```
 Dann im Browser: `http://localhost:8000/3.%20HTML-Seiten/upload.html`
