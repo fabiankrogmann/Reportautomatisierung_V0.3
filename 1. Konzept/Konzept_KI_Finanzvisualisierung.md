@@ -3,7 +3,7 @@
 **Automatisierte Chart-Generierung für Finanzreports**
 Waterfall | Stacked Bar | Bar Chart
 
-Version 3.0 | Januar 2026 (Konsolidierte Prompt-Pipeline)
+Version 3.1 | Februar 2026 (JS-Externalisierung + Legacy-Bereinigung)
 
 ---
 
@@ -157,10 +157,28 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 - Persistenz via localStorage
 
 #### charts.html
+- Nur HTML/CSS + externe Script-Tags (682 Zeilen)
+- JavaScript in 12 Module externalisiert (`js/`-Ordner)
 - Chart-Generierung: PROMPT-2 (KI-Varianten) + DeterministicConfigGenerator + JS-Renderer
 - SVG wird von der JS-Rendering-Engine generiert (kein API-Call nötig)
 - Interaktive Tooltips
 - Multi-Format-Export
+
+#### js/ (Externalisierte Module)
+| Modul | Datei | Funktion |
+|-------|-------|----------|
+| Kern | `template-loader.js` | Globale Variablen, ConfigLoader, TemplateLoader |
+| Kern | `api-client.js` | APIClient + JSON-Reparatur |
+| Kern | `prompt-loader.js` | PromptLoader (nur variant_generator) |
+| Pipeline | `data-profiler.js` | DataProfiler (reine JS-Datenanalyse) |
+| Pipeline | `deterministic-config.js` | ChartMixer + DeterministicConfigGenerator |
+| Pipeline | `normalize-config.js` | Config-Normalisierung + Fingerprint |
+| Renderer | `renderer-waterfall.js` | renderWaterfallChart() |
+| Renderer | `renderer-bar.js` | renderBarChart() |
+| Renderer | `renderer-stacked.js` | renderStackedBarChart() |
+| UI | `ui-helpers.js` | Reasoning, Tooltip, getContrastColor |
+| Export | `export-engine.js` | SVG/PNG/HTML/ZIP/PPTX Download |
+| Main | `main.js` | initializeCharts + renderAllCharts |
 
 ---
 
@@ -1026,3 +1044,67 @@ Die Datei `chart-examples.json` enthält 10 Beispiel-Konfigurationen für KI-Tra
 | Stacked Bar | 3 | DE, EN |
 
 Diese Beispiele dienen als Formatvorlage für die KI-Generierung.
+
+---
+
+## 14. Änderungshistorie
+
+### Version 3.1 (Februar 2026) — JS-Externalisierung + Legacy-Bereinigung
+
+**Integrationstest & Analyse:**
+- Vollständiger Integrationstest aller Systemkomponenten durchgeführt
+- 7 kritische, 21 warnende und 8 informelle Findings identifiziert
+- Architektur-Analyse für JS-Externalisierung erstellt
+- Doku-vs-Code-vs-Config Unstimmigkeiten aufgedeckt und behoben
+
+**Legacy-Code entfernt (~1.960 Zeilen):**
+- `ConfigGenerator` (Legacy-Objekt, ersetzt durch DeterministicConfigGenerator)
+- `getChartPromptByType()`, `getLayoutCatalog()`, `CHART_CONCEPT_PROMPT`
+- 3 Inline-Layout-Kataloge (`LAYOUT_CATALOG_WATERFALL/BAR/STACKED_BAR`) mit 105 nicht-synchronisierten Template-IDs
+- `generateConceptsViaAPI()`, `generateChartsViaAPI()` (enthielt OUTPUT_INSTRUCTIONS-Bug)
+- `PromptLoader.promptFiles` auf nur `variant_generator` reduziert (archivierte Prompts entfernt)
+
+**Demo-Modus komplett entfernt (~500 Zeilen):**
+- `generateChartVariants()`, `generateWaterfallVariants()`, `generateBarVariants()`, `generateStackedBarVariants()`
+- `generateDemoWaterfallConfigs()`, `generateDemoBarConfigs()`, `generateDemoStackedBarConfigs()`
+- Demo-Hilfsfunktionen: `createCompactBars()`, `createCostFocusBars()`, `createTop4PlusSonstige()`, `calculateMargin()`
+- Einziger Modus jetzt: `deterministic`
+
+**Fallback-Regelverstöße behoben:**
+- Alle stillen Fallbacks zu Demo-Daten durch explizite Fehlermeldungen (`showEmptyState()`) ersetzt
+- PROMPT-3 und Chart-Prompt Referenzen aus aktiven Code-Pfaden entfernt
+- KI-SVG-Pfad (`_svgHtml`) entfernt — nur noch JS-Renderer
+
+**JS-Code externalisiert (12 Module):**
+- `charts.html` von 7.153 auf 682 Zeilen reduziert (-90%, nur noch HTML/CSS + Script-Tags)
+- 12 externe JS-Dateien in `3. HTML-Seiten/js/` (4.572 Zeilen gesamt):
+
+| Datei | Zeilen | Inhalt |
+|-------|--------|--------|
+| `template-loader.js` | 265 | Globale Variablen, ConfigLoader, TemplateLoader |
+| `api-client.js` | 388 | APIClient + JSON-Reparatur |
+| `prompt-loader.js` | 347 | PromptLoader + extractKeywordsFromAnalysis |
+| `data-profiler.js` | 419 | DataProfiler |
+| `deterministic-config.js` | 525 | ChartMixer + DeterministicConfigGenerator |
+| `normalize-config.js` | 90 | normalizeConfigForRenderer + Fingerprint |
+| `ui-helpers.js` | 595 | UI-Funktionen, Reasoning, Tooltip, getContrastColor, setupTooltip |
+| `renderer-waterfall.js` | 426 | renderWaterfallChart() |
+| `renderer-bar.js` | 313 | renderBarChart() + applyAutoGradientColors() |
+| `renderer-stacked.js` | 230 | renderStackedBarChart() |
+| `export-engine.js` | 437 | SVG/PNG/HTML/ZIP/PPTX Download |
+| `main.js` | 539 | initializeCharts + renderAllCharts + Orchestrierung |
+
+**Dokumentation aktualisiert:**
+- `ARCHITEKTUR-FINALE-V2.md` gelöscht (komplett veraltet, referenzierte PROMPT-3/PROMPT-4)
+- Konzept: "30 Templates" → "40 Templates", "auf 1 API-Call" → "auf 2 API-Calls"
+- CLAUDE.md: Projektstruktur um `js/`-Ordner erweitert, Testdaten-Struktur korrigiert (Unterordner)
+- Skills-Dateien (`new-layout.md`, `prompt-integrity-check.md`) dokumentiert
+
+### Version 3.0 (Januar 2026) — Konsolidierte Prompt-Pipeline
+
+- PROMPT-3 durch DeterministicConfigGenerator (reines JavaScript) ersetzt
+- Chart-Prompts durch JS-Rendering-Engine ersetzt
+- 7 Waterfall-Features implementiert (Bracket, Scale-Break, Category-Brackets, Arrows, Benchmark-Lines, Negative Bridges, Grouping)
+- Einsparung: ~94.000 Tokens pro Durchlauf (96%) — von 14 API-Calls auf 2
+- Feature-Architektur mit modularen Feature-Dateien in `4. Prompts/Features/`
+- 40 Templates in `templates.json` (19 Waterfall, 10 Stacked Bar, 10 Bar Chart)

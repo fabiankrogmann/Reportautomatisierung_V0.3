@@ -66,8 +66,7 @@ Reportautomatisierung_V0.3/
 │   ├── architect.md
 │   ├── tester.md
 │   ├── clean-coder.md
-│   └── documenter.md
-├── 7. Skills/                     # Rollen-Definitionen
+│   ├── documenter.md
 │   └── new-layout.md              # Neues Layout erstellen
 └── .claude/skills/                # Claude Code Skills
     ├── chart-prompt-sync.md       # Prompt-Verwaltung
