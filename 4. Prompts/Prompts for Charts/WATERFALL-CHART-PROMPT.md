@@ -485,7 +485,6 @@ Die vollständige Rendering-Logik befindet sich in den Feature-Modulen unter `Fe
 5. Benchmark-Lines - wenn `config.features.benchmarkLines.enabled`
 6. Category-Brackets - wenn `config.features.categoryBrackets.enabled`
 7. Bracket ODER Arrows - wenn `config.features.bracket.enabled` bzw. `config.features.arrows.enabled`
-8. Footnotes - wenn `config.features.footnotes.enabled`
 
 <!-- FEATURE-INCLUDE: scaleBreak -->
 **Scale-Break** (Skalenbruch): Zickzack-Muster für extreme Wertunterschiede zwischen Start/End-Balken und Deltas.
@@ -506,10 +505,6 @@ Die vollständige Rendering-Logik befindet sich in den Feature-Modulen unter `Fe
 <!-- FEATURE-INCLUDE: benchmarkLines -->
 **Benchmark-Lines** (Horizontale Zielwert-Linien): Zeigt Target-/Guidance-Werte als horizontale Linien.
 → Vollständige Rendering-Logik: `Features/Waterfall/BENCHMARK-LINES.md`
-
-<!-- FEATURE-INCLUDE: footnotes -->
-**Footnotes** (Fußnoten): Quellenangaben, Einheitshinweise und Anmerkungen unterhalb des Charts.
-→ Vollständige Rendering-Logik: `Features/Waterfall/FOOTNOTES.md`
 
 ### Feature-Config Format
 
@@ -534,11 +529,6 @@ config.features = {
     categoryBrackets: {
         enabled: false,
         _reason: "Nicht für Variance-Templates"
-    },
-    footnotes: {
-        enabled: true,
-        items: ["Angaben in TEUR", "Quelle: Geschäftsbericht 2024"],
-        _reason: "Einheit und Quelle aus Metadaten"
     }
 };
 ```
@@ -553,7 +543,6 @@ config.features = {
 5. Balkenkante
 6. ... (Chart-Bereich)
 7. X-Achsen-Labels
-8. Footnotes (ganz unten)
 ```
 
 ## LAYOUT-BERECHNUNG

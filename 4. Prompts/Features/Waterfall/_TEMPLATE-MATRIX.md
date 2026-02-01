@@ -11,27 +11,27 @@
 
 ## Quick Reference
 
-| Template | Category | Bracket | Cat-Bracket | Scale-Break | Benchmark | Grouping | Neg-Bridges | Footnotes |
-|----------|----------|:-------:|:-----------:|:-----------:|:---------:|:--------:|:-----------:|:---------:|
-| WF-01 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ | ○ |
-| WF-02 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ | ○ |
-| WF-03 | Variance | yoy | ✗ | ✓ | ○ | ✗ | ✓ | ○ |
-| WF-04 | Variance | bud | ✗ | ✓ | ✓ | ✗ | ✓ | ○ |
-| WF-05 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ | ○ |
-| WF-06 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ | ○ |
-| WF-07 | Structure | std | ✓ | ✓ | ○ | ✗ | ✓ | ○ |
-| WF-08 | Variance | var | ✗ | ✓ | ○ | ✗ | ✓ | ○ |
-| WF-09 | Variance | yoy | ✗ | ✓ | ○ | ✗ | ✓ | ○ |
-| WF-10 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ | ○ |
-| WF-11 | Trend | cagr | ✗ | ✗ | ○ | ✗ | ✓ | ○ |
-| WF-12 | Variance | fc | ✗ | ✓ | ✓ | ✗ | ✓ | ○ |
-| WF-13 | Trend | cagr | ✗ | ✗ | ○ | ✗ | ✓ | ○ |
-| WF-14 | Compare | bud+fc | ✗ | ✗ | ✓ | ✗ | ✓ | ○ |
-| WF-15 | Compare | bud+fc | ✗ | ✗ | ✓ | ✗ | ✓ | ○ |
-| WF-16 | Compare | yoy+fc | ✗ | ✗ | ✓ | ✗ | ✓ | ○ |
-| WF-17 | Compare | yoy+fc | ✗ | ✗ | ✓ | ✗ | ✓ | ○ |
-| WF-18 | Compare | fc+bud | ✗ | ✗ | ✓ | ✗ | ✓ | ○ |
-| WF-19 | Compare | fc+bud | ✗ | ✗ | ✓ | ✗ | ✓ | ○ |
+| Template | Category | Bracket | Cat-Bracket | Scale-Break | Benchmark | Grouping | Neg-Bridges |
+|----------|----------|:-------:|:-----------:|:-----------:|:---------:|:--------:|:-----------:|
+| WF-01 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ |
+| WF-02 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ |
+| WF-03 | Variance | yoy | ✗ | ✓ | ○ | ✗ | ✓ |
+| WF-04 | Variance | bud | ✗ | ✓ | ✓ | ✗ | ✓ |
+| WF-05 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ |
+| WF-06 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ |
+| WF-07 | Structure | std | ✓ | ✓ | ○ | ✗ | ✓ |
+| WF-08 | Variance | var | ✗ | ✓ | ○ | ✗ | ✓ |
+| WF-09 | Variance | yoy | ✗ | ✓ | ○ | ✗ | ✓ |
+| WF-10 | Structure | std | ✓ | ✓ | ○ | ✓ | ✓ |
+| WF-11 | Trend | cagr | ✗ | ✗ | ○ | ✗ | ✓ |
+| WF-12 | Variance | fc | ✗ | ✓ | ✓ | ✗ | ✓ |
+| WF-13 | Trend | cagr | ✗ | ✗ | ○ | ✗ | ✓ |
+| WF-14 | Compare | bud+fc | ✗ | ✗ | ✓ | ✗ | ✓ |
+| WF-15 | Compare | bud+fc | ✗ | ✗ | ✓ | ✗ | ✓ |
+| WF-16 | Compare | yoy+fc | ✗ | ✗ | ✓ | ✗ | ✓ |
+| WF-17 | Compare | yoy+fc | ✗ | ✗ | ✓ | ✗ | ✓ |
+| WF-18 | Compare | fc+bud | ✗ | ✗ | ✓ | ✗ | ✓ |
+| WF-19 | Compare | fc+bud | ✗ | ✗ | ✓ | ✗ | ✓ |
 
 ## Legende
 
@@ -62,7 +62,6 @@ Scale-Break                     ✓          ✓        -         -
 Benchmark-Lines                 ○          ✓        ○         ✓
 Grouping                        ✓          -        -         -
 Negative Bridges                ✓          ✓        ✓         ✓
-Footnotes                       ○          ○        ○         ○
 Arrows                          ○          ○        ○         ○
 ```
 

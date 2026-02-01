@@ -158,11 +158,6 @@ Für jedes Feature (verfügbar oder nicht): Generiere einen Eintrag mit
         "arrows": {
             "enabled": false,
             "_reason": "Bracket bereits aktiv (Konflikt)"
-        },
-        "footnotes": {
-            "enabled": true,
-            "items": ["Angaben in TEUR", "Quelle: Geschäftsbericht 2024"],
-            "_reason": "Einheit (TEUR) und Quelle aus Metadaten vorhanden"
         }
     }
 }
@@ -172,7 +167,7 @@ Für jedes Feature (verfügbar oder nicht): Generiere einen Eintrag mit
 
 **Gegeben:**
 - Template: WF-04 (Budget Bridge), Kategorie: variance
-- availableFeatures: ["bracket", "scaleBreak", "benchmarkLines", "arrows", "footnotes"]
+- availableFeatures: ["bracket", "scaleBreak", "benchmarkLines", "arrows"]
 - Bars: 7 Stück (1 Start, 5 Deltas, 1 End)
 - Start-Wert: 1.000.000 (Budget)
 - End-Wert: 1.098.000 (IST)
@@ -203,10 +198,6 @@ Für jedes Feature (verfügbar oder nicht): Generiere einen Eintrag mit
    - bracket bereits enabled → Konflikt!
    → **enabled: false**, _reason: "Bracket bereits aktiv (Konflikt)"
 
-5. **footnotes** — In availableFeatures ✓
-   - metadata.unit = "TEUR" → items: ["Angaben in TEUR"]
-   → **enabled: true**, items: ["Angaben in TEUR"]
-
 ═══════════════════════════════════════════════════════════════════════════════
 █  PLATZHALTER: BAR CHART FEATURE-ANALYSE                                    █
 █                                                                             █
@@ -218,7 +209,6 @@ Für jedes Feature (verfügbar oder nicht): Generiere einen Eintrag mit
 █  - cagr (Compound Annual Growth Rate)                                      █
 █  - scaleBreak (Skalenbruch)                                                █
 █  - varianceIndicators (Abweichungs-Pfeile)                                 █
-█  - footnotes (Fußnoten)                                                    █
 █  - benchmarkLines (Zielwert-Linien)                                        █
 █                                                                             █
 █  Bis zur Implementierung: Keine Feature-Analyse für Bar Charts.            █
@@ -235,7 +225,6 @@ Für jedes Feature (verfügbar oder nicht): Generiere einen Eintrag mit
 █  - bracket (Gesamt-Änderung)                                               █
 █  - legend (Legende)                                                        █
 █  - varianceIndicators (Abweichungs-Pfeile)                                 █
-█  - footnotes (Fußnoten)                                                    █
 █  - percentageLabels (Prozent-Anteile in Segmenten)                         █
 █                                                                             █
 █  Bis zur Implementierung: Keine Feature-Analyse für Stacked Bar Charts.    █
@@ -440,11 +429,6 @@ month_py_delta = month_current - month_prior_year // Monat vs. Vorjahresmonat
             "categoryBrackets": {
                 "enabled": false,
                 "_reason": "Zu wenige Positionen für sinnvolle Gruppierung"
-            },
-            "footnotes": {
-                "enabled": true,
-                "items": ["Angaben in TEUR"],
-                "_reason": "Einheit aus Metadaten vorhanden"
             }
         },
 
@@ -882,11 +866,6 @@ templateDefinition.availableFeatures[]
                 "breakAt": 1786000,
                 "style": "zigzag",
                 "_reason": "Umsatz (2.195.000) / Ø Delta (893.000) = 2.5, grenzwertig aber sinnvoll"
-            },
-            "footnotes": {
-                "enabled": true,
-                "items": ["Angaben in TEUR"],
-                "_reason": "Einheit TEUR aus Metadaten"
             },
             "categoryBrackets": {
                 "enabled": false,

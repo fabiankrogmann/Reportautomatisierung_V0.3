@@ -11,7 +11,6 @@ Dieses Dokument definiert alle verfügbaren Features für Waterfall-Charts, ihre
 | `bracket` | Bracket (Prozentuale Veränderung) | annotation | mittel | BRACKET.md |
 | `scaleBreak` | Scale-Break (Skalenbruch) | layout | mittel | SCALE-BREAK.md |
 | `categoryBrackets` | Category-Brackets (Anteil-Annotationen) | annotation | mittel | CATEGORY-BRACKET.md |
-| `footnotes` | Footnotes (Fußnoten) | annotation | niedrig | FOOTNOTES.md |
 | `arrows` | Arrows (Balken-Verbindungen) | annotation | niedrig | ARROWS.md |
 | `benchmarkLines` | Benchmark-Linien | layout | mittel | BENCHMARK-LINES.md |
 | `grouping` | Gruppierung | layout | hoch | GROUPING.md |
@@ -94,26 +93,7 @@ THEN:
 
 ---
 
-### 4. FOOTNOTES
-
-**Wann aktivieren (natürliche Sprache):**
-Aktiviere Footnotes wenn Quellenangaben, Einheiten oder vorläufige Werte in den Metadaten vorhanden sind. Bei ALLEN Template-Typen einsetzbar.
-
-**Aktivierungsregel (Pseudo-Code):**
-```
-IF metadata.source != null
-   OR metadata.preliminary == true
-   OR metadata.currency != null
-   OR metadata.unit != null
-THEN footnotes.enabled = true
-```
-
-**Parameter-Berechnung:**
-- `items`: Array aus Metadaten zusammengestellt
-
----
-
-### 5. ARROWS
+### 4. ARROWS
 
 **Wann aktivieren (natürliche Sprache):**
 Aktiviere Arrows als Alternative zu Brackets für spezifische Vergleiche zwischen zwei nicht-benachbarten Balken. NICHT zusammen mit Bracket (Konflikt).
@@ -127,7 +107,7 @@ THEN arrows.enabled = true
 
 ---
 
-### 6. BENCHMARK-LINES
+### 5. BENCHMARK-LINES
 
 **Wann aktivieren (natürliche Sprache):**
 Aktiviere horizontale Benchmark-Linien wenn explizite Zielwerte (TARGET, GUIDANCE, PLAN) in den Daten oder Metadaten vorhanden sind. Besonders sinnvoll bei Variance- und Compare-Bars-Templates. NICHT aktivieren für berechnete Durchschnitte — nur für echte, benannte Referenzwerte. Maximal 2 Linien gleichzeitig.
@@ -155,7 +135,7 @@ ELSE:
 
 ---
 
-### 7. GROUPING
+### 6. GROUPING
 
 **Wann aktivieren (natürliche Sprache):**
 Aktiviere Gruppierung wenn Balken zu logischen Gruppen zusammengefasst werden können (z.B. Kostenarten, CF-Kategorien). NUR bei Structure-Templates mit mindestens 6 Balken. Gruppen müssen mindestens 2 Balken umfassen und dürfen sich nicht überlappen.
@@ -187,7 +167,7 @@ ELSE:
 
 ---
 
-### 8. NEGATIVE-BRIDGES
+### 7. NEGATIVE-BRIDGES
 
 **Wann aktivieren (natürliche Sprache):**
 Aktiviere Negative-Bridges-Logik wenn der kumulative Wert die Nulllinie kreuzt oder der End-Wert negativ ist. Bei ALLEN Template-Typen relevant. KONFLIKT: Scale-Break wird deaktiviert wenn Negative-Bridges aktiv ist.
@@ -235,7 +215,6 @@ ELSE:
 | grouping | Compare-Bars Template | Ja | Grouping deaktivieren |
 | benchmarkLines | * | Nein | Immer kombinierbar |
 | negativeBridges | * | Nein | Immer kombinierbar (außer scaleBreak) |
-| footnotes | * | Nein | Immer kombinierbar |
 
 ## Rendering-Reihenfolge
 
@@ -249,7 +228,6 @@ ELSE:
 7. categoryBrackets  ← Wenn enabled (über Balken)
 8. grouping          ← Wenn enabled (Klammern unter Balken)
 9. bracket / arrows  ← Wenn enabled (über allem)
-10. footnotes        ← Immer zuletzt (unter Chart)
 ```
 
 ## Hinweise für PROMPT-3

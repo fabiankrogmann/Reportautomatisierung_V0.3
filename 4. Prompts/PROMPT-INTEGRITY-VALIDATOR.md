@@ -148,7 +148,7 @@ Prüfe ob `availableFeatures[]` in templates.json mit der Template-Matrix (`_TEM
 Für jedes Waterfall-Template (WF-01 bis WF-19):
 - Welche Features listet `availableFeatures[]`?
 - Stimmen diese mit der Template-Matrix überein?
-- Sind Feature-IDs korrekt geschrieben? (Erlaubt: bracket, scaleBreak, categoryBrackets, footnotes, arrows, benchmarkLines, negativeBridges, grouping)
+- Sind Feature-IDs korrekt geschrieben? (Erlaubt: bracket, scaleBreak, categoryBrackets, arrows, benchmarkLines, negativeBridges, grouping)
 
 **7b: Template-Kategorie-Konflikte:**
 Prüfe ob kein Template Features enthält, die mit seiner Kategorie in Konflikt stehen:
@@ -201,7 +201,6 @@ Prüfe ob für jedes Feature im Katalog eine Feature-Modul-Datei existiert:
 | bracket | BRACKET.md |
 | scaleBreak | SCALE-BREAK.md |
 | categoryBrackets | CATEGORY-BRACKET.md |
-| footnotes | FOOTNOTES.md |
 | arrows | ARROWS.md |
 | benchmarkLines | BENCHMARK-LINES.md |
 | negativeBridges | NEGATIVE-BRIDGES.md |
@@ -268,7 +267,6 @@ Für jedes Feature im Katalog prüfen:
 7. categoryBrackets  ← Über Balken
 8. grouping          ← Klammern unter Balken
 9. bracket / arrows  ← Über allem
-10. footnotes        ← Unter Chart
 ```
 
 **Ergebnis:**
@@ -478,10 +476,10 @@ if (report.status === 'FAIL') {
 | Szenario-Formeln | 7 (inkl. fc_iteration_delta) |
 | Zeitreihen-Templates | 6 (BC-05, BC-10, SB-03, SB-09, SB-10, WF-13) |
 | Layout-Varianten Templates | 6 (WF-14 bis WF-19 mit compare_bars) |
-| Feature-Module (Waterfall) | 8 (bracket, scaleBreak, categoryBrackets, footnotes, arrows, benchmarkLines, negativeBridges, grouping) |
-| Feature-Konflikte | 9 definierte Konflikte |
+| Feature-Module (Waterfall) | 7 (bracket, scaleBreak, categoryBrackets, arrows, benchmarkLines, negativeBridges, grouping) |
+| Feature-Konflikte | 8 definierte Konflikte |
 | Feature-Katalog-Dateien | 2 (_FEATURE-CATALOG.md, _TEMPLATE-MATRIX.md) |
-| Feature-Modul-Dateien | 8 (.md pro Feature) |
+| Feature-Modul-Dateien | 7 (.md pro Feature) |
 
 ---
 

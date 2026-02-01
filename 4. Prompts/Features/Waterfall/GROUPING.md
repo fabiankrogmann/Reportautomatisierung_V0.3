@@ -264,7 +264,6 @@ if (config.features?.grouping?.enabled) {
 | Feature | Interaktion |
 |---------|------------|
 | categoryBrackets | Beide zeigen Gruppen, aber unterschiedlich: Grouping = unterhalb, CategoryBrackets = oberhalb. Können koexistieren. |
-| footnotes | Footnotes müssen NACH Grouping positioniert werden (weiter unten) |
 
 ## 9. EDGE-CASES & FEHLERBEHANDLUNG
 
@@ -277,7 +276,6 @@ if (config.features?.grouping?.enabled) {
 | > 4 Gruppen | Auf 4 begrenzen (Platzgründe) |
 | Gruppe mit nur 1 Balken | Gruppe ignorieren |
 | < 6 Balken gesamt | Feature deaktivieren (kein Mehrwert) |
-| Footnotes auch aktiv | margin.bottom um zusätzliche 40px erhöhen |
 
 ## 10. BEISPIELE
 

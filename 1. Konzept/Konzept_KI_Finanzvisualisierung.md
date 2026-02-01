@@ -29,10 +29,10 @@ upload.html → results.html → colors.html → charts.html
 | Komponente | Funktion |
 |------------|----------|
 | **Template-Bibliothek** | 40 vordefinierte Layout-Templates (JSON, inkl. Feature-Metadaten) |
-| **Prompt-System** | 6 KI-Prompts für Chart-Generierung |
+| **Prompt-System** | 2 KI-Prompts (Analyse + Varianten) + deterministische Config-Generierung |
 | **VariantGenerator** | Erzeugt 3-10 Chart-Varianten pro Typ |
-| **ConfigGenerator** | Erzeugt Chart-Konfigurationen via KI |
-| **Chart-Prompts** | Generieren direkt fertiges SVG |
+| **DeterministicConfigGenerator** | Erzeugt Chart-Konfigurationen deterministisch (JavaScript) |
+| **JS-Rendering-Engine** | Generiert SVG via `renderWaterfallChart()`, `renderBarChart()`, `renderStackedBarChart()` |
 | **Export-Engine** | SVG, PNG, PPTX, HTML, ZIP |
 
 ### Kernprinzip: KI-Empfehlung + User-Auswahl
@@ -109,16 +109,16 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 │         │                 │                 │                       │
 │         └─────────────────┼─────────────────┘                       │
 │                           ▼                                         │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │ Variant      │  │ Config       │  │ Chart-Prompt │              │
-│  │ Generator    │  │ Generator    │  │ (SVG-Output) │              │
-│  └──────────────┘  └──────────────┘  └──────────────┘              │
-│                                              │                       │
-│                                              ▼                       │
-│                                       ┌──────────────┐              │
-│                                       │ Export-Engine│              │
-│                                       │ SVG/PNG/PPTX │              │
-│                                       └──────────────┘              │
+│  ┌──────────────┐  ┌──────────────────────┐  ┌──────────────┐     │
+│  │ Variant      │  │ Deterministic        │  │ JS-Rendering │     │
+│  │ Generator    │  │ ConfigGenerator (JS) │  │ Engine (SVG) │     │
+│  └──────────────┘  └──────────────────────┘  └──────────────┘     │
+│                                                      │              │
+│                                                      ▼              │
+│                                               ┌──────────────┐     │
+│                                               │ Export-Engine│     │
+│                                               │ SVG/PNG/PPTX │     │
+│                                               └──────────────┘     │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -131,8 +131,8 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 | **TemplateLoader** | Verwaltet 40 Chart-Templates | Statisch |
 | **VariantGenerator** | Erzeugt 3-10 unterschiedliche Chart-Varianten | KI |
 | **APIClient** | Zentrale API-Integration (Anthropic/OpenAI) | Integration |
-| **ConfigGenerator** | Generiert Chart-Konfigurationen via KI | KI |
-| **Chart-Prompts** | Generieren direkt fertiges SVG | KI + Rendering |
+| **DeterministicConfigGenerator** | Generiert Chart-Konfigurationen deterministisch | JavaScript |
+| **JS-Rendering-Engine** | Generiert SVG (`renderWaterfallChart`, `renderBarChart`, `renderStackedBarChart`) | JavaScript |
 | **Export-Engine** | Exportiert in verschiedene Formate | Export |
 
 ### 2.3 Seiten-Funktionen
@@ -157,8 +157,8 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 - Persistenz via localStorage
 
 #### charts.html
-- Chart-Generierung via KI (PROMPT-2, PROMPT-3, Chart-Prompts)
-- SVG wird direkt von Chart-Prompts generiert
+- Chart-Generierung: PROMPT-2 (KI-Varianten) + DeterministicConfigGenerator + JS-Renderer
+- SVG wird von der JS-Rendering-Engine generiert (kein API-Call nötig)
 - Interaktive Tooltips
 - Multi-Format-Export
 
@@ -281,65 +281,71 @@ Jedes Template folgt diesem Schema:
 
 Die KI-Prompts sind in `4. Prompts/` als Markdown-Dateien gespeichert und werden zur Laufzeit geladen.
 
-### 4.1 Prompt-Pipeline (6 Prompts)
+### 4.1 Prompt-Pipeline
 
-Das System verwendet eine konsolidierte 6-stufige Prompt-Pipeline:
+Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generierung:
+
+- **PROMPT-1** (upload.html): KI-Datenanalyse — bleibt KI-gestützt
+- **PROMPT-2** (charts.html): KI-Varianten-Generierung — bleibt KI-gestützt
+- **DeterministicConfigGenerator** (charts.html): Ersetzt PROMPT-3 — reines JavaScript
+- **JS-Rendering-Engine** (charts.html): Ersetzt Chart-Prompts — `renderWaterfallChart()`, `renderBarChart()`, `renderStackedBarChart()`
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│   CSV/Excel Upload                                                               │
-│        │                                                                         │
-│        ▼                                                                         │
-│   ╔═══════════════════════════════╗                                             │
-│   ║ PROMPT 1: Universal Analyzer  ║  ← upload.html                              │
-│   ╚═══════════════════════════════╝  ← Output: analysis, extractedData, hierarchy│
-│        │                                                                         │
-│        │ User wählt Chart-Typ in results.html                                   │
-│        │ User wählt Farbschema in colors.html                                   │
-│        ▼                                                                         │
-│   ╔═══════════════════════════════╗                                             │
-│   ║ PROMPT 2: Variant Generator   ║  ← charts.html                              │
-│   ╚═══════════════════════════════╝  ← Output: variants[] (3-10 Varianten)      │
-│        │                                                                         │
-│        ▼                                                                         │
-│   ┌────────────────────────────────────────────────────────────────┐            │
-│   │           FÜR JEDE VARIANTE                                     │            │
-│   │                                                                 │            │
-│   │   ╔═══════════════════════════════╗                            │            │
-│   │   ║ PROMPT 3: Config Generator    ║  ← charts.html             │            │
-│   │   ╚═══════════════════════════════╝  ← Output: chartConfig     │            │
-│   │        │                                                        │            │
-│   │        ▼                                                        │            │
-│   │   ╔═══════════════════════════════╗                            │            │
-│   │   ║ PROMPT 4-6: Chart Prompt      ║  ← WATERFALL/BAR/STACKED   │            │
-│   │   ╚═══════════════════════════════╝  ← Output: fertiges SVG    │            │
-│   │        │                                                        │            │
-│   │        ▼                                                        │            │
-│   │   Fingerprint-Check → chartConfigs.push() oder skip            │            │
-│   └────────────────────────────────────────────────────────────────┘            │
-│        │                                                                         │
-│        ▼                                                                         │
-│   Export (ZIP/PPTX)                                                             │
-└─────────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│   CSV/Excel Upload                                                    │
+│        │                                                              │
+│        ▼                                                              │
+│   ╔═══════════════════════════════╗                                  │
+│   ║ PROMPT 1: Universal Analyzer  ║  ← upload.html (KI)              │
+│   ╚═══════════════════════════════╝  ← Output: analysis, extractedData│
+│        │                                                              │
+│        │ User wählt Chart-Typ + Farbschema                           │
+│        ▼                                                              │
+│   ╔═══════════════════════════════╗                                  │
+│   ║ PROMPT 2: Variant Generator   ║  ← charts.html (KI)              │
+│   ╚═══════════════════════════════╝  ← Output: variants[]            │
+│        │                                                              │
+│        ▼                                                              │
+│   ┌──────────────────────────────────────────────────────────┐      │
+│   │  FÜR JEDE VARIANTE (deterministisch, kein API-Call):      │      │
+│   │                                                            │      │
+│   │   ┌───────────────────────────────────┐                   │      │
+│   │   │ DeterministicConfigGenerator (JS) │                   │      │
+│   │   └───────────────────────────────────┘                   │      │
+│   │        │  → chartConfig + Features                        │      │
+│   │        ▼                                                   │      │
+│   │   ┌───────────────────────────────────┐                   │      │
+│   │   │ normalizeConfigForRenderer()      │                   │      │
+│   │   └───────────────────────────────────┘                   │      │
+│   │        │  → Fingerprint-Check → push oder skip            │      │
+│   │        ▼                                                   │      │
+│   │   ┌───────────────────────────────────┐                   │      │
+│   │   │ JS-Rendering-Engine (SVG)         │                   │      │
+│   │   └───────────────────────────────────┘                   │      │
+│   └──────────────────────────────────────────────────────────┘      │
+│        │                                                              │
+│        ▼                                                              │
+│   Export (ZIP/PPTX)                                                  │
+└──────────────────────────────────────────────────────────────────────┘
 ```
+
+**Einsparung:** ~94.000 Tokens pro Durchlauf (96%) — von 14 API-Calls auf 1.
 
 ### 4.2 Prompt-Dateien
 
-| # | Datei | Ersetzt | Aufruf | Output |
-|---|-------|---------|--------|--------|
-| 1 | `PROMPT-1-UNIVERSAL-ANALYZER.md` | DATA-ANALYZER | upload.html | analysisResult |
-| 2 | `PROMPT-2-VARIANT-GENERATOR.md` | PERSPECTIVE-DERIVATION + LAYOUT-RANKING | charts.html | variants[] |
-| 3 | `PROMPT-3-CONFIG-GENERATOR.md` | FIELD-MAPPING | charts.html | chartConfig |
-| 4 | `WATERFALL-CHART-PROMPT.md` | - | charts.html | **SVG direkt** |
-| 5 | `BAR-CHART-PROMPT.md` | - | charts.html | **SVG direkt** |
-| 6 | `STACKED-BAR-CHART-PROMPT.md` | - | charts.html | **SVG direkt** |
-
-**Hinweis:** Die Chart-Prompts (4-6) generieren direkt das fertige SVG – kein separater SVG-Renderer nötig.
+| # | Datei | Status | Aufruf | Output |
+|---|-------|--------|--------|--------|
+| 1 | `PROMPT-1-UNIVERSAL-ANALYZER.md` | **KI (aktiv)** | upload.html | analysisResult |
+| 2 | `PROMPT-2-VARIANT-GENERATOR.md` | **KI (aktiv)** | charts.html | variants[] |
+| 3 | `PROMPT-3-CONFIG-GENERATOR.md` | **Ersetzt durch `DeterministicConfigGenerator`** | - | chartConfig |
+| 4 | `WATERFALL-CHART-PROMPT.md` | **Ersetzt durch JS-Renderer** | - | SVG |
+| 5 | `BAR-CHART-PROMPT.md` | **Ersetzt durch JS-Renderer** | - | SVG |
+| 6 | `STACKED-BAR-CHART-PROMPT.md` | **Ersetzt durch JS-Renderer** | - | SVG |
 
 **Feature-Dateien (für Waterfall):**
-- `Features/Waterfall/_FEATURE-CATALOG.md` – Aktivierungsregeln, Konflikte (Input für PROMPT-3)
+- `Features/Waterfall/_FEATURE-CATALOG.md` – Aktivierungsregeln, Konflikte (Input für `DeterministicConfigGenerator._activateFeatures()`)
 - `Features/Waterfall/_TEMPLATE-MATRIX.md` – Feature-Kompatibilität pro Template
-- `Features/Waterfall/[FEATURE].md` – 8 Feature-Module (Rendering-Logik, CSS, Edge-Cases)
+- `Features/Waterfall/[FEATURE].md` – 7 Feature-Module (Rendering-Logik, CSS, Edge-Cases)
 
 **Zusätzlich:**
 - `COLOR-SCHEMA-PROMPT.md` – für dynamische Farbgenerierung in colors.html
@@ -406,18 +412,22 @@ Kombiniert die frühere PERSPECTIVE-DERIVATION und LAYOUT-RANKING Logik.
 }
 ```
 
-### 4.5 PROMPT 3: Config Generator
+### 4.5 DeterministicConfigGenerator (ersetzt PROMPT-3)
 
-Erzeugt die vollständige, render-fertige Chart-Konfiguration.
+Erzeugt die vollständige, render-fertige Chart-Konfiguration **deterministisch in JavaScript** — kein API-Call nötig.
 
-**Input:**
+**Input (JavaScript-Objekt):**
 - variant (von Prompt 2)
 - extractedData (von Prompt 1)
 - templateDefinition (aus Bibliothek)
 - colorScheme (User-Auswahl)
-- featureCatalog (Feature-Aktivierungsregeln aus `_FEATURE-CATALOG.md`)
 
-**Output-Struktur:**
+**Methoden:**
+- `generate(variant, extractedData, template, colorScheme)` — Haupteinstieg
+- `_generateWaterfallConfig()` / `_generateBarConfig()` / `_generateStackedBarConfig()`
+- `_activateFeatures()` — prüft Regeln aus `_FEATURE-CATALOG.md` deterministisch
+
+**Output-Struktur (identisch zum früheren PROMPT-3):**
 ```json
 {
   "chartConfig": {
@@ -429,8 +439,7 @@ Erzeugt die vollständige, render-fertige Chart-Konfiguration.
     ],
     "features": {
       "bracket": { "enabled": true, "mode": "budget", "label": "+9.8% vs. Budget", "_reason": "Budget und Actual vorhanden" },
-      "scaleBreak": { "enabled": false, "_reason": "Ratio 2.1 < 3" },
-      "footnotes": { "enabled": true, "items": ["Angaben in TEUR"], "_reason": "Unit in Metadaten" }
+      "scaleBreak": { "enabled": false, "_reason": "Ratio 2.1 < 3" }
     },
     "axes": { "y": { "label": "TEUR", "min": 0 } },
     "styling": { "barWidth": 0.6, "connectorLine": true }
@@ -438,27 +447,30 @@ Erzeugt die vollständige, render-fertige Chart-Konfiguration.
 }
 ```
 
-**Hinweis:** Feature-Analyse nur für Waterfall-Charts. Bar Chart und Stacked Bar: Platzhalter (noch nicht implementiert).
-```
+**Hinweis:** Feature-Aktivierung nur für Waterfall-Charts. Bar Chart und Stacked Bar: noch nicht implementiert.
 
-### 4.6 Chart-Prompts (SVG-Output)
+### 4.6 JS-Rendering-Engine (ersetzt Chart-Prompts)
 
-Die Chart-Prompts (Waterfall, Bar, Stacked Bar) generieren **direkt fertiges SVG** – kein separater Renderer nötig.
+Die JS-Rendering-Engine generiert SVG **deterministisch in JavaScript** — kein API-Call nötig.
 
-**Features werden in modularen Feature-Dateien gepflegt:**
+**Renderer-Funktionen:**
+- `renderWaterfallChart(config)` — Waterfall/Bridge Charts
+- `renderBarChart(config)` — Bar Charts (grouped, horizontal, vertical)
+- `renderStackedBarChart(config)` — Stacked Bar Charts
+
+**Features werden in modularen Feature-Dateien dokumentiert:**
 
 | Feature | ID | Modul | Kategorie |
 |---------|-----|-------|-----------|
 | Bracket (Prozentänderung) | `bracket` | `Features/Waterfall/BRACKET.md` | annotation |
 | Scale-Break (Skalenbruch) | `scaleBreak` | `Features/Waterfall/SCALE-BREAK.md` | layout |
 | Category-Brackets | `categoryBrackets` | `Features/Waterfall/CATEGORY-BRACKET.md` | annotation |
-| Footnotes (Fußnoten) | `footnotes` | `Features/Waterfall/FOOTNOTES.md` | annotation |
 | Arrows (Verbindungen) | `arrows` | `Features/Waterfall/ARROWS.md` | annotation |
 | Benchmark-Lines | `benchmarkLines` | `Features/Waterfall/BENCHMARK-LINES.md` | layout |
 | Negative Bridges | `negativeBridges` | `Features/Waterfall/NEGATIVE-BRIDGES.md` | layout |
 | Grouping (Gruppierung) | `grouping` | `Features/Waterfall/GROUPING.md` | layout |
 
-Features werden von PROMPT-3 autonom aktiviert und von den Chart-Prompts gerendert.
+Features werden von `DeterministicConfigGenerator._activateFeatures()` deterministisch aktiviert und von der JS-Rendering-Engine gerendert.
 Aktivierungsregeln und Konflikte: `_FEATURE-CATALOG.md`
 
 ### 4.7 PromptLoader-System
@@ -486,6 +498,11 @@ cache: {
    HTML-Seiten (laden zur Laufzeit)
 ```
 
+**Aktuell geladene Prompts:**
+- `variant_generator` — einziger Prompt der in charts.html geladen wird
+- PROMPT-1 wird separat in upload.html geladen
+- config_generator und Chart-Prompts werden NICHT mehr geladen (deterministisch ersetzt)
+
 **Vorteile:**
 - Änderungen nur an einer Stelle
 - Prompts immer aktuell
@@ -494,7 +511,8 @@ cache: {
 
 ### 4.8 Anthropic Prompt Caching
 
-Das System nutzt Anthropic's `cache_control` Feature für bis zu **90% Kosteneinsparung**:
+Das System nutzt Anthropic's `cache_control` Feature für bis zu **90% Kosteneinsparung**.
+Primär relevant für PROMPT-1 (upload.html) und PROMPT-2 (charts.html) — die einzigen verbleibenden API-Calls.
 
 1. **Erster API-Call** (Cache-Write):
    - System-Prompt mit `cache_control: { type: 'ephemeral' }` senden
@@ -565,7 +583,7 @@ Die KI darf Positionen zu sinnvollen Blöcken/Summen zusammenfassen:
 
 Diese Regeln gelten für die gesamte Pipeline:
 ```
-Prompt 1 → Prompt 2 → Prompt 3 → Chart-Prompt → Chart Output
+Prompt 1 → Prompt 2 → DeterministicConfigGenerator → JS-Renderer → Chart Output
 ```
 
 ---
@@ -698,10 +716,11 @@ Neue Farbschemas können ohne Code-Änderungen hinzugefügt werden:
 2. User wählt Chart-Typ          → results.html
 3. User wählt Farbschema         → colors.html
 4. PROMPT-2 (Variant Generator)  → 3-10 Varianten definieren
-5. FÜR JEDE VARIANTE:
-   a. PROMPT-3 (Config Generator) → chartConfig erstellen
-   b. CHART-PROMPT                → SVG generieren
-   c. Fingerprint-Check           → Duplikate überspringen
+5. FÜR JEDE VARIANTE (deterministisch, kein API-Call):
+   a. DeterministicConfigGenerator → chartConfig erstellen
+   b. normalizeConfigForRenderer() → Format anpassen
+   c. Fingerprint-Check            → Duplikate überspringen
+   d. JS-Rendering-Engine          → SVG generieren
 6. Export                         → ZIP/PPTX
 ```
 
@@ -724,9 +743,9 @@ Für einen P&L-Report mit 2 Perioden und 18 Zeilen (Waterfall gewählt):
 |-------|--------|--------------|
 | Upload | PROMPT-1 Universal Analyzer | 1 |
 | Chart-Gen | PROMPT-2 Variant Generator | 1 |
-| Chart-Gen | PROMPT-3 Config Generator | ~6 (1 pro Variante) |
-| Chart-Gen | Chart-Prompt (SVG) | ~6 (1 pro Variante) |
-| **Gesamt** | | **~14** |
+| Chart-Gen | DeterministicConfigGenerator | ~6 (deterministisch, 0 API-Calls) |
+| Chart-Gen | JS-Rendering-Engine (SVG) | ~6 (deterministisch, 0 API-Calls) |
+| **Gesamt** | | **2** (nur PROMPT-1 + PROMPT-2) |
 
 ### 8.4 JSON-Reparatur
 
@@ -774,10 +793,10 @@ Die Provider-Auswahl erfolgt in `upload.html`.
 
 | Modus | Beschreibung |
 |-------|--------------|
-| **ai** | Echte API-Calls an gewählten Provider |
+| **deterministic** | PROMPT-2 (KI) + DeterministicConfigGenerator + JS-Renderer |
 | **demo** | Vordefinierte Beispieldaten ohne API |
 
-**Wichtig:** Kein Rule-Based Fallback. Wenn die KI fehlschlägt, gibt es keine lokale Fallback-Logik.
+**Wichtig:** Kein Fallback. Fehler werden angezeigt, kein stilles Fallback auf andere Modi.
 
 ### 10.3 APIClient
 
@@ -811,12 +830,13 @@ APIClient.call(systemPrompt, userPrompt, {
 
 ### 11.2 Chart-Typ hinzufügen (z.B. Line Chart)
 
-1. **Prompt erstellen:** `4. Prompts/Prompts for Charts/LINE-CHART-PROMPT.md`
-2. **Templates definieren:** Neue Einträge in `templates.json` mit `chart_type: "line"`
-3. **Variant Generator erweitern:** Template-IDs für neuen Typ ergänzen
-4. **UI anpassen:** Neuen Typ in `results.html` Auswahl hinzufügen
-5. **Dokumentation:** CLAUDE.md + Konzept aktualisieren
-6. **Feature-Verzeichnis:** `4. Prompts/Features/[TYP]/` mit `_FEATURE-CATALOG.md`, `_TEMPLATE-MATRIX.md` und Feature-Modulen erstellen
+1. **JS-Renderer implementieren:** `render[Typ]Chart()` Funktion in `charts.html`
+2. **DeterministicConfigGenerator erweitern:** `_generate[Typ]Config()` Methode
+3. **Templates definieren:** Neue Einträge in `templates.json` mit `chart_type: "line"`
+4. **Variant Generator erweitern:** Template-IDs für neuen Typ ergänzen
+5. **UI anpassen:** Neuen Typ in `results.html` Auswahl hinzufügen
+6. **Dokumentation:** CLAUDE.md + Konzept aktualisieren
+7. **Feature-Verzeichnis:** `4. Prompts/Features/[TYP]/` mit `_FEATURE-CATALOG.md`, `_TEMPLATE-MATRIX.md` und Feature-Modulen erstellen
 
 ### 11.3 Layout/Template hinzufügen
 
@@ -837,15 +857,15 @@ APIClient.call(systemPrompt, userPrompt, {
 2. **Aktivierungsregel:** In `_FEATURE-CATALOG.md` mit natürlicher Sprache + Pseudo-Code
 3. **Template-Matrix:** In `_TEMPLATE-MATRIX.md` eintragen welche Templates das Feature unterstützen
 4. **templates.json:** `availableFeatures[]` und ggf. `featureHints{}` pro Template ergänzen
-5. **Chart-Prompt:** `<!-- FEATURE-INCLUDE: [featureId] -->` Marker hinzufügen
+5. **DeterministicConfigGenerator:** Aktivierungslogik in `_activateFeatures()` ergänzen
 6. **Testen:** Feature isoliert mit Beispieldaten validieren
 
 ### 11.5 Design-Prinzipien
 
-- **Prompts sind unabhängig:** Jeder Chart-Prompt funktioniert eigenständig
+- **Renderer sind unabhängig:** Jeder JS-Renderer funktioniert eigenständig
 - **Templates sind deklarativ:** JSON-Struktur mit Feature-Metadaten, keine Logik
-- **Features sind modular:** Ein Feature = Eine Datei, Compile-Time Loading
-- **KI-gesteuerte Aktivierung:** PROMPT-3 entscheidet autonom welche Features aktiv sind
+- **Features sind modular:** Ein Feature = Eine Datei, dokumentiert in Feature-Modulen
+- **Deterministische Aktivierung:** `_activateFeatures()` entscheidet regelbasiert welche Features aktiv sind
 - **Begründungspflicht:** Jedes Feature hat `_reason` für Transparenz
 - **Keine Hardcoding:** Chart-Typen, Templates und Features extern gepflegt
 - **Prompts extern:** `.md`-Dateien zur Laufzeit laden, NIE in HTML einbetten
@@ -870,8 +890,8 @@ Die Prompt-Engine ist das Herzstück des Systems. Alle Prompts werden vor der HT
 |-------|--------|--------------|----------------|
 | 1 | Universal Analyzer | 50 Dateien | 100% Spracherhaltung, Struktur |
 | 2 | Variant Generator | 150 (50×3 Typen) | 0% Duplikate, valide IDs |
-| 3 | Config Generator | ~750 Configs | 100% valide JSON, Labels |
-| 4 | Chart-Prompts | E2E Tests | Visuelle Prüfung |
+| 3 | DeterministicConfigGenerator | ~750 Configs | 100% valide JSON, Labels |
+| 4 | JS-Rendering-Engine | E2E Tests | Visuelle Prüfung |
 
 ### 12.3 Automatische Validierungs-Checks
 
@@ -889,7 +909,7 @@ Die Prompt-Engine ist das Herzstück des Systems. Alle Prompts werden vor der HT
 - dataFilter-Validierung (nur existierende Daten referenziert)
 - Varianten-Anzahl (1-10)
 
-**Phase 3 (Config Generator):**
+**Phase 3 (DeterministicConfigGenerator):**
 - JSON-Schema (Pflichtfelder vorhanden)
 - Spracherhaltung (Labels nicht übersetzt)
 - Datenwert-Validierung (Werte aus Quelle)

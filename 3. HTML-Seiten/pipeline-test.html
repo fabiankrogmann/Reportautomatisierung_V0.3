@@ -119,7 +119,7 @@
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin-bottom: 30px;
         }
@@ -489,11 +489,118 @@
                 display: none;
             }
         }
+        /* Feature Dashboard */
+        .feature-bar-row {
+            display: grid;
+            grid-template-columns: 140px 1fr 60px;
+            gap: 10px;
+            align-items: center;
+            padding: 6px 0;
+        }
+        .feature-bar-name {
+            font-size: 13px;
+            color: #e2e8f0;
+        }
+        .feature-bar-track {
+            height: 24px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .feature-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 11px;
+            color: #0f172a;
+            font-weight: 600;
+        }
+        .feature-bar-rate {
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: right;
+            font-family: monospace;
+        }
+        .heatmap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .heatmap-table th {
+            padding: 6px 8px;
+            text-align: center;
+            color: #94a3b8;
+            font-weight: 500;
+            border-bottom: 1px solid #334155;
+        }
+        .heatmap-table th:first-child {
+            text-align: left;
+        }
+        .heatmap-table td {
+            padding: 6px 8px;
+            text-align: center;
+            border-bottom: 1px solid #1e293b;
+        }
+        .heatmap-cell {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            line-height: 28px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .heatmap-cell.active { background: #166534; color: #22c55e; }
+        .heatmap-cell.inactive { background: #1e293b; color: #475569; }
+        .heatmap-cell.unavailable { background: #0f172a; color: #334155; }
+        .conflict-item {
+            padding: 8px 12px;
+            background: #0f172a;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .conflict-icon { color: #eab308; font-size: 14px; }
+        .bracket-mode-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+        }
+        .bracket-mode-bar {
+            flex: 1;
+            height: 20px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .bracket-mode-fill {
+            height: 100%;
+            background: #38bdf8;
+            border-radius: 4px;
+        }
+        .bracket-mode-label {
+            width: 80px;
+            font-size: 12px;
+            color: #e2e8f0;
+        }
+        .bracket-mode-count {
+            width: 40px;
+            font-size: 12px;
+            color: #94a3b8;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
     <h1>Pipeline-Test Suite</h1>
-    <p class="subtitle">Automatisierte Validierung der 6-Prompt-Pipeline | 50 Testdateien | 4 Phasen</p>
+    <p class="subtitle">Automatisierte Validierung der 6-Prompt-Pipeline | 50 Testdateien | 5 Phasen</p>
 
     <!-- Config Panel -->
     <div class="config-panel">
@@ -592,6 +699,14 @@
             <div class="stat-value" id="statApiCalls">0</div>
             <div class="stat-label">API Calls</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-value" id="statFeatureRate">-</div>
+            <div class="stat-label">Ø Features/Config</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="statIntegrity">-</div>
+            <div class="stat-label">Feature-Integrität</div>
+        </div>
     </div>
 
     <!-- Phase Tabs -->
@@ -608,6 +723,9 @@
         <button class="phase-tab" onclick="showPhase(4)" data-phase="4">
             Phase 4: SVG <span class="badge" id="phase4Count">0</span>
         </button>
+        <button class="phase-tab" onclick="showPhase(5)" data-phase="5">
+            Phase 5: Features <span class="badge" id="phase5Count">0</span>
+        </button>
     </div>
 
     <!-- Results Container -->
@@ -620,6 +738,28 @@
             <div style="padding: 40px; text-align: center; color: #64748b;">
                 Keine Tests ausgeführt. Klicke "Tests starten" um zu beginnen.
             </div>
+        </div>
+    </div>
+
+    <!-- Feature Dashboard (only visible in Phase 5) -->
+    <div id="featureDashboard" style="display: none; margin-top: 20px;">
+        <div style="background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="color: #38bdf8; margin-bottom: 15px; font-size: 16px;">Feature-Aktivierungsraten</h3>
+            <div id="featureActivationBars"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: #1e293b; border-radius: 12px; padding: 20px;">
+                <h3 style="color: #38bdf8; margin-bottom: 15px; font-size: 16px;">Bracket-Modi Verteilung</h3>
+                <div id="bracketModeChart"></div>
+            </div>
+            <div style="background: #1e293b; border-radius: 12px; padding: 20px;">
+                <h3 style="color: #38bdf8; margin-bottom: 15px; font-size: 16px;">Aufgelöste Konflikte</h3>
+                <div id="conflictsLog"></div>
+            </div>
+        </div>
+        <div style="background: #1e293b; border-radius: 12px; padding: 20px; margin-top: 20px;">
+            <h3 style="color: #38bdf8; margin-bottom: 15px; font-size: 16px;">Template x Feature Heatmap</h3>
+            <div id="templateHeatmap" style="overflow-x: auto;"></div>
         </div>
     </div>
 
@@ -698,15 +838,15 @@
 
             // Pfade für vorberechnete Ergebnisse pro Testdaten-Set
             precomputedResults: {
-                testdaten_1: '../6.%20Bibliotheken/test-results-combined.json',
+                testdaten_1: '../6.%20Bibliotheken/Testprotokolle/test-results-combined.json',
                 testdaten_2: {
-                    phase1: '../6.%20Bibliotheken/test-results-phase1-testdaten2.json',
-                    phase2: '../6.%20Bibliotheken/test-results-phase2-testdaten2.json'
+                    phase1: '../6.%20Bibliotheken/Testprotokolle/test-results-phase1-testdaten2.json',
+                    phase2: '../6.%20Bibliotheken/Testprotokolle/test-results-phase2-testdaten2.json'
                 },
                 testdaten_3: {
-                    phase1: '../6.%20Bibliotheken/test-results-phase1-multi-szenario.json',
-                    phase2: '../6.%20Bibliotheken/test-results-phase2-multi-szenario.json',
-                    phase3: '../6.%20Bibliotheken/test-results-phase3-multi-szenario.json'
+                    phase1: '../6.%20Bibliotheken/Testprotokolle/test-results-phase1-multi-szenario.json',
+                    phase2: '../6.%20Bibliotheken/Testprotokolle/test-results-phase2-multi-szenario.json',
+                    phase3: '../6.%20Bibliotheken/Testprotokolle/test-results-phase3-with-features.json'
                 }
             },
 
@@ -735,6 +875,33 @@
             allTestFiles: []
         };
 
+        // Template-Kategorien für Feature-Validierung
+        const TEMPLATE_CATEGORIES = {
+            'WF-01': 'structure', 'WF-02': 'structure', 'WF-05': 'structure',
+            'WF-06': 'structure', 'WF-07': 'structure', 'WF-10': 'structure',
+            'WF-03': 'variance', 'WF-04': 'variance', 'WF-08': 'variance',
+            'WF-09': 'variance', 'WF-12': 'variance',
+            'WF-11': 'trend', 'WF-13': 'trend',
+            'WF-14': 'compare_bars', 'WF-15': 'compare_bars', 'WF-16': 'compare_bars',
+            'WF-17': 'compare_bars', 'WF-18': 'compare_bars', 'WF-19': 'compare_bars'
+        };
+
+        const FEATURE_CONFLICTS = [
+            { a: 'bracket', b: 'arrows', winner: 'bracket' },
+            { a: 'scaleBreak', b: 'negativeBridges', winner: 'negativeBridges' }
+        ];
+
+        const CATEGORY_FEATURE_BANS = {
+            trend: ['scaleBreak', 'categoryBrackets', 'grouping'],
+            variance: ['categoryBrackets', 'grouping'],
+            compare_bars: ['scaleBreak', 'grouping']
+        };
+
+        const ALL_FEATURE_IDS = [
+            'bracket', 'scaleBreak', 'categoryBrackets',
+            'arrows', 'benchmarkLines', 'negativeBridges', 'grouping'
+        ];
+
         // State
         let state = {
             isRunning: false,
@@ -744,8 +911,10 @@
                 phase1: [],
                 phase2: [],
                 phase3: [],
-                phase4: []
+                phase4: [],
+                phase5: []
             },
+            featureStats: null,
             stats: {
                 total: 0,
                 passed: 0,
@@ -1365,6 +1534,147 @@
                         !sourceLower.some(s => s.includes(l.toLowerCase()) || l.toLowerCase().includes(s))
                     )
                 };
+            },
+
+            // Phase 5: Feature-Integrität Validierung
+            validateFeatures(variant, templateDef) {
+                const checks = {
+                    featureBlockExists: { passed: false, message: '', value: '' },
+                    allFeaturesDocumented: { passed: false, message: '', value: '' },
+                    availabilityRespected: { passed: false, message: '', value: '' },
+                    conflictsResolved: { passed: false, message: '', value: '' },
+                    reasonFieldPresent: { passed: false, message: '', value: '' },
+                    categoryConstraints: { passed: false, message: '', value: '' }
+                };
+
+                const features = variant.chartConfig?.features || variant.generatedFeatures;
+                const templateId = variant.templateId;
+                const category = TEMPLATE_CATEGORIES[templateId] || 'unknown';
+                const available = templateDef?.availableFeatures || [];
+
+                // 1. Feature block exists
+                checks.featureBlockExists.passed = features && typeof features === 'object';
+                checks.featureBlockExists.value = features ? 'Vorhanden' : 'Fehlt';
+
+                if (!features) return checks;
+
+                // 2. All 7 features documented (even disabled ones)
+                const featureIds = Object.keys(features);
+                const missingFeatures = ALL_FEATURE_IDS.filter(id => !featureIds.includes(id));
+                checks.allFeaturesDocumented.passed = missingFeatures.length === 0;
+                checks.allFeaturesDocumented.value = missingFeatures.length === 0 ?
+                    `Alle ${ALL_FEATURE_IDS.length} dokumentiert` :
+                    `Fehlt: ${missingFeatures.join(', ')}`;
+
+                // 3. Availability respected (no enabled feature outside availableFeatures)
+                const violatingFeatures = featureIds.filter(id =>
+                    features[id]?.enabled && !available.includes(id)
+                );
+                checks.availabilityRespected.passed = violatingFeatures.length === 0;
+                checks.availabilityRespected.value = violatingFeatures.length === 0 ?
+                    'Alle Features verfügbar' :
+                    `Nicht erlaubt: ${violatingFeatures.join(', ')}`;
+
+                // 4. Conflicts resolved
+                const conflictViolations = [];
+                FEATURE_CONFLICTS.forEach(conflict => {
+                    if (features[conflict.a]?.enabled && features[conflict.b]?.enabled) {
+                        conflictViolations.push(`${conflict.a} + ${conflict.b}`);
+                    }
+                });
+                checks.conflictsResolved.passed = conflictViolations.length === 0;
+                checks.conflictsResolved.value = conflictViolations.length === 0 ?
+                    'Keine Konflikte' :
+                    `Konflikte: ${conflictViolations.join(', ')}`;
+
+                // 5. Reason field present for all features
+                const missingReasons = featureIds.filter(id =>
+                    features[id] && typeof features[id]._reason !== 'string'
+                );
+                checks.reasonFieldPresent.passed = missingReasons.length === 0;
+                checks.reasonFieldPresent.value = missingReasons.length === 0 ?
+                    'Alle Begründungen vorhanden' :
+                    `Fehlt bei: ${missingReasons.join(', ')}`;
+
+                // 6. Category constraints (banned features not enabled)
+                const bans = CATEGORY_FEATURE_BANS[category] || [];
+                const bannedEnabled = featureIds.filter(id =>
+                    bans.includes(id) && features[id]?.enabled
+                );
+                checks.categoryConstraints.passed = bannedEnabled.length === 0;
+                checks.categoryConstraints.value = bannedEnabled.length === 0 ?
+                    `${category}: OK` :
+                    `Verboten für ${category}: ${bannedEnabled.join(', ')}`;
+
+                return checks;
+            },
+
+            collectFeatureStatistics(phase5Results) {
+                const stats = {
+                    total: phase5Results.length,
+                    activationRates: {},
+                    bracketModes: {},
+                    templateCoverage: {},
+                    resolvedConflicts: [],
+                    avgActiveFeatures: 0
+                };
+
+                let totalActive = 0;
+
+                ALL_FEATURE_IDS.forEach(id => {
+                    stats.activationRates[id] = { enabled: 0, disabled: 0, rate: 0 };
+                });
+
+                phase5Results.forEach(result => {
+                    const features = result.features;
+                    if (!features) return;
+
+                    const templateId = result.templateId;
+                    if (!stats.templateCoverage[templateId]) {
+                        stats.templateCoverage[templateId] = {};
+                        ALL_FEATURE_IDS.forEach(id => stats.templateCoverage[templateId][id] = 0);
+                    }
+
+                    let activeCount = 0;
+                    ALL_FEATURE_IDS.forEach(id => {
+                        if (features[id]?.enabled) {
+                            stats.activationRates[id].enabled++;
+                            stats.templateCoverage[templateId][id]++;
+                            activeCount++;
+
+                            // Track bracket modes
+                            if (id === 'bracket' && features[id].mode) {
+                                const mode = features[id].mode;
+                                stats.bracketModes[mode] = (stats.bracketModes[mode] || 0) + 1;
+                            }
+                        } else if (features[id]) {
+                            stats.activationRates[id].disabled++;
+                        }
+
+                        // Track resolved conflicts
+                        if (features[id]?._reason && features[id]._reason.includes('Priorität')) {
+                            stats.resolvedConflicts.push({
+                                templateId,
+                                feature: id,
+                                reason: features[id]._reason
+                            });
+                        }
+                    });
+
+                    totalActive += activeCount;
+                });
+
+                // Calculate rates
+                ALL_FEATURE_IDS.forEach(id => {
+                    const total = stats.activationRates[id].enabled + stats.activationRates[id].disabled;
+                    stats.activationRates[id].rate = total > 0 ?
+                        Math.round(stats.activationRates[id].enabled / total * 100) : 0;
+                });
+
+                stats.avgActiveFeatures = stats.total > 0 ?
+                    (totalActive / stats.total).toFixed(1) : 0;
+
+                return stats;
             }
         };
 
@@ -1398,7 +1708,7 @@
             state.aborted = false;
             state.startTime = Date.now();
             state.stats = { total: 0, passed: 0, warnings: 0, failed: 0, duration: 0, apiCalls: 0 };
-            state.results = { phase1: [], phase2: [], phase3: [], phase4: [] };
+            state.results = { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [] };
 
             document.getElementById('btnStartTests').disabled = true;
             document.getElementById('progressContainer').style.display = 'block';
@@ -1463,6 +1773,19 @@
             document.getElementById('progressContainer').style.display = 'block';
 
             try {
+                // Lade Templates für Feature-Validierung (Phase 5)
+                if (!state.templates) {
+                    try {
+                        const templatesResponse = await fetch(CONFIG.templatesPath);
+                        if (templatesResponse.ok) {
+                            state.templates = await templatesResponse.json();
+                            log('info', `Templates geladen (${state.templates.total_templates} Templates)`);
+                        }
+                    } catch (e) {
+                        log('warn', `Templates nicht geladen: ${e.message}`);
+                    }
+                }
+
                 const resultPaths = CONFIG.precomputedResults[testDataSet];
                 let precomputed;
 
@@ -1501,6 +1824,7 @@
                         _meta: phase1Data._meta || phase2Data._meta || {
                             testFilesCount: phase1Data.results?.length || 50
                         },
+                        _phase3Raw: phase3Data,
                         stats: {
                             total: phase1Data.results?.length || 50,
                             passed: (phase1Data.results?.filter(r => r.status === 'success' || r.status === 'passed').length || 0),
@@ -1579,8 +1903,18 @@
                     phase1: precomputed.results.phase1 || [],
                     phase2: precomputed.results.phase2 || [],
                     phase3: precomputed.results.phase3 || [],
-                    phase4: precomputed.results.phase4 || []
+                    phase4: precomputed.results.phase4 || [],
+                    phase5: []
                 };
+
+                // Phase 5: Feature-Integrität berechnen (wenn Phase 3 Daten mit Features vorhanden)
+                if (state.results.phase3.length > 0) {
+                    state.results.phase5 = computePhase5FromPhase3(state.results.phase3, precomputed);
+                    if (state.results.phase5.length > 0) {
+                        state.featureStats = Validators.collectFeatureStatistics(state.results.phase5);
+                        log('success', `Phase 5: ${state.results.phase5.length} Feature-Validierungen berechnet (Ø ${state.featureStats.avgActiveFeatures} Features/Config)`);
+                    }
+                }
 
                 // Simuliere Progress-Animation
                 const totalTests = state.results.phase1.length;
@@ -1789,7 +2123,8 @@
                 1: 'Phase 1: Universal Analyzer',
                 2: 'Phase 2: Variant Generator',
                 3: 'Phase 3: Config Generator',
-                4: 'Phase 4: SVG Output'
+                4: 'Phase 4: SVG Output',
+                5: 'Phase 5: Feature-Integrität'
             };
             document.getElementById('resultsTitle').textContent = titles[phase];
 
@@ -1798,11 +2133,21 @@
                 1: 'Validierungs-Checks (Phase 1: Analyzer)',
                 2: 'Validierungs-Checks (Phase 2: Variants)',
                 3: 'Validierungs-Checks (Phase 3: Config)',
-                4: 'Validierungs-Checks (Phase 4: SVG)'
+                4: 'Validierungs-Checks (Phase 4: SVG)',
+                5: 'Validierungs-Checks (Phase 5: Features)'
             };
             document.querySelector('.validation-title').textContent = checkDescriptions[phase];
 
             renderResults();
+
+            // Toggle feature dashboard visibility
+            const dashboard = document.getElementById('featureDashboard');
+            if (dashboard) {
+                dashboard.style.display = phase === 5 ? 'block' : 'none';
+                if (phase === 5 && state.featureStats) {
+                    renderFeatureDashboard(state.featureStats);
+                }
+            }
         }
 
         function renderResults() {
@@ -1816,6 +2161,7 @@
             document.getElementById('phase2Count').textContent = state.results.phase2.length;
             document.getElementById('phase3Count').textContent = state.results.phase3.length;
             document.getElementById('phase4Count').textContent = state.results.phase4.length;
+            document.getElementById('phase5Count').textContent = state.results.phase5.length;
 
             if (results.length === 0) {
                 body.innerHTML = `
@@ -1905,6 +2251,122 @@
             }
         }
 
+        function renderFeatureDashboard(stats) {
+            // 1. Activation rate bars
+            const barsEl = document.getElementById('featureActivationBars');
+            if (barsEl) {
+                const featureColors = {
+                    bracket: '#22c55e', scaleBreak: '#eab308', categoryBrackets: '#38bdf8',
+                    arrows: '#ef4444', benchmarkLines: '#a855f7', negativeBridges: '#f97316', grouping: '#06b6d4'
+                };
+                barsEl.innerHTML = ALL_FEATURE_IDS.map(id => {
+                    const rate = stats.activationRates[id]?.rate || 0;
+                    const enabled = stats.activationRates[id]?.enabled || 0;
+                    const total = enabled + (stats.activationRates[id]?.disabled || 0);
+                    const color = featureColors[id] || '#38bdf8';
+                    return `
+                        <div class="feature-bar-row">
+                            <span class="feature-bar-name">${id}</span>
+                            <div class="feature-bar-track">
+                                <div class="feature-bar-fill" style="width: ${rate}%; background: ${color};">
+                                    ${rate > 15 ? `${enabled}/${total}` : ''}
+                                </div>
+                            </div>
+                            <span class="feature-bar-rate">${rate}%</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 2. Bracket modes
+            const bracketEl = document.getElementById('bracketModeChart');
+            if (bracketEl && stats.bracketModes) {
+                const modes = Object.entries(stats.bracketModes).sort((a, b) => b[1] - a[1]);
+                const maxCount = modes.length > 0 ? modes[0][1] : 1;
+                bracketEl.innerHTML = modes.length > 0 ? modes.map(([mode, count]) => `
+                    <div class="bracket-mode-item">
+                        <span class="bracket-mode-label">${mode}</span>
+                        <div class="bracket-mode-bar">
+                            <div class="bracket-mode-fill" style="width: ${(count / maxCount * 100)}%;"></div>
+                        </div>
+                        <span class="bracket-mode-count">${count}</span>
+                    </div>
+                `).join('') : '<div style="color: #64748b; font-size: 13px;">Keine Bracket-Daten</div>';
+            }
+
+            // 3. Conflicts log
+            const conflictsEl = document.getElementById('conflictsLog');
+            if (conflictsEl) {
+                const uniqueConflicts = [];
+                const seen = new Set();
+                (stats.resolvedConflicts || []).forEach(c => {
+                    const key = `${c.feature}:${c.reason}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniqueConflicts.push(c);
+                    }
+                });
+                conflictsEl.innerHTML = uniqueConflicts.length > 0 ? uniqueConflicts.map(c => `
+                    <div class="conflict-item">
+                        <span class="conflict-icon">⚡</span>
+                        <span><strong>${c.feature}</strong> deaktiviert bei ${c.templateId}: ${c.reason}</span>
+                    </div>
+                `).join('') : '<div style="color: #64748b; font-size: 13px;">Keine Konflikte aufgelöst</div>';
+            }
+
+            // 4. Template x Feature Heatmap
+            const heatmapEl = document.getElementById('templateHeatmap');
+            if (heatmapEl && stats.templateCoverage) {
+                const templates = Object.keys(stats.templateCoverage).sort();
+                const shortFeatureNames = {
+                    bracket: 'BRK', scaleBreak: 'SB', categoryBrackets: 'CB',
+                    arrows: 'ARR', benchmarkLines: 'BL', negativeBridges: 'NB', grouping: 'GRP'
+                };
+
+                let html = '<table class="heatmap-table"><thead><tr><th>Template</th>';
+                ALL_FEATURE_IDS.forEach(id => {
+                    html += `<th>${shortFeatureNames[id] || id}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+
+                templates.forEach(tid => {
+                    const category = TEMPLATE_CATEGORIES[tid] || '';
+                    html += `<tr><td style="text-align:left;color:#e2e8f0;font-weight:500;">${tid} <span style="color:#64748b;font-size:10px;">${category}</span></td>`;
+                    ALL_FEATURE_IDS.forEach(id => {
+                        const count = stats.templateCoverage[tid][id] || 0;
+                        const templateDef = findTemplate(tid);
+                        const available = templateDef?.availableFeatures || [];
+                        const isAvailable = available.includes(id);
+
+                        if (!isAvailable) {
+                            html += `<td><span class="heatmap-cell unavailable">—</span></td>`;
+                        } else if (count > 0) {
+                            html += `<td><span class="heatmap-cell active">${count}</span></td>`;
+                        } else {
+                            html += `<td><span class="heatmap-cell inactive">0</span></td>`;
+                        }
+                    });
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table>';
+                heatmapEl.innerHTML = html;
+            }
+
+            // Update stats cards
+            const featureRateEl = document.getElementById('statFeatureRate');
+            if (featureRateEl) featureRateEl.textContent = stats.avgActiveFeatures;
+
+            const integrityEl = document.getElementById('statIntegrity');
+            if (integrityEl && state.results.phase5.length > 0) {
+                const passed = state.results.phase5.filter(r => r.status === 'success' || r.status === 'passed').length;
+                const total = state.results.phase5.length;
+                const rate = Math.round(passed / total * 100);
+                integrityEl.textContent = `${rate}%`;
+                integrityEl.className = `stat-value ${rate === 100 ? 'success' : rate >= 80 ? 'warning' : 'error'}`;
+            }
+        }
+
         function formatCheckName(name) {
             const names = {
                 // Phase 1 checks
@@ -1928,7 +2390,14 @@
                 typesConsistent: 'Typen konsistent',
                 schemaValid: 'Schema valide',
                 mathConsistent: 'Mathematisch konsistent',
-                dataFilterApplied: 'dataFilter angewandt'
+                dataFilterApplied: 'dataFilter angewandt',
+                // Phase 5 checks
+                featureBlockExists: 'Feature-Block vorhanden',
+                allFeaturesDocumented: 'Alle 7 Features dokumentiert',
+                availabilityRespected: 'Verfügbarkeit eingehalten',
+                conflictsResolved: 'Konflikte aufgelöst',
+                reasonFieldPresent: 'Begründungen vorhanden',
+                categoryConstraints: 'Kategorie-Einschränkungen'
             };
             return names[name] || name;
         }
@@ -1988,6 +2457,68 @@
             return converted;
         }
 
+        function computePhase5FromPhase3(phase3Results, precomputed) {
+            const phase5Results = [];
+            const phase3Raw = precomputed?._phase3Raw || null;
+
+            // Find WF variants with features from raw data
+            if (phase3Raw && phase3Raw.results) {
+                let globalIndex = 1;
+                phase3Raw.results.forEach(fileResult => {
+                    (fileResult.variants || []).forEach(variant => {
+                        if (!variant.templateId || !variant.templateId.startsWith('WF-')) return;
+
+                        const features = variant.chartConfig?.features || variant.generatedFeatures;
+                        if (!features) return;
+
+                        const templateDef = findTemplate(variant.templateId);
+                        const featureChecks = Validators.validateFeatures(variant, templateDef);
+
+                        phase5Results.push({
+                            index: globalIndex++,
+                            filename: fileResult.filename,
+                            templateId: variant.templateId,
+                            variantId: variant.variantId,
+                            title: variant.title || `${variant.templateId} Variant ${variant.variantId}`,
+                            status: getStatusFromChecks(featureChecks),
+                            checks: Object.entries(featureChecks).map(([name, check]) => ({
+                                name, passed: check.passed, value: check.value
+                            })),
+                            features: features
+                        });
+                    });
+                });
+            }
+
+            // Fallback: also check phase3Results for chartConfig with features
+            if (phase5Results.length === 0) {
+                phase3Results.forEach((r, i) => {
+                    if (!r.templateId || !r.templateId.startsWith('WF-')) return;
+                    if (!r.chartConfig?.features) return;
+
+                    const templateDef = findTemplate(r.templateId);
+                    const featureChecks = Validators.validateFeatures(
+                        { templateId: r.templateId, chartConfig: r.chartConfig },
+                        templateDef
+                    );
+
+                    phase5Results.push({
+                        index: i + 1,
+                        filename: r.filename,
+                        templateId: r.templateId,
+                        title: r.title || `${r.templateId}`,
+                        status: getStatusFromChecks(featureChecks),
+                        checks: Object.entries(featureChecks).map(([name, check]) => ({
+                            name, passed: check.passed, value: check.value
+                        })),
+                        features: r.chartConfig.features
+                    });
+                });
+            }
+
+            return phase5Results;
+        }
+
         function log(type, message) {
             const body = document.getElementById('logBody');
             const time = new Date().toLocaleTimeString();
@@ -2013,7 +2544,8 @@
         }
 
         function clearResults() {
-            state.results = { phase1: [], phase2: [], phase3: [], phase4: [] };
+            state.results = { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [] };
+            state.featureStats = null;
             state.stats = { total: 0, passed: 0, warnings: 0, failed: 0, duration: 0, apiCalls: 0 };
             updateStats();
             renderResults();
@@ -2025,6 +2557,7 @@
             const exportData = {
                 timestamp: new Date().toISOString(),
                 stats: state.stats,
+                featureStats: state.featureStats,
                 results: state.results
             };
 

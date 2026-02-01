@@ -181,13 +181,12 @@ Prüfe ob für jedes Feature im Katalog eine `.md`-Datei existiert:
 | bracket | BRACKET.md |
 | scaleBreak | SCALE-BREAK.md |
 | categoryBrackets | CATEGORY-BRACKET.md |
-| footnotes | FOOTNOTES.md |
 | arrows | ARROWS.md |
 | benchmarkLines | BENCHMARK-LINES.md |
 | negativeBridges | NEGATIVE-BRIDGES.md |
 | grouping | GROUPING.md |
 
-- [ ] Alle 8 Dateien existieren?
+- [ ] Alle 7 Dateien existieren?
 - [ ] Jede enthält 10 Pflicht-Sektionen? (Metadata → Beispiele)
 - [ ] Template-Kompatibilität stimmt mit Template-Matrix überein?
 
@@ -198,7 +197,7 @@ Prüfe ob Konflikte in 3 Quellen übereinstimmen:
 - `PROMPT-3-CONFIG-GENERATOR.md` (Konflikt-Auflösung)
 - Feature-Modul-Dateien (Sektion 8)
 
-**9 erwartete Konflikte:** bracket↔arrows, scaleBreak↔Compare-Bars, scaleBreak↔Trend, scaleBreak↔negativeBridges, categoryBrackets↔Variance, categoryBrackets↔Trend, grouping↔Variance, grouping↔Trend, grouping↔Compare-Bars
+**8 erwartete Konflikte:** bracket↔arrows, scaleBreak↔Compare-Bars, scaleBreak↔Trend, scaleBreak↔negativeBridges, categoryBrackets↔Variance, categoryBrackets↔Trend, grouping↔Variance, grouping↔Trend, grouping↔Compare-Bars
 
 ### 11. FEATURE-INCLUDE-MARKER
 
@@ -206,7 +205,7 @@ Prüfe ob Chart-Prompts korrekte Feature-Integration haben:
 
 - [ ] Waterfall-Prompt enthält `FEATURE-INCLUDE` Marker für alle 8 Features?
 - [ ] Rendering-Logik für `config.features.[featureId]` vorhanden?
-- [ ] Rendering-Reihenfolge: scaleBreak → negativeBridges → Basis → Connectors → Values → benchmarkLines → categoryBrackets → grouping → bracket/arrows → footnotes?
+- [ ] Rendering-Reihenfolge: scaleBreak → negativeBridges → Basis → Connectors → Values → benchmarkLines → categoryBrackets → grouping → bracket/arrows?
 
 ## Output-Format
 

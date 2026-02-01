@@ -211,7 +211,7 @@ if (config.features?.bracket?.enabled) {
 ```
 
 ### 6.3 Positionierung
-- **Z-Index**: Nach Value-Labels und Category-Brackets, vor Footnotes
+- **Z-Index**: Nach Value-Labels und Category-Brackets (höchste Rendering-Priorität)
 - **Anchor**: Balkenmitte (X), Balkenoberkante (Y)
 - **Spacing**: margin.top += 45px pro Bracket-Level; +30px extra wenn categoryBrackets aktiv
 

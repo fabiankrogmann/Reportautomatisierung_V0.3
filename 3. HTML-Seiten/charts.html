@@ -413,6 +413,105 @@
             border-top: 1px solid #e2e8f0;
         }
 
+        /* Pipeline-Performance-Tabelle */
+        .pipeline-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .pipeline-table th {
+            text-align: left;
+            padding: 6px 10px;
+            border-bottom: 2px solid #e2e8f0;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .pipeline-table td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .pipeline-table tr.pipeline-total td {
+            font-weight: 600;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 8px;
+        }
+        .pipeline-table .token-count {
+            font-family: 'SF Mono', 'Menlo', monospace;
+            font-size: 11px;
+        }
+        .pipeline-cache-hit { color: #16a34a; }
+        .pipeline-cache-write { color: #d97706; }
+
+        /* Varianten-Karten */
+        .variant-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        .variant-card.variant-used {
+            border-color: #22c55e;
+            border-width: 2px;
+            background: #f0fdf4;
+        }
+        .variant-card.variant-deduped {
+            opacity: 0.6;
+        }
+        .variant-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .variant-card-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 13px;
+        }
+        .variant-card-template {
+            color: #64748b;
+            font-size: 11px;
+            font-family: 'SF Mono', 'Menlo', monospace;
+        }
+        .variant-card-perspective {
+            color: #6b7280;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        .feature-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .feature-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .feature-tag-active {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        .feature-tag-disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
+            border: 1px solid #e5e7eb;
+            text-decoration: line-through;
+        }
+        .feature-reason {
+            font-size: 10px;
+            color: #6b7280;
+            font-style: italic;
+            margin-top: 2px;
+            padding-left: 8px;
+        }
+
         /* Checkbox UI für Chart-Auswahl - ÜBER der Chart-Box */
         .chart-wrapper {
             max-width: 1400px;
@@ -577,7 +676,7 @@
             timestamp: null,
             chartType: null,
             chartCount: 0,
-            generationMode: 'demo', // Nur noch 2 Modi: 'ai' oder 'demo'
+            generationMode: 'demo', // Modi: 'deterministic' (Standard) oder 'demo'
             errors: [], // Fehler die waehrend der Generierung auftreten
             apiKeyPresent: false,
             loadedPrompts: [], // Welche Prompts wurden geladen (Name, Größe, Quelle)
@@ -586,7 +685,9 @@
                 templateReasons: [],
                 dataInsights: [],
                 mixStrategy: ''
-            }
+            },
+            variants: [],   // Varianten von PROMPT-2 mit Features aus PROMPT-3
+            callLog: []     // API-Call-Log (Timing, Tokens, Kosten)
         };
 
         // Default-Farben wenn keine Company Colors definiert
@@ -1083,7 +1184,25 @@
                     });
                 }
 
-                // Aus extractedData direkt (manchmal flache Struktur)
+                // Aus extractedData.normalized (PROMPT-1 Standard-Format)
+                if (labels.length === 0 && Array.isArray(extractedData?.normalized)) {
+                    extractedData.normalized.forEach(n => {
+                        if (n.position) labels.push(n.position);
+                        else if (n.label) labels.push(n.label);
+                        else if (n.name) labels.push(n.name);
+                    });
+                }
+
+                // Aus extractedData.positions als Objekt (PROMPT-1 Gruppen-Format)
+                if (labels.length === 0 && extractedData?.positions && typeof extractedData.positions === 'object' && !Array.isArray(extractedData.positions)) {
+                    Object.values(extractedData.positions).forEach(group => {
+                        if (Array.isArray(group)) {
+                            group.forEach(p => { if (typeof p === 'string') labels.push(p); });
+                        }
+                    });
+                }
+
+                // Aus extractedData.positions als Array (flache Struktur)
                 if (labels.length === 0 && Array.isArray(extractedData?.positions)) {
                     extractedData.positions.forEach(p => {
                         if (typeof p === 'string') labels.push(p);
@@ -1118,8 +1237,22 @@
             _extractPeriodLabels(analysis, metadata, extractedData) {
                 const labels = [];
 
-                // Aus Analysis periods
-                if (analysis?.periods) {
+                // Aus extractedData.periods.all (PROMPT-1 Standard-Format)
+                if (Array.isArray(extractedData?.periods?.all)) {
+                    extractedData.periods.all.forEach(p => {
+                        if (typeof p === 'string') labels.push(p);
+                    });
+                }
+
+                // Aus analysis.timeRange.periods (PROMPT-1 Alternative)
+                if (labels.length === 0 && Array.isArray(analysis?.timeRange?.periods)) {
+                    analysis.timeRange.periods.forEach(p => {
+                        if (typeof p === 'string') labels.push(p);
+                    });
+                }
+
+                // Aus Analysis periods (als Array)
+                if (labels.length === 0 && Array.isArray(analysis?.periods)) {
                     analysis.periods.forEach(p => {
                         if (typeof p === 'string') labels.push(p);
                         else if (p?.label) labels.push(p.label);
@@ -1127,13 +1260,20 @@
                     });
                 }
 
+                // Aus Analysis scenarios (Szenarien als Perioden-Proxy)
+                if (labels.length === 0 && Array.isArray(analysis?.scenarios)) {
+                    analysis.scenarios.forEach(s => {
+                        if (typeof s === 'string') labels.push(s);
+                    });
+                }
+
                 // Aus Metadata
-                if (labels.length === 0 && metadata?.periods) {
+                if (labels.length === 0 && Array.isArray(metadata?.periods)) {
                     metadata.periods.forEach(p => labels.push(p));
                 }
 
                 // Aus extractedData bar periods
-                if (labels.length === 0 && extractedData?.bar?.periods) {
+                if (labels.length === 0 && Array.isArray(extractedData?.bar?.periods)) {
                     extractedData.bar.periods.forEach(p => {
                         if (typeof p === 'string') labels.push(p);
                         else if (p?.label) labels.push(p.label);
@@ -1141,7 +1281,7 @@
                 }
 
                 // Aus timeRange extrahieren
-                if (labels.length === 0 && analysis?.timeRange) {
+                if (labels.length === 0 && analysis?.timeRange && typeof analysis.timeRange === 'string') {
                     const years = analysis.timeRange.match(/\d{4}/g);
                     if (years) labels.push(...years);
                 }
@@ -1217,12 +1357,16 @@
                 totalTokensSaved: 0
             },
 
+            // Call-Log für Pipeline-Performance-Tracking
+            callLog: [],
+
             /**
              * Initialisiert den API Client
              */
             init(apiKey, provider = 'anthropic') {
                 this.apiKey = apiKey;
                 this.provider = provider;
+                this.callLog = [];
             },
 
             /**
@@ -1237,12 +1381,27 @@
             async call(systemPrompt, userPrompt, options = {}) {
                 const maxTokens = options.maxTokens || 4096;
                 const enableCaching = options.enableCaching !== false; // Default: true
+                const label = options.label || 'unknown';
+
+                const startTime = performance.now();
+                let response;
 
                 if (this.provider === 'anthropic') {
-                    return this._callAnthropic(systemPrompt, userPrompt, maxTokens, { enableCaching });
+                    response = await this._callAnthropic(systemPrompt, userPrompt, maxTokens, { enableCaching });
                 } else {
-                    return this._callOpenAI(systemPrompt, userPrompt, maxTokens);
+                    response = await this._callOpenAI(systemPrompt, userPrompt, maxTokens);
                 }
+
+                const duration = (performance.now() - startTime) / 1000;
+
+                this.callLog.push({
+                    label,
+                    duration: Math.round(duration * 10) / 10,
+                    usage: response.usage || {},
+                    timestamp: new Date().toISOString()
+                });
+
+                return response.text;
             },
 
             /**
@@ -1330,7 +1489,7 @@
                     }
 
                     console.log('APIClient: Anthropic API Antwort erhalten');
-                    return data.content[0].text;
+                    return { text: data.content[0].text, usage: data.usage || {} };
                 } catch (error) {
                     clearTimeout(timeoutId);
                     if (error.name === 'AbortError') {
@@ -1366,7 +1525,14 @@
                 }
 
                 const data = await response.json();
-                return data.choices[0].message.content;
+                return { text: data.choices[0].message.content, usage: data.usage || {} };
+            },
+
+            /**
+             * Gibt Call-Log für Pipeline-Performance zurück
+             */
+            getCallLog() {
+                return [...this.callLog];
             },
 
             /**
@@ -1578,7 +1744,7 @@
              * @param {boolean} useRanking - Ob KI-Ranking verwendet werden soll
              * @returns {Promise<Array>} Ausgewählte Templates
              */
-            async selectTemplates(profile, templates, count, allowedTypes = ['waterfall'], useRanking = false) {
+            selectTemplates(profile, templates, count, allowedTypes = ['waterfall']) {
                 // Filtere Templates nach erlaubtem Typ
                 const filtered = templates.filter(t =>
                     allowedTypes.includes(t.chart_type) ||
@@ -1588,415 +1754,645 @@
                 console.log(`ChartMixer: ${filtered.length} Templates für Typ "${allowedTypes.join(', ')}" gefunden`);
                 console.log('ChartMixer: Template-IDs:', filtered.map(t => t.template_id).join(', '));
 
-                // Wenn Ranking aktiviert und API verfügbar - IMMER ranken um unpassende Templates auszuschließen
-                if (useRanking && APIClient.apiKey && filtered.length > 0) {
-                    console.log(`ChartMixer: Starte KI-Ranking (${filtered.length} Templates, max ${count})`);
-                    try {
-                        const ranked = await LayoutRanker.rank(
-                            allowedTypes[0],
-                            profile,
-                            filtered,
-                            count
-                        );
-                        if (ranked && ranked.length > 0) {
-                            console.log(`ChartMixer: KI-Ranking erfolgreich - ${ranked.length} Templates ausgewählt`);
-                            return ranked;
-                        }
-                    } catch (error) {
-                        console.warn('ChartMixer: KI-Ranking fehlgeschlagen, verwende alle Templates:', error.message);
-                    }
-                }
-
-                // Fallback: Alle Templates des Typs zurückgeben
+                // Alle Templates des Typs zurückgeben (Ranking macht jetzt PROMPT-2)
                 return filtered;
             }
         };
 
         // =====================================================
-        // MODUL 4b: LAYOUT RANKER (NEU)
-        // Wählt die besten Layouts INNERHALB eines Chart-Typs
-        // Verhindert redundante/unpassende Layouts
+        // MODUL 4b: LAYOUT RANKER — ENTFERNT (ersetzt durch PROMPT-2)
+        // MODUL 4c: PERSPECTIVE DERIVER — ENTFERNT (ersetzt durch PROMPT-2)
         // =====================================================
-        const LayoutRanker = {
-            /**
-             * Rankt Layouts eines Chart-Typs basierend auf Daten-Profil
-             * @param {string} chartType - Der Chart-Typ (waterfall, bar, stacked_bar)
-             * @param {Object} profile - Daten-Profil vom DataProfiler
-             * @param {Array} templates - Verfügbare Templates des Typs
-             * @param {number} maxCount - Maximale Anzahl zu generierender Layouts
-             * @returns {Promise<Array>} Gerankte Templates
-             */
-            async rank(chartType, profile, templates, maxCount = 10) {
-                console.log(`LayoutRanker: Starte Ranking für ${chartType} (${templates.length} → max ${maxCount})`);
 
-                // Lade den Ranking-Prompt
-                const rankingPrompt = await PromptLoader.load('layout_ranking');
-                if (!rankingPrompt) {
-                    console.warn('LayoutRanker: Ranking-Prompt nicht verfügbar');
-                    return templates.slice(0, maxCount);
+        // =====================================================
+        // MODUL 5a: DETERMINISTIC CONFIG GENERATOR
+        // Ersetzt PROMPT-3 — generiert Chart-Configs deterministisch
+        // =====================================================
+        const DeterministicConfigGenerator = {
+
+            generateConfig(variant, analysisResult, colors, detectedLanguage) {
+                const template = TemplateLoader.getAll().find(t => t.template_id === variant.templateId) || {};
+                const chartType = (template.chart_type || 'waterfall').replace('-', '_');
+                const extracted = analysisResult.parsed?.extractedData || {};
+                const analysis = analysisResult.parsed?.analysis || {};
+                const metadata = analysisResult.parsed?.metadata || {};
+
+                let config;
+                switch (chartType) {
+                    case 'waterfall':
+                        config = this._generateWaterfallConfig(variant, template, extracted, analysis, metadata, colors);
+                        break;
+                    case 'bar':
+                        config = this._generateBarConfig(variant, template, extracted, analysis, metadata, colors);
+                        break;
+                    case 'stacked_bar':
+                        config = this._generateStackedBarConfig(variant, template, extracted, analysis, metadata, colors);
+                        break;
+                    default:
+                        config = this._generateWaterfallConfig(variant, template, extracted, analysis, metadata, colors);
                 }
 
-                // Baue den API-Request
-                const templateList = templates.map(t => ({
-                    template_id: t.template_id,
-                    name: t.name,
-                    chart_type: t.chart_type,
-                    description: t.description || '',
-                    metadata: t.metadata || {}
-                }));
+                // Gemeinsame Metadaten
+                config._generatedBy = 'deterministic';
+                config._layoutId = variant.templateId;
+                config._perspectiveName = variant.perspective || null;
+                config._variantTitle = variant.title;
+                config.title = variant.title || template.display_name || '';
+                config.subtitle = variant.subtitle || metadata.suggestedSubtitle || '';
 
-                const userMessage = `
-## Chart-Typ
-${chartType}
+                console.log(`DeterministicConfigGenerator: "${variant.title}" (${variant.templateId}) → ${Object.keys(config).length} Felder`);
+                return config;
+            },
 
-## Daten-Profil
-${JSON.stringify(profile, null, 2)}
+            // ── Waterfall Config ──────────────────────────────────
+            _generateWaterfallConfig(variant, template, extracted, analysis, metadata, colors) {
+                const category = this._getTemplateCategory(template.template_id);
+                const normalized = extracted.normalized || [];
+                const scenarios = analysis.scenarios || ['IST'];
+                const chartColors = this._resolveWaterfallColors(colors);
 
-## Gewünschte Anzahl
-${maxCount}
+                let bars;
+                switch (category) {
+                    case 'variance':
+                        bars = this._buildVarianceBars(normalized, variant.dataFilter, scenarios, chartColors);
+                        break;
+                    case 'trend':
+                        bars = this._buildTrendBars(normalized, variant.dataFilter, extracted.periods, scenarios, chartColors);
+                        break;
+                    case 'compare':
+                        bars = this._buildCompareBars(normalized, variant.dataFilter, scenarios, chartColors);
+                        break;
+                    default:
+                        bars = this._buildStructureBars(normalized, variant.dataFilter, scenarios, chartColors);
+                }
 
-## Verfügbare Templates
-${JSON.stringify(templateList, null, 2)}
+                const features = this._activateFeatures(bars, template, category, analysis, extracted);
 
-Wähle die ${maxCount} besten ${chartType}-Layouts für diese Daten.
-Antworte NUR mit dem JSON-Objekt, keine Erklärungen.
-`;
+                return {
+                    type: 'waterfall',
+                    bars: bars,
+                    colors: chartColors,
+                    features: features
+                };
+            },
 
-                try {
-                    const response = await APIClient.call(
-                        rankingPrompt,
-                        userMessage,
-                        4096  // Kleinere maxTokens für Ranking
-                    );
+            // ── Structure Bars (WF-01,02,05,06,07,10) ────────────
+            _buildStructureBars(normalized, dataFilter, scenarios, colors) {
+                const scenario = this._resolveScenario(dataFilter, scenarios);
+                return normalized
+                    .filter(item => item.values && item.values[scenario] !== undefined)
+                    .map(item => {
+                        const value = item.values[scenario];
+                        return {
+                            label: item.position,
+                            value: value,
+                            type: item.type || 'increase',
+                            displayValue: this._formatValue(value),
+                            color: this._colorForBarType(item.type, colors)
+                        };
+                    });
+            },
 
-                    // Parse die Antwort
-                    const result = this._parseRankingResponse(response);
+            // ── Variance Bars (WF-03,04,08,09,12) ────────────────
+            _buildVarianceBars(normalized, dataFilter, scenarios, colors) {
+                const scenarioPair = this._resolveScenarioPair(dataFilter, scenarios);
+                const [fromScenario, toScenario] = scenarioPair;
 
-                    if (result && result.selected_layouts && result.selected_layouts.length > 0) {
-                        // Mappe die IDs zurück zu den vollständigen Templates
-                        const selectedIds = result.selected_layouts.map(l => l.template_id);
-                        const rankedTemplates = [];
+                const startItem = normalized.find(n => n.type === 'start');
+                const endItem = normalized.find(n => n.type === 'end');
+                const fromValue = startItem?.values?.[fromScenario] || endItem?.values?.[fromScenario] || 0;
+                const toValue = startItem?.values?.[toScenario] || endItem?.values?.[toScenario] || 0;
 
-                        for (const id of selectedIds) {
-                            const template = templates.find(t => t.template_id === id);
-                            if (template) {
-                                rankedTemplates.push(template);
+                const bars = [];
+
+                bars.push({
+                    label: fromScenario,
+                    value: fromValue,
+                    type: 'start',
+                    displayValue: this._formatValue(fromValue),
+                    color: colors.start
+                });
+
+                normalized
+                    .filter(n => n.type !== 'start' && n.type !== 'end')
+                    .forEach(item => {
+                        const fromVal = item.values?.[fromScenario] || 0;
+                        const toVal = item.values?.[toScenario] || 0;
+                        const delta = toVal - fromVal;
+                        if (Math.abs(delta) > 0) {
+                            bars.push({
+                                label: item.position,
+                                value: delta,
+                                type: delta >= 0 ? 'increase' : 'decrease',
+                                displayValue: this._formatValue(delta),
+                                color: delta >= 0 ? colors.positive : colors.negative
+                            });
+                        }
+                    });
+
+                bars.push({
+                    label: toScenario,
+                    value: toValue,
+                    type: 'end',
+                    displayValue: this._formatValue(toValue),
+                    color: colors.end
+                });
+
+                return bars;
+            },
+
+            // ── Trend Bars (WF-11,13) ─────────────────────────────
+            _buildTrendBars(normalized, dataFilter, periods, scenarios, colors) {
+                return this._buildStructureBars(normalized, dataFilter, scenarios, colors);
+            },
+
+            // ── Compare Bars (WF-14 bis WF-19) ───────────────────
+            _buildCompareBars(normalized, dataFilter, scenarios, colors) {
+                const bars = this._buildStructureBars(normalized, dataFilter, scenarios, colors);
+                const primaryScenario = this._resolveScenario(dataFilter, scenarios);
+                const compareScenarios = (Array.isArray(dataFilter?.scenario) ? dataFilter.scenario : scenarios)
+                    .filter(s => s !== primaryScenario);
+
+                if (compareScenarios.length > 0) {
+                    const startItem = normalized.find(n => n.type === 'start');
+                    const endItem = normalized.find(n => n.type === 'end');
+
+                    compareScenarios.forEach(cs => {
+                        if (startItem?.values?.[cs] !== undefined) {
+                            const idx = bars.findIndex(b => b.type === 'start');
+                            if (idx >= 0) {
+                                bars.splice(idx + 1, 0, {
+                                    label: cs,
+                                    value: startItem.values[cs],
+                                    type: 'compare',
+                                    displayValue: this._formatValue(startItem.values[cs]),
+                                    color: colors.compare || '#7F8C8D'
+                                });
                             }
                         }
-
-                        console.log(`LayoutRanker: ${rankedTemplates.length} Templates ausgewählt:`, selectedIds);
-
-                        // Speichere Reasoning für Debug
-                        if (result.excluded_templates) {
-                            console.log('LayoutRanker: Ausgeschlossene Templates:', result.excluded_templates);
+                        if (endItem?.values?.[cs] !== undefined) {
+                            bars.push({
+                                label: cs,
+                                value: endItem.values[cs],
+                                type: 'compare',
+                                displayValue: this._formatValue(endItem.values[cs]),
+                                color: colors.compare || '#7F8C8D'
+                            });
                         }
-
-                        return rankedTemplates;
-                    }
-                } catch (error) {
-                    console.error('LayoutRanker: Fehler beim Ranking:', error.message);
+                    });
                 }
 
-                // Fallback: Erste N Templates zurückgeben
-                console.log('LayoutRanker: Fallback - erste', maxCount, 'Templates');
-                return templates.slice(0, maxCount);
+                return bars;
             },
 
-            /**
-             * Parst die KI-Antwort für Ranking
-             */
-            _parseRankingResponse(response) {
-                try {
-                    // Versuche direkt zu parsen
-                    if (typeof response === 'object') {
-                        return response;
+            // ── Bar Config ────────────────────────────────────────
+            _generateBarConfig(variant, template, extracted, analysis, metadata, colors) {
+                const normalized = extracted.normalized || [];
+                const scenarios = analysis.scenarios || ['IST'];
+                const resolvedScenarios = Array.isArray(variant.dataFilter?.scenario)
+                    ? variant.dataFilter.scenario
+                    : [this._resolveScenario(variant.dataFilter, scenarios)];
+
+                const barColors = Array.isArray(colors) && colors.length > 0 ? colors : DEFAULT_COLORS.bar;
+                const periods = resolvedScenarios.map((s, i) => ({
+                    label: s,
+                    color: barColors[i % barColors.length] || DEFAULT_COLORS.bar[i % DEFAULT_COLORS.bar.length],
+                    type: ['FC', 'FORECAST', 'BUD', 'BUDGET', 'PLAN'].includes(s.toUpperCase()) ? s : 'IST'
+                }));
+
+                const categories = normalized
+                    .filter(item => item.type !== 'subtotal')
+                    .map(item => ({
+                        name: item.position,
+                        values: resolvedScenarios.map(s => Math.abs(item.values?.[s] || 0))
+                    }));
+
+                return {
+                    type: 'bar',
+                    periods: periods,
+                    categories: categories
+                };
+            },
+
+            // ── Stacked Bar Config ────────────────────────────────
+            _generateStackedBarConfig(variant, template, extracted, analysis, metadata, colors) {
+                const normalized = extracted.normalized || [];
+                const scenarios = analysis.scenarios || ['IST'];
+                const scenario = this._resolveScenario(variant.dataFilter, scenarios);
+
+                const stackedColors = Array.isArray(colors) && colors.length > 0 ? colors : DEFAULT_COLORS.stacked;
+                const periodLabels = extracted.periods?.all || scenarios;
+                const categories = periodLabels.map(p => ({ name: p }));
+
+                const positions = normalized.filter(n =>
+                    !['start', 'end', 'subtotal'].includes(n.type)
+                );
+
+                const segments = positions.map((pos, i) => ({
+                    name: pos.position,
+                    color: stackedColors[i % stackedColors.length] || DEFAULT_COLORS.stacked[i % DEFAULT_COLORS.stacked.length],
+                    values: periodLabels.map(p => {
+                        return Math.abs(pos.values?.[p] || pos.values?.[scenario] || 0);
+                    }),
+                    type: pos.type
+                }));
+
+                return {
+                    type: 'stacked-bar',
+                    categories: categories,
+                    segments: segments,
+                    options: { showValues: true, showTotals: true, showLegend: true }
+                };
+            },
+
+            // ── Feature-Aktivierung (alle 7 Features) ────────────
+            _activateFeatures(bars, template, category, analysis, extracted) {
+                const features = {};
+                const available = template.availableFeatures || [];
+                const hints = template.featureHints || {};
+
+                // 1. BRACKET
+                if (available.includes('bracket')) {
+                    const startBar = bars.find(b => b.type === 'start');
+                    const endBar = bars.find(b => b.type === 'end');
+
+                    if (bars.length >= 4 && startBar && endBar && startBar.value !== 0) {
+                        const delta = (endBar.value - startBar.value) / Math.abs(startBar.value);
+
+                        if (Math.abs(delta) > 0.05) {
+                            let mode = hints.bracket?.mode || 'standard';
+                            if (category === 'variance') {
+                                const sc = analysis.scenarios || [];
+                                if (sc.includes('BUD')) mode = 'budget';
+                                else if (sc.includes('VJ') || sc.includes('PY')) mode = 'yoy';
+                                else if (sc.includes('FC')) mode = 'fc';
+                            } else if (category === 'trend') {
+                                mode = 'cagr';
+                            }
+
+                            const sign = delta >= 0 ? '+' : '';
+                            let label = `${sign}${(delta * 100).toFixed(1)}%`;
+                            if (mode === 'budget') label += ' vs. Budget';
+                            else if (mode === 'yoy') label += ' YoY';
+                            else if (mode === 'fc') label += ' vs. FC';
+
+                            features.bracket = {
+                                enabled: true,
+                                mode: mode,
+                                fromIndex: bars.indexOf(startBar),
+                                toIndex: bars.indexOf(endBar),
+                                label: label,
+                                _reason: `Delta ${(delta * 100).toFixed(1)}% > 5% Schwelle`
+                            };
+                        } else {
+                            features.bracket = { enabled: false, _reason: `Delta ${(delta * 100).toFixed(1)}% < 5% Schwelle` };
+                        }
+                    } else {
+                        features.bracket = { enabled: false, _reason: bars.length < 4 ? 'Weniger als 4 Balken' : 'Kein Start/End' };
                     }
-
-                    // String-Antwort: JSON extrahieren
-                    let jsonStr = response;
-
-                    // Entferne Markdown Code-Blöcke
-                    if (jsonStr.includes('```json')) {
-                        jsonStr = jsonStr.split('```json')[1].split('```')[0];
-                    } else if (jsonStr.includes('```')) {
-                        jsonStr = jsonStr.split('```')[1].split('```')[0];
-                    }
-
-                    return JSON.parse(jsonStr.trim());
-                } catch (error) {
-                    console.error('LayoutRanker: JSON Parse Fehler:', error.message);
-                    return null;
                 }
+
+                // 2. SCALE-BREAK
+                if (available.includes('scaleBreak') && ['structure', 'variance'].includes(category)) {
+                    const deltas = bars.filter(b => ['increase', 'decrease'].includes(b.type));
+                    const avgDelta = deltas.length > 0
+                        ? deltas.reduce((s, b) => s + Math.abs(b.value), 0) / deltas.length
+                        : 0;
+                    const maxBar = Math.max(
+                        bars.find(b => b.type === 'start')?.value || 0,
+                        bars.find(b => b.type === 'end')?.value || 0
+                    );
+                    const ratio = avgDelta > 0 ? maxBar / avgDelta : 0;
+
+                    if (ratio > 3) {
+                        features.scaleBreak = {
+                            enabled: true,
+                            breakAt: avgDelta * 2,
+                            style: 'zigzag',
+                            _reason: `Ratio ${ratio.toFixed(1)} > 3`
+                        };
+                    } else {
+                        features.scaleBreak = { enabled: false, _reason: `Ratio ${ratio.toFixed(1)} <= 3` };
+                    }
+                }
+
+                // 3. NEGATIVE-BRIDGES
+                if (available.includes('negativeBridges')) {
+                    let cumulative = 0;
+                    const cumulatives = bars.map(b => {
+                        if (b.type === 'start') cumulative = b.value;
+                        else if (b.type === 'end') cumulative = b.value;
+                        else cumulative += b.value;
+                        return cumulative;
+                    });
+                    const minVal = Math.min(...cumulatives);
+
+                    if (cumulatives.some(v => v < 0)) {
+                        features.negativeBridges = {
+                            enabled: true,
+                            minValue: minVal,
+                            crossingIndices: cumulatives.reduce((acc, v, i) => {
+                                if (i > 0 && ((cumulatives[i-1] >= 0 && v < 0) || (cumulatives[i-1] < 0 && v >= 0))) acc.push(i);
+                                return acc;
+                            }, []),
+                            _reason: `Min. kumulativer Wert: ${minVal}`
+                        };
+                        if (features.scaleBreak?.enabled) {
+                            features.scaleBreak.enabled = false;
+                            features.scaleBreak._reason = 'Deaktiviert wegen negativeBridges (Konflikt)';
+                        }
+                    } else {
+                        features.negativeBridges = { enabled: false, _reason: 'Alle kumulativen Werte positiv' };
+                    }
+                }
+
+                // 4. CATEGORY-BRACKETS
+                if (available.includes('categoryBrackets') && category === 'structure') {
+                    const hierarchy = analysis.hierarchy;
+                    if (hierarchy?.detected && hierarchy.groups?.length >= 2) {
+                        const startBar = bars.find(b => b.type === 'start');
+                        const referenceValue = startBar?.value || 1;
+
+                        const items = [];
+                        bars.forEach((bar, idx) => {
+                            if (bar.type === 'decrease' || bar.type === 'increase') {
+                                const pct = Math.abs(bar.value / referenceValue * 100).toFixed(1);
+                                items.push({
+                                    barIndex: idx,
+                                    label: pct + '%',
+                                    description: 'vom ' + (startBar?.label || 'Gesamt')
+                                });
+                            }
+                        });
+
+                        if (items.length > 0) {
+                            features.categoryBrackets = { enabled: true, items: items, _reason: 'Hierarchie erkannt' };
+                        } else {
+                            features.categoryBrackets = { enabled: false, _reason: 'Keine sinnvollen Anteile berechenbar' };
+                        }
+                    } else {
+                        features.categoryBrackets = { enabled: false, _reason: category !== 'structure' ? 'Nicht Structure' : 'Keine Hierarchie' };
+                    }
+                }
+
+                // 5. GROUPING
+                if (available.includes('grouping') && category === 'structure' && bars.length >= 6) {
+                    const hierarchy = analysis.hierarchy;
+                    if (hierarchy?.detected && hierarchy.groups?.length >= 2) {
+                        features.grouping = {
+                            enabled: true,
+                            groups: hierarchy.groups.map(g => ({
+                                label: g.name || g.label,
+                                fromIndex: g.firstBarIndex || 0,
+                                toIndex: g.lastBarIndex || 0
+                            })),
+                            style: hints.grouping?.style || 'bracket',
+                            _reason: `${hierarchy.groups.length} Gruppen erkannt`
+                        };
+                    } else {
+                        features.grouping = { enabled: false, _reason: 'Keine Hierarchie-Gruppen' };
+                    }
+                }
+
+                // 6. BENCHMARK-LINES
+                if (available.includes('benchmarkLines')) {
+                    const targetScenarios = (analysis.scenarios || [])
+                        .filter(s => ['TARGET', 'GUIDANCE', 'PLAN', 'ZIEL'].includes(s.toUpperCase()));
+
+                    if (targetScenarios.length > 0) {
+                        const endItem = (extracted.normalized || []).find(n => n.type === 'end');
+                        const lines = targetScenarios.slice(0, 2).map((ts, i) => ({
+                            value: endItem?.values?.[ts] || 0,
+                            label: ts,
+                            style: i === 0 ? 'dashed' : 'dotted',
+                            color: i === 0 ? '#FF8C00' : '#888888'
+                        }));
+                        features.benchmarkLines = { enabled: true, lines: lines, _reason: `Zielwerte: ${targetScenarios.join(', ')}` };
+                    } else {
+                        features.benchmarkLines = { enabled: false, _reason: 'Keine Zielwert-Szenarien' };
+                    }
+                }
+
+                // 7. ARROWS (nur wenn bracket NICHT aktiv)
+                if (available.includes('arrows')) {
+                    features.arrows = {
+                        enabled: false,
+                        _reason: features.bracket?.enabled ? 'Bracket hat Priorität (Konflikt)' : 'Kein spezifischer Vergleich'
+                    };
+                }
+
+                return features;
+            },
+
+            // ── Helfer-Methoden ───────────────────────────────────
+
+            _getTemplateCategory(templateId) {
+                const map = {
+                    'WF-01':'structure', 'WF-02':'structure', 'WF-05':'structure',
+                    'WF-06':'structure', 'WF-07':'structure', 'WF-10':'structure',
+                    'WF-03':'variance', 'WF-04':'variance', 'WF-08':'variance',
+                    'WF-09':'variance', 'WF-12':'variance',
+                    'WF-11':'trend', 'WF-13':'trend',
+                    'WF-14':'compare', 'WF-15':'compare', 'WF-16':'compare',
+                    'WF-17':'compare', 'WF-18':'compare', 'WF-19':'compare'
+                };
+                return map[templateId] || 'structure';
+            },
+
+            _resolveScenario(dataFilter, scenarios) {
+                if (dataFilter?.scenario && typeof dataFilter.scenario === 'string') {
+                    return dataFilter.scenario;
+                }
+                if (Array.isArray(dataFilter?.scenario) && dataFilter.scenario.length > 0) {
+                    return dataFilter.scenario[0];
+                }
+                const priority = ['IST', 'ACTUAL', 'FC', 'FORECAST', 'BUD', 'BUDGET'];
+                for (const p of priority) {
+                    if (scenarios.includes(p)) return p;
+                }
+                return scenarios[0] || 'IST';
+            },
+
+            _resolveScenarioPair(dataFilter, scenarios) {
+                if (Array.isArray(dataFilter?.scenario) && dataFilter.scenario.length >= 2) {
+                    return [dataFilter.scenario[0], dataFilter.scenario[1]];
+                }
+                if (scenarios.includes('BUD') && scenarios.includes('IST')) return ['BUD', 'IST'];
+                if (scenarios.includes('VJ') && scenarios.includes('IST')) return ['VJ', 'IST'];
+                if (scenarios.includes('PY') && scenarios.includes('IST')) return ['PY', 'IST'];
+                if (scenarios.includes('FC') && scenarios.includes('IST')) return ['FC', 'IST'];
+                return [scenarios[0] || 'BUD', scenarios[1] || 'IST'];
+            },
+
+            _resolveWaterfallColors(colors) {
+                if (Array.isArray(colors) && colors.length > 0) {
+                    return {
+                        start: colors[0] || DEFAULT_COLORS.waterfall.start,
+                        end: colors[0] || DEFAULT_COLORS.waterfall.end,
+                        positive: colors[1] || DEFAULT_COLORS.waterfall.positive,
+                        negative: colors[2] || DEFAULT_COLORS.waterfall.negative,
+                        compare: colors[3] || DEFAULT_COLORS.waterfall.compare,
+                        connector: '#333333'
+                    };
+                }
+                return { ...DEFAULT_COLORS.waterfall };
+            },
+
+            _colorForBarType(barType, colors) {
+                const map = {
+                    start: colors.start, end: colors.end,
+                    increase: colors.positive, decrease: colors.negative,
+                    subtotal: colors.start, compare: colors.compare
+                };
+                return map[barType] || colors.start;
+            },
+
+            _formatValue(value) {
+                const absVal = Math.abs(value);
+                if (absVal >= 1000000) {
+                    return (value / 1000000).toFixed(1).replace('.', ',') + ' Mio.';
+                }
+                return Math.round(value).toLocaleString('de-DE');
             }
         };
 
         // =====================================================
-        // MODUL 4c: PERSPECTIVE DERIVER (NEU)
-        // Leitet Visualisierungsperspektiven aus Hierarchie ab
-        // Ermöglicht verschiedene Blickwinkel auf die Daten
-        // =====================================================
-        const PerspectiveDeriver = {
-            /**
-             * Leitet Visualisierungsperspektiven aus der Datenstruktur ab
-             * @param {Object} hierarchy - Erkannte Hierarchie aus DATA_ANALYZER
-             * @param {Object} extractedData - Die extrahierten Rohdaten
-             * @param {Object} analysis - Analyse-Metadaten
-             * @param {string} chartType - Der gewählte Chart-Typ
-             * @returns {Promise<Array>} Array von Perspektiven
-             */
-            async derive(hierarchy, extractedData, analysis, chartType) {
-                console.log(`PerspectiveDeriver: Starte Ableitung für ${chartType}`);
-                console.log('PerspectiveDeriver: Hierarchy:', hierarchy);
-
-                // Wenn keine Hierarchie erkannt wurde, generiere Standard-Perspektiven
-                if (!hierarchy || !hierarchy.detected) {
-                    console.log('PerspectiveDeriver: Keine Hierarchie erkannt, verwende Standard-Perspektiven');
-                    return this._getDefaultPerspectives(chartType, analysis);
-                }
-
-                // Lade den Perspektiven-Prompt
-                const perspectivePrompt = await PromptLoader.load('perspective_derivation');
-                if (!perspectivePrompt) {
-                    console.warn('PerspectiveDeriver: Prompt nicht verfügbar, verwende Standard-Perspektiven');
-                    return this._getDefaultPerspectives(chartType, analysis);
-                }
-
-                // Baue den API-Request
-                const userMessage = `
-## Erkannte Hierarchie
-${JSON.stringify(hierarchy, null, 2)}
-
-## Extrahierte Daten (Auszug)
-${JSON.stringify(this._summarizeExtractedData(extractedData), null, 2)}
-
-## Analyse-Metadaten
-${JSON.stringify({
-    dataType: analysis?.dataType,
-    valueTypes: analysis?.valueTypes,
-    periods: analysis?.periods,
-    hasVariance: analysis?.hasVariance
-}, null, 2)}
-
-## Gewählter Chart-Typ
-${chartType}
-
-WICHTIG: Generiere mindestens 6 verschiedene Visualisierungsperspektiven basierend auf der Datenstruktur.
-Erstelle für JEDEN Wert der Aggregationsebene (z.B. jeden Cluster) eine eigene gefilterte Perspektive!
-Antworte NUR mit einem validen JSON-Objekt im Format { "perspectives": [...] }.`;
-
-                try {
-                    const response = await APIClient.call(perspectivePrompt, userMessage, {
-                        maxTokens: 4096,
-                        timeout: 30000
-                    });
-
-                    const result = APIClient.parseJSON(response);
-                    if (result && Array.isArray(result.perspectives) && result.perspectives.length > 0) {
-                        console.log(`PerspectiveDeriver: ${result.perspectives.length} Perspektiven abgeleitet`);
-                        // Sortiere nach Priorität
-                        result.perspectives.sort((a, b) => (a.priority || 99) - (b.priority || 99));
-                        return result.perspectives;
-                    }
-                } catch (error) {
-                    console.error('PerspectiveDeriver: KI-Ableitung fehlgeschlagen:', error.message);
-                }
-
-                // Fallback zu Standard-Perspektiven
-                return this._getDefaultPerspectives(chartType, analysis);
-            },
-
-            /**
-             * Zusammenfassung der extrahierten Daten für den Prompt
-             */
-            _summarizeExtractedData(extractedData) {
-                const summary = {};
-
-                if (extractedData?.waterfall?.bars) {
-                    summary.waterfall = {
-                        barCount: extractedData.waterfall.bars.length,
-                        sampleLabels: extractedData.waterfall.bars.slice(0, 5).map(b => b.label)
-                    };
-                }
-
-                if (extractedData?.bar?.categories) {
-                    summary.bar = {
-                        categoryCount: extractedData.bar.categories.length,
-                        sampleCategories: extractedData.bar.categories.slice(0, 5).map(c =>
-                            typeof c === 'string' ? c : c.name || c.label
-                        )
-                    };
-                }
-
-                if (extractedData?.stacked?.categories) {
-                    summary.stacked = {
-                        categoryCount: extractedData.stacked.categories.length,
-                        segmentCount: extractedData.stacked.segments?.length || 0
-                    };
-                }
-
-                return summary;
-            },
-
-            /**
-             * Standard-Perspektiven wenn keine Hierarchie erkannt wurde
-             */
-            _getDefaultPerspectives(chartType, analysis) {
-                const hasYoY = analysis?.valueTypes?.some(t =>
-                    t.toLowerCase().includes('vj') || t.toLowerCase().includes('py')
-                );
-                const hasBudget = analysis?.valueTypes?.some(t =>
-                    t.toLowerCase().includes('bud') || t.toLowerCase().includes('plan')
-                );
-
-                const perspectives = [
-                    {
-                        id: 'p1',
-                        name: 'Standard-Ansicht',
-                        description: 'Vollständige Darstellung aller Daten',
-                        dimension: 'default',
-                        filter: null,
-                        comparison: null,
-                        aggregationLevel: 'detail',
-                        priority: 1
-                    },
-                    {
-                        id: 'p2',
-                        name: 'Zusammenfassung',
-                        description: 'Aggregierte Hauptpositionen',
-                        dimension: 'default',
-                        filter: null,
-                        comparison: null,
-                        aggregationLevel: 'summary',
-                        priority: 2
-                    }
-                ];
-
-                if (hasYoY) {
-                    perspectives.push({
-                        id: 'p3',
-                        name: 'Vorjahresvergleich',
-                        description: 'Vergleich mit Vorjahr',
-                        dimension: 'default',
-                        filter: null,
-                        comparison: 'YoY',
-                        aggregationLevel: 'detail',
-                        priority: 3
-                    });
-                }
-
-                if (hasBudget) {
-                    perspectives.push({
-                        id: 'p4',
-                        name: 'Budget-Vergleich',
-                        description: 'Plan vs. Ist',
-                        dimension: 'default',
-                        filter: null,
-                        comparison: 'Budget',
-                        aggregationLevel: 'detail',
-                        priority: 4
-                    });
-                }
-
-                console.log(`PerspectiveDeriver: ${perspectives.length} Standard-Perspektiven generiert`);
-                return perspectives;
-            }
-        };
-
-        // =====================================================
-        // MODUL 5: CONFIG GENERATOR
+        // MODUL 5b: CONFIG GENERATOR (Legacy — KI-basiert, nicht mehr im Standard-Workflow)
         // Generiert Chart-Configs aus Templates + Daten
         // =====================================================
         const ConfigGenerator = {
-            // Cache für Field-Mappings (pro Perspektive)
-            _fieldMappingCache: new Map(),
+            // FIELD-MAPPING ENTFERNT — ersetzt durch PROMPT-3 (Config Generator)
+            _featureCatalogCache: {},  // Cache: chartType → featureCatalog-Inhalt
 
             /**
-             * SCHRITT 1: Field-Mapping durchführen (separater API-Call)
-             * Mappt Template-Felder auf Quelldaten basierend auf Perspektive
-             * @param {Object} template - Das ausgewählte Template
-             * @param {Object} data - Die Quelldaten
-             * @param {Object} perspective - Die Visualisierungsperspektive
-             * @returns {Promise<Object>} Field-Mapping-Ergebnis
+             * Lädt den Feature-Katalog für einen Chart-Typ (mit Cache)
              */
-            async _performFieldMapping(template, data, perspective) {
-                // Cache-Key: perspectiveId + templateId
-                const cacheKey = `${perspective?.id || 'default'}:${template.template_id}`;
+            async _loadFeatureCatalog(chartType) {
+                const typeKey = chartType.replace('-', '_');
+                if (this._featureCatalogCache[typeKey]) return this._featureCatalogCache[typeKey];
 
-                // Prüfe Cache
-                if (this._fieldMappingCache.has(cacheKey)) {
-                    console.log(`FieldMapping: Cache-Hit für ${cacheKey}`);
-                    return this._fieldMappingCache.get(cacheKey);
-                }
-
-                console.log(`FieldMapping: Starte Mapping für Template ${template.template_id} mit Perspektive ${perspective?.name || 'Standard'}`);
-
-                // Lade Field-Mapping-Prompt
-                const fieldMappingPrompt = await PromptLoader.load('field_mapping');
-
-                // Erstelle User-Prompt für Field-Mapping
-                const userPrompt = `## Template-Struktur
-${JSON.stringify(template, null, 2)}
-
-## Verfügbare Datenfelder
-${JSON.stringify(data, null, 2)}
-
-## Perspektive
-${perspective ? `
-- Name: ${perspective.name}
-- Dimension: ${perspective.dimension}
-- Filter: ${perspective.filter || 'Kein Filter'}
-- Aggregationsebene: ${perspective.aggregationLevel}
-- Vergleich: ${perspective.comparison || 'Keiner'}
-
-WICHTIG: Das Mapping muss die Perspektive berücksichtigen!
-${perspective.filter ? `- Filtere auf: ${perspective.filter}` : ''}
-${perspective.aggregationLevel === 'summary' ? '- Nur aggregierte Werte mappen' : ''}
-${perspective.aggregationLevel === 'detail' ? '- Detail-Werte mappen' : ''}
-` : 'Keine spezifische Perspektive - verwende alle Daten'}
-
-Erstelle das Feld-Mapping für dieses Template unter Berücksichtigung der Perspektive.
-Antworte NUR mit einem validen JSON-Objekt.`;
+                const typeMap = { waterfall: 'Waterfall', bar: 'Bar', stacked_bar: 'Stacked-Bar' };
+                const folder = typeMap[typeKey];
+                if (!folder) return null;
 
                 try {
-                    const response = await APIClient.call(fieldMappingPrompt, userPrompt, { maxTokens: 4096 });
-                    const mapping = APIClient.parseJSON(response);
-
-                    console.log(`FieldMapping: Mapping für ${cacheKey} erfolgreich:`, {
-                        mappedFields: mapping.field_mappings?.length || 0,
-                        unmappedFields: mapping.unmapped_template_fields?.length || 0,
-                        warnings: mapping.warnings?.length || 0
-                    });
-
-                    // Cache speichern
-                    this._fieldMappingCache.set(cacheKey, mapping);
-
-                    return mapping;
-                } catch (error) {
-                    console.warn(`FieldMapping: Fehler für ${cacheKey}:`, error.message);
-                    // Fallback: leeres Mapping (Chart-Prompt macht dann implizites Mapping)
-                    return { field_mappings: [], mapping_status: 'fallback', error: error.message };
+                    const path = `../4. Prompts/Features/${folder}/_FEATURE-CATALOG.md`;
+                    const response = await fetch(path);
+                    if (!response.ok) return null;
+                    const content = await response.text();
+                    this._featureCatalogCache[typeKey] = content;
+                    console.log(`ConfigGenerator: Feature-Katalog geladen für ${typeKey} (${content.length} Zeichen)`);
+                    return content;
+                } catch (e) {
+                    console.warn(`ConfigGenerator: Feature-Katalog nicht verfügbar für ${typeKey}:`, e.message);
+                    return null;
                 }
             },
 
             /**
-             * Generiert eine Chart-Config aus Template und Daten
-             * NEUER ABLAUF:
-             * 1. Field-Mapping (separater API-Call)
-             * 2. Chart-Config-Generierung (mit Mapping-Ergebnis)
+             * Generiert eine Chart-Config via PROMPT-3 (Config Generator)
+             * Ersetzt: altes Field-Mapping + Chart-Prompt Config-Generierung
              *
-             * @param {Object} template - Das ausgewählte Template
-             * @param {Object} data - Die Quelldaten
+             * @param {Object} variant - Variante von PROMPT-2 (templateId, title, perspective, dataFilter)
+             * @param {Object} analysisResult - Vollständiges Analyse-Ergebnis (PROMPT-1 Output)
              * @param {Object} colors - Die Farbpalette
+             * @param {string} configPrompt - Der geladene PROMPT-3 Inhalt
              * @param {string} detectedLanguage - Erkannte Sprache der Quelldaten ('de', 'en', 'unknown')
-             * @param {Object} perspective - Die zu verwendende Visualisierungsperspektive (optional)
              * @returns {Promise<Object>} Fertige Chart-Config
+             */
+            async generateConfig(variant, analysisResult, colors, configPrompt, detectedLanguage = 'unknown') {
+                console.log(`ConfigGenerator: Starte Config-Generierung für Variante "${variant.title}" (Template: ${variant.templateId})`);
+
+                // Sprach-Hinweis
+                let languageNote;
+                if (detectedLanguage === 'de') {
+                    languageNote = 'Die Quelldaten sind auf DEUTSCH. Verwende AUSSCHLIESSLICH deutsche Labels!';
+                } else if (detectedLanguage === 'en') {
+                    languageNote = 'Die Quelldaten sind auf ENGLISCH. Verwende AUSSCHLIESSLICH englische Labels!';
+                } else {
+                    languageNote = 'Behalte die Original-Sprache der Labels bei!';
+                }
+
+                // Template aus Bibliothek laden (für Metadaten)
+                const template = TemplateLoader.getAll().find(t => t.template_id === variant.templateId) || {};
+
+                // Feature-Katalog laden (chart-type-spezifisch)
+                const chartType = template.chart_type || variant.templateId?.split('-')[0]?.toLowerCase() || 'waterfall';
+                const featureCatalog = await this._loadFeatureCatalog(chartType);
+
+                // Feature-Infos für Prompt zusammenstellen
+                let featureSection = '';
+                if (featureCatalog) {
+                    featureSection += `\n## Feature-Katalog (Aktivierungsregeln & Konflikte)\n${featureCatalog}\n`;
+                }
+                if (template.availableFeatures && template.availableFeatures.length > 0) {
+                    featureSection += `\n## Verfügbare Features für dieses Template\n${JSON.stringify(template.availableFeatures, null, 2)}\n`;
+                }
+                if (template.featureHints && Object.keys(template.featureHints).length > 0) {
+                    featureSection += `\n## Feature-Hints (empfohlene Modi/Parameter)\n${JSON.stringify(template.featureHints, null, 2)}\n`;
+                }
+
+                const userPrompt = `## Variante (von PROMPT-2)
+${JSON.stringify(variant, null, 2)}
+
+## Template-Metadaten
+${JSON.stringify(template, null, 2)}
+
+## Analyse-Ergebnis (von PROMPT-1)
+${JSON.stringify(analysisResult.parsed, null, 2)}
+
+## Farbpalette
+${JSON.stringify(colors, null, 2)}
+${featureSection}
+## KRITISCHE LABEL-ANWEISUNG:
+${languageNote}
+
+### Pflicht-Regeln für Labels:
+1. Verwende EXAKT die Labels/Bezeichnungen aus den extrahierten Daten
+2. KEINE Übersetzungen (z.B. "Umsatz" → "Revenue" ist VERBOTEN)
+3. KEINE Synonyme (z.B. "Kosten" → "Aufwendungen" ist VERBOTEN)
+4. KEINE erfundenen Labels - nur was in den Daten steht
+5. Schreibweise 1:1 übernehmen (Groß-/Kleinschreibung)
+
+WICHTIG: Antworte NUR mit einem validen JSON-Objekt. Kein erklärender Text davor oder danach.`;
+
+                try {
+                    const response = await APIClient.call(configPrompt, userPrompt, { maxTokens: 16384, label: `PROMPT-3: ${variant.title}` });
+                    let config = APIClient.parseJSON(response);
+
+                    // Wrapper-Erkennung (KI sendet manchmal { variant1: { ... } })
+                    const wrapperKeys = ['variant1', 'variant2', 'config', 'chartConfig', 'data', 'chart'];
+                    for (const key of wrapperKeys) {
+                        if (config[key] && typeof config[key] === 'object') {
+                            const wrapped = config[key];
+                            const hasChartData = wrapped.bars || wrapped.periods || wrapped.categories || wrapped.segments;
+                            if (hasChartData) {
+                                console.log(`ConfigGenerator: Extrahiere config aus "${key}" Wrapper`);
+                                config = wrapped;
+                                break;
+                            }
+                        }
+                    }
+
+                    config._generatedBy = 'ai';
+                    config._layoutId = variant.templateId;
+                    config._perspectiveName = variant.perspective || null;
+                    config._variantTitle = variant.title;
+
+                    console.log(`ConfigGenerator: Config generiert für "${variant.title}" - Felder: ${Object.keys(config).join(', ')}`);
+                    return config;
+                } catch (error) {
+                    console.error(`ConfigGenerator: Fehler bei "${variant.title}":`, error.message);
+                    throw error;
+                }
+            },
+
+            /**
+             * LEGACY: Generiert eine Chart-Config im alten Format
+             * Wird nur noch als Fallback verwendet wenn PROMPT-3 nicht verfügbar
              */
             async generate(template, data, colors, detectedLanguage = 'unknown', perspective = null) {
                 const chartType = template.chart_type;
-
-                // SCHRITT 1: Field-Mapping durchführen (separater API-Call)
-                const fieldMapping = await this._performFieldMapping(template, data, perspective);
-                console.log(`ConfigGenerator: Field-Mapping abgeschlossen (Status: ${fieldMapping.mapping_status || 'ok'})`);
 
                 // Lade den passenden Prompt aus .md-Datei (via PromptLoader)
                 let prompt;
@@ -2015,21 +2411,17 @@ Antworte NUR mit einem validen JSON-Objekt.`;
                         throw new Error(`Unbekannter Chart-Typ: ${chartType}`);
                 }
 
-                // Prüfe ob API-Key vorhanden
                 if (!APIClient.apiKey) {
                     throw new Error('Kein API-Key vorhanden - Demo-Modus erforderlich');
                 }
 
-                // SCHRITT 2: KI-Generierung mit Perspektive und Field-Mapping
                 const perspectiveInfo = perspective ? ` mit Perspektive "${perspective.name}"` : '';
-                console.log(`ConfigGenerator: Starte KI-Generierung für Template: ${template.template_id}${perspectiveInfo}`);
-                const config = await this._generateWithAI(template, data, colors, prompt, detectedLanguage, perspective, fieldMapping);
-                config._generatedBy = 'ai'; // Markiere als KI-generiert
-                config._perspectiveId = perspective?.id || null; // Speichere Perspektive-ID
+                console.log(`ConfigGenerator: Legacy-Generierung für Template: ${template.template_id}${perspectiveInfo}`);
+                const config = await this._generateWithAI(template, data, colors, prompt, detectedLanguage, perspective, null);
+                config._generatedBy = 'ai';
+                config._perspectiveId = perspective?.id || null;
                 config._perspectiveName = perspective?.name || null;
-                console.log('ConfigGenerator: KI-Generierung erfolgreich');
                 return config;
-                // Fehler werden nach oben propagiert für Demo-Modus
             },
 
             /**
@@ -2231,7 +2623,7 @@ Generiere eine vollständige Chart-Konfiguration für dieses Template.
 Befolge exakt das config-Format aus dem Prompt.`;
 
                 try {
-                    const response = await APIClient.call(prompt, userPrompt, { maxTokens: 16384 });
+                    const response = await APIClient.call(prompt, userPrompt, { maxTokens: 16384, label: `Config (Legacy): ${template.template_id}` });
                     console.log(`ConfigGenerator._generateWithAI: Antwort erhalten für ${template.template_id} (${response?.length || 0} Zeichen)`);
 
                     let config = APIClient.parseJSON(response);
@@ -2445,9 +2837,8 @@ Befolge exakt das config-Format aus dem Prompt.`;
                 'waterfall': 'WATERFALL-CHART-PROMPT.md',
                 'bar': 'BAR-CHART-PROMPT.md',
                 'stacked_bar': 'STACKED-BAR-CHART-PROMPT.md',
-                'field_mapping': 'FIELD-MAPPING-PROMPT.md',  // Field-Mapping für Daten-Transformation
-                'layout_ranking': 'LAYOUT-RANKING-PROMPT.md',  // Intra-Typ Layout-Ranking
-                'perspective_derivation': 'PERSPECTIVE-DERIVATION-PROMPT.md'  // Perspektiven aus Hierarchie ableiten
+                'variant_generator': 'PROMPT-2-VARIANT-GENERATOR.md',
+                'config_generator': 'PROMPT-3-CONFIG-GENERATOR.md'
             },
 
             /**
@@ -2927,255 +3318,276 @@ Jede Config muss direkt vom Renderer verwendbar sein mit allen erforderlichen Fe
                 console.log('Provider:', provider);
 
                 if (apiKey) {
-                    // KI-MODUS: Vollstaendige KI-Pipeline
+                    // =====================================================
+                    // KI-MODUS: Neue Pipeline (PROMPT-2 → PROMPT-3 → Chart-Prompt)
+                    // =====================================================
                     try {
-                        console.log('=== STARTE KI-GENERIERUNG ===');
+                        console.log('=== STARTE KI-GENERIERUNG (Neue Pipeline) ===');
                         showLoadingState();
-                        aiReasoningData.generationMode = 'ai';
+                        aiReasoningData.generationMode = 'deterministic';
 
                         // Initialisiere API Client
                         APIClient.init(apiKey, provider);
                         console.log('APIClient initialisiert');
 
-                        // Lade nur den benötigten Chart-Prompt (spart ~20.000 Tokens!)
-                        const promptName = chartType === 'stacked-bar' ? 'stacked_bar' : chartType;
-                        console.log(`Lade nur Chart-Prompt für '${promptName}'...`);
-                        await PromptLoader.load(promptName);
-                        console.log('Chart-Prompt geladen');
-
                         // Lade Template-Bibliothek
-                        console.log('1/3: Lade Template-Bibliothek...');
+                        console.log('1/4: Lade Template-Bibliothek...');
                         await TemplateLoader.load();
-                        console.log('1/3: Template-Bibliothek geladen');
+                        console.log('1/4: Template-Bibliothek geladen');
 
-                        // Wähle Templates des gewählten Typs (mit optionalem KI-Ranking)
-                        console.log('2/3: Lade Templates für Typ:', chartType);
+                        // Lade benötigte Prompts (nur variant_generator — config_generator und chart-prompt entfernt)
+                        console.log('2/4: Lade Prompts...');
+                        const variantPrompt = await PromptLoader.load('variant_generator');
+                        console.log('2/4: Prompt geladen (variant_generator)');
+
+                        // Verfügbare Templates für diesen Typ laden
                         const allowedTypes = [chartType.replace('-', '_')];
-                        console.log('Erlaubte Chart-Typen:', allowedTypes);
                         const allTemplates = TemplateLoader.getAll();
-                        console.log('Verfügbare Templates:', allTemplates.length);
+                        const availableTemplates = ChartMixer.selectTemplates(profile, allTemplates, chartCount, allowedTypes);
+                        console.log(`Verfügbare Templates für ${chartType}: ${availableTemplates.length}`);
 
-                        // KI-Ranking aktivieren wenn mehr Templates als gewünscht
-                        // Das spart API-Calls und Zeit bei der Generierung
-                        const useLayoutRanking = true;  // Feature-Flag
-                        console.log('Layout-Ranking:', useLayoutRanking ? 'AKTIVIERT' : 'deaktiviert');
-
-                        const selectedTemplates = await ChartMixer.selectTemplates(
-                            profile,
-                            allTemplates,
-                            chartCount,
-                            allowedTypes,
-                            useLayoutRanking  // Neuer Parameter
-                        );
-                        console.log('2/3: Templates ausgewählt:', selectedTemplates.map(t => t.template_id));
-                        // Zeige Chart-Typ-Verteilung
-                        const typeCount = {};
-                        selectedTemplates.forEach(t => {
-                            typeCount[t.chart_type] = (typeCount[t.chart_type] || 0) + 1;
-                        });
-                        console.log('Chart-Typ-Verteilung:', typeCount);
-
-                        // Generiere Configs für jedes Template via KI (Chart-Prompts)
-                        console.log('3/3: Generiere Chart-Configs via KI (Chart-Prompts)...');
-                        chartConfigs = [];
+                        // =====================================================
+                        // SCHRITT 1: PROMPT-2 (Variant Generator) → Varianten
+                        // =====================================================
+                        console.log('3/4: PROMPT-2 - Generiere Varianten...');
                         const extractedData = analysisResult.parsed.extractedData || {};
+                        const detectedLanguage = analysisResult.detectedLanguage || 'unknown';
 
-                        // =====================================================
-                        // PERSPEKTIVEN-ABLEITUNG: Verschiedene Blickwinkel aus Hierarchie
-                        // =====================================================
-                        const hierarchy = analysisResult.parsed?.hierarchy || null;
-                        const analysis = analysisResult.parsed?.analysis || {};
-                        let perspectives = [];
+                        const variantUserPrompt = `## Chart-Typ
+${chartType.replace('-', '_')}
 
-                        if (hierarchy?.detected || (hierarchy && Object.keys(hierarchy).length > 0)) {
-                            console.log('Hierarchie erkannt, leite Perspektiven ab...');
-                            try {
-                                perspectives = await PerspectiveDeriver.derive(
-                                    hierarchy,
-                                    extractedData,
-                                    analysis,
-                                    chartType.replace('-', '_')
-                                );
-                                console.log(`${perspectives.length} Perspektiven abgeleitet:`, perspectives.map(p => p.name));
-                                aiReasoningData.derivedPerspectives = perspectives;
-                            } catch (perspectiveError) {
-                                console.warn('Perspektiven-Ableitung fehlgeschlagen:', perspectiveError.message);
-                                perspectives = [];
+## Analyse-Ergebnis (von PROMPT-1)
+${JSON.stringify(analysisResult.parsed, null, 2)}
+
+## Verfügbare Templates
+${JSON.stringify(availableTemplates.map(t => ({
+    template_id: t.template_id,
+    name: t.name,
+    display_name: t.display_name,
+    chart_type: t.chart_type,
+    description: t.description || '',
+    metadata: t.metadata || {}
+})), null, 2)}
+
+## Erkannte Sprache
+${detectedLanguage}
+
+Generiere 3-10 unterschiedliche Varianten für diese Daten.
+Antworte NUR mit einem validen JSON-Objekt im Format { "variants": [...] }.`;
+
+                        let variants = [];
+                        try {
+                            const variantResponse = await APIClient.call(variantPrompt, variantUserPrompt, { maxTokens: 8192, label: 'PROMPT-2 (Variant Generator)' });
+                            const variantResult = APIClient.parseJSON(variantResponse);
+
+                            if (variantResult && Array.isArray(variantResult.variants) && variantResult.variants.length > 0) {
+                                variants = variantResult.variants;
+                                console.log(`PROMPT-2: ${variants.length} Varianten generiert:`, variants.map(v => v.title || v.templateId));
+                            } else {
+                                console.warn('PROMPT-2: Keine Varianten im Output, verwende Fallback');
                             }
-                        } else {
-                            console.log('Keine Hierarchie erkannt, verwende Standard-Perspektiven');
+                        } catch (variantError) {
+                            console.warn('PROMPT-2 fehlgeschlagen:', variantError.message);
+                            aiReasoningData.errors = aiReasoningData.errors || [];
+                            aiReasoningData.errors.push({
+                                phase: 'variant-generation',
+                                error: variantError.message,
+                                timestamp: new Date().toISOString()
+                            });
                         }
 
+                        // Fallback: Wenn keine Varianten generiert wurden, erstelle eine pro Template
+                        if (variants.length === 0) {
+                            console.log('Fallback: Erstelle eine Variante pro verfügbarem Template');
+                            variants = availableTemplates.map(t => ({
+                                templateId: t.template_id,
+                                title: t.display_name || t.name,
+                                perspective: null,
+                                dataFilter: null
+                            }));
+                        }
+
+                        // Befülle aiReasoningData für UI (Templates aus Varianten)
+                        aiReasoningData.selectedTemplates = variants.map(v => {
+                            const tmpl = availableTemplates.find(t => t.template_id === v.templateId);
+                            return tmpl || { template_id: v.templateId, name: v.title, chart_type: chartType };
+                        });
+
                         // =====================================================
-                        // DUPLIKAT-ERKENNUNG: Fingerprints für generierte Configs
+                        // SCHRITT 2: Pro Variante: Deterministische Config → JS-Renderer
                         // =====================================================
+                        console.log('4/4: Deterministische Config-Generierung...');
+                        chartConfigs = [];
                         const usedFingerprints = new Set();
                         let duplicatesSkipped = 0;
 
-                        /**
-                         * Erstellt einen strukturellen Fingerprint einer Config
-                         * um WIRKLICH identische Charts zu erkennen (nicht nur ähnliche)
-                         *
-                         * WICHTIG: Duplikat-Erkennung basiert auf DATEN, nicht auf Template!
-                         * - Gleiches Template mit VERSCHIEDENEN Perspektiven = KEIN Duplikat ✓
-                         * - Verschiedene Templates mit GLEICHEN Daten = KEIN Duplikat ✓
-                         * - Nur IDENTISCHE Perspektive + Titel + Datenstruktur = Duplikat ✗
-                         *
-                         * Ein Template darf mehrfach verwendet werden, wenn die Daten unterschiedlich sind!
-                         */
-                        function generateConfigFingerprint(config, chartType) {
+                        // Fingerprint-Funktion für Duplikat-Erkennung
+                        function generateConfigFingerprint(config, cType) {
                             try {
-                                // Perspektive-ID ist wichtig - verschiedene Perspektiven = verschiedene Charts
-                                const perspectiveId = config._perspectiveId || 'default';
-                                // Titel ist wichtig - verschiedene Perspektiven haben verschiedene Titel
                                 const titleHash = (config.title || '').toLowerCase().replace(/\s+/g, '');
-
-                                if (chartType === 'waterfall') {
-                                    // Fingerprint: Perspektive + Titel + Anzahl Bars + erste 3 Labels
-                                    const barLabels = config.bars?.slice(0, 3).map(b =>
-                                        (b.label || '').substring(0, 10)
-                                    ).join('|') || '';
-                                    return `WF:${perspectiveId}:${titleHash}:${config.bars?.length || 0}:${barLabels}`;
+                                const perspective = config._perspectiveName || 'default';
+                                if (cType === 'waterfall' || cType === 'waterfall') {
+                                    const barLabels = config.bars?.slice(0, 3).map(b => (b.label || '').substring(0, 10)).join('|') || '';
+                                    return `WF:${perspective}:${titleHash}:${config.bars?.length || 0}:${barLabels}`;
                                 }
-                                if (chartType === 'bar') {
-                                    // Fingerprint: Perspektive + Titel + Perioden + Kategorien
-                                    const periodsCount = config.periods?.length || 0;
-                                    const categoriesCount = config.categories?.length || 0;
-                                    return `BAR:${perspectiveId}:${titleHash}:${periodsCount}:${categoriesCount}`;
+                                if (cType === 'bar') {
+                                    return `BAR:${perspective}:${titleHash}:${config.periods?.length || 0}:${config.categories?.length || 0}`;
                                 }
-                                if (chartType === 'stacked_bar' || chartType === 'stacked-bar') {
-                                    // Fingerprint: Perspektive + Titel + Kategorien + Segmente
-                                    const categoriesCount = config.categories?.length || 0;
-                                    const segmentsCount = config.segments?.length || 0;
-                                    return `SB:${perspectiveId}:${titleHash}:${categoriesCount}:${segmentsCount}`;
+                                if (cType === 'stacked_bar' || cType === 'stacked-bar') {
+                                    return `SB:${perspective}:${titleHash}:${config.categories?.length || 0}:${config.segments?.length || 0}`;
                                 }
-                                // Fallback: Perspektive + Titel + Größe
-                                return `GENERIC:${perspectiveId}:${titleHash}:${JSON.stringify(config).length}`;
+                                return `GENERIC:${perspective}:${titleHash}:${JSON.stringify(config).length}`;
                             } catch (e) {
-                                console.warn('Fingerprint-Generierung fehlgeschlagen:', e.message);
-                                return `ERROR:${Date.now()}`; // Eindeutiger Fallback
+                                return `ERROR:${Date.now()}`;
                             }
                         }
 
-                        // Sprache aus analysisResult holen
-                        const detectedLanguage = analysisResult.detectedLanguage || 'unknown';
-                        console.log(`Erkannte Sprache der Quelldaten: ${detectedLanguage}`);
-
                         // =====================================================
-                        // NEUE LOGIK: Templates können mit VERSCHIEDENEN Perspektiven kombiniert werden
-                        // Ein Template darf mehrfach verwendet werden, solange die Perspektive unterschiedlich ist
+                        // normalizeConfigForRenderer()
+                        // Wandelt features.bracket.enabled → config.bracket.show etc.
+                        // für die JS-Rendering-Engine
                         // =====================================================
+                        function normalizeConfigForRenderer(config) {
+                            if (!config) return config;
 
-                        // Erstelle Kombinationen: Perspektive × Template
-                        // Priorisiere: Jede Perspektive sollte mindestens ein Template bekommen
-                        const combinations = [];
-
-                        if (perspectives.length > 0) {
-                            // Strategie: Jede Perspektive bekommt Templates
-                            // Round-Robin-Verteilung für maximale Vielfalt
-                            for (let pIdx = 0; pIdx < perspectives.length; pIdx++) {
-                                const perspective = perspectives[pIdx];
-                                // Jede Perspektive bekommt mindestens 1 Template
-                                // Bei vielen Templates auch mehrere pro Perspektive
-                                const templatesPerPerspective = Math.max(1, Math.ceil(selectedTemplates.length / perspectives.length));
-
-                                for (let tOffset = 0; tOffset < templatesPerPerspective && combinations.length < chartCount; tOffset++) {
-                                    const tIdx = (pIdx + tOffset * perspectives.length) % selectedTemplates.length;
-                                    const template = selectedTemplates[tIdx];
-                                    combinations.push({ template, perspective });
-                                }
+                            // 1. data[] → bars[] Alias
+                            if (config.data && Array.isArray(config.data) && !config.bars) {
+                                config.bars = config.data;
                             }
-                            console.log(`Template-Perspektive-Kombinationen: ${combinations.length} (${perspectives.length} Perspektiven × Templates)`);
-                        } else {
-                            // Keine Perspektiven - jedes Template einmal
-                            for (const template of selectedTemplates) {
-                                if (combinations.length < chartCount) {
-                                    combinations.push({ template, perspective: null });
-                                }
+
+                            // 2. features.bracket → config.bracket (flaches Format für JS-Renderer)
+                            if (config.features?.bracket?.enabled) {
+                                config.bracket = {
+                                    show: true,
+                                    fromIndex: config.features.bracket.fromIndex || 0,
+                                    toIndex: config.features.bracket.toIndex || (config.bars?.length ? config.bars.length - 1 : 0),
+                                    label: config.features.bracket.label || ''
+                                };
                             }
-                            console.log(`Keine Perspektiven - ${combinations.length} Templates einzeln`);
-                        }
 
-                        // Generiere Charts für jede Kombination
-                        for (const { template, perspective } of combinations) {
-                            try {
-                                const perspectiveInfo = perspective
-                                    ? ` mit Perspektive '${perspective.name}'`
-                                    : '';
-                                console.log(`Generiere Config für Template: ${template.template_id}${perspectiveInfo}...`);
-                                const config = await ConfigGenerator.generate(
-                                    template,
-                                    extractedData,
-                                    companyColors,
-                                    detectedLanguage,
-                                    perspective
-                                );
-                                if (config) {
-                                    // Prüfe auf Duplikate basierend auf PERSPEKTIVE + DATEN (nicht Template!)
-                                    // Ein Template darf mehrfach vorkommen, wenn die Daten unterschiedlich sind
-                                    const fingerprint = generateConfigFingerprint(config, template.chart_type);
-                                    console.log(`Fingerprint für ${template.template_id}${perspectiveInfo}: ${fingerprint}`);
+                            // 3. features.categoryBrackets → config.categoryBrackets[]
+                            if (config.features?.categoryBrackets?.enabled && Array.isArray(config.features.categoryBrackets.items)) {
+                                config.categoryBrackets = config.features.categoryBrackets.items;
+                            }
 
-                                    if (!usedFingerprints.has(fingerprint)) {
-                                        usedFingerprints.add(fingerprint);
-                                        // Füge Template-ID zur Config hinzu für späteres Matching
-                                        config._layoutId = template.template_id;
-                                        chartConfigs.push(config);
-                                        console.log(`✓ Config für ${template.template_id}${perspectiveInfo} erfolgreich hinzugefügt`);
-                                    } else {
-                                        duplicatesSkipped++;
-                                        console.log(`⚠️ Duplikat erkannt für ${template.template_id}${perspectiveInfo}, überspringe (Fingerprint: ${fingerprint})`);
+                            // 4. features.scaleBreak → config.scaleBreak
+                            if (config.features?.scaleBreak?.enabled) {
+                                config.scaleBreak = {
+                                    enabled: true,
+                                    breakAt: config.features.scaleBreak.breakAt,
+                                    style: config.features.scaleBreak.style || 'zigzag'
+                                };
+                            }
+
+                            // 5. features.benchmarkLines → config.benchmarkLines
+                            if (config.features?.benchmarkLines?.enabled && Array.isArray(config.features.benchmarkLines.lines)) {
+                                config.benchmarkLines = config.features.benchmarkLines.lines;
+                            }
+
+                            // 6. features.grouping → config.grouping
+                            if (config.features?.grouping?.enabled && Array.isArray(config.features.grouping.groups)) {
+                                config.grouping = config.features.grouping.groups;
+                            }
+
+                            // 7. displayValue auf allen bars sicherstellen
+                            if (config.bars && Array.isArray(config.bars)) {
+                                config.bars.forEach(bar => {
+                                    if (bar.displayValue === undefined && bar.value !== undefined) {
+                                        const absVal = Math.abs(bar.value);
+                                        if (absVal >= 1000000) {
+                                            bar.displayValue = (bar.value / 1000000).toFixed(1).replace('.', ',') + ' Mio.';
+                                        } else if (absVal >= 1000) {
+                                            bar.displayValue = Math.round(bar.value).toLocaleString('de-DE');
+                                        } else {
+                                            bar.displayValue = bar.value.toLocaleString('de-DE');
+                                        }
                                     }
+                                });
+                            }
+
+                            // 8. colors-Objekt sicherstellen
+                            if (!config.colors && config.bars) {
+                                config.colors = { ...DEFAULT_COLORS.waterfall };
+                            }
+
+                            return config;
+                        }
+
+                        for (const variant of variants) {
+                            try {
+                                console.log(`--- Variante: "${variant.title}" (Template: ${variant.templateId}) ---`);
+
+                                // SCHRITT A: Deterministische Config-Generierung (ersetzt PROMPT-3)
+                                const chartConfig = DeterministicConfigGenerator.generateConfig(
+                                    variant,
+                                    analysisResult,
+                                    companyColors,
+                                    detectedLanguage
+                                );
+
+                                // SCHRITT B: Fingerprint + Dedup
+                                const fp = generateConfigFingerprint(chartConfig, chartType.replace('-', '_'));
+                                const wasDeduped = usedFingerprints.has(fp);
+
+                                // Variante + Features tracken
+                                aiReasoningData.variants.push({
+                                    title: variant.title,
+                                    templateId: variant.templateId,
+                                    perspective: variant.perspective || null,
+                                    features: chartConfig.features || {},
+                                    wasDeduped: wasDeduped,
+                                    fingerprint: fp
+                                });
+
+                                if (wasDeduped) {
+                                    duplicatesSkipped++;
+                                    console.log(`Duplikat erkannt: "${variant.title}" (Fingerprint: ${fp})`);
+                                    continue;
                                 }
-                            } catch (templateError) {
-                                // Einzelne Template-Fehler loggen, aber fortfahren
-                                console.warn(`Fehler bei Template ${template.template_id}:`, templateError.message);
+
+                                // Config normalisieren für JS-Renderer
+                                const normalizedConfig = normalizeConfigForRenderer(chartConfig);
+
+                                usedFingerprints.add(fp);
+                                chartConfigs.push(normalizedConfig);
+                                console.log(`Config hinzugefuegt: "${variant.title}" (Fingerprint: ${fp})`);
+                            } catch (err) {
+                                console.warn(`Fehler bei Variante "${variant.title}":`, err.message);
                                 aiReasoningData.errors = aiReasoningData.errors || [];
                                 aiReasoningData.errors.push({
                                     phase: 'config-generation',
-                                    template: template.template_id,
-                                    perspective: perspective?.name || null,
-                                    error: templateError.message,
+                                    template: variant.templateId,
+                                    variant: variant.title,
+                                    error: err.message,
                                     timestamp: new Date().toISOString()
                                 });
                             }
                         }
 
-                        console.log(`${chartConfigs.length} Chart-Configs via KI generiert (${duplicatesSkipped} Duplikate übersprungen)`);
+                        console.log(`=== KI-GENERIERUNG ABGESCHLOSSEN: ${chartConfigs.length} Charts (${duplicatesSkipped} Duplikate übersprungen) ===`);
 
-                        // Zeige Zusammenfassung nach Chart-Typ
-                        const generatedTypeCount = {};
-                        chartConfigs.forEach(c => {
-                            const type = c._chartType || detectChartType(c);
-                            generatedTypeCount[type] = (generatedTypeCount[type] || 0) + 1;
-                        });
-                        console.log('Generierte Chart-Typ-Verteilung:', generatedTypeCount);
-
-                        // Speichere Templates und Duplikat-Info für Chain-of-Thought
-                        aiReasoningData.selectedTemplates = selectedTemplates;
+                        // Befülle restliche aiReasoningData für UI
                         aiReasoningData.duplicatesSkipped = duplicatesSkipped;
                         aiReasoningData.uniqueChartsGenerated = chartConfigs.length;
-                        aiReasoningData.requestedChartCount = chartCount;
+                        aiReasoningData.requestedChartCount = variants.length;
+                        aiReasoningData.callLog = APIClient.getCallLog();
 
-                        // Hinweis wenn weniger Charts generiert wurden als angefordert
-                        if (chartConfigs.length < chartCount) {
+                        if (chartConfigs.length < variants.length) {
                             const reason = duplicatesSkipped > 0
-                                ? `${duplicatesSkipped} Duplikate wurden übersprungen, da sie strukturell zu ähnlich waren.`
-                                : 'Nicht genügend unterschiedliche Layouts verfügbar.';
-                            console.log(`ℹ️ ${chartConfigs.length} von ${chartCount} Charts generiert. ${reason}`);
+                                ? `${duplicatesSkipped} Duplikate wurden übersprungen.`
+                                : 'Nicht alle Varianten konnten generiert werden.';
                             aiReasoningData.chartCountNote = reason;
                         }
 
-                        // Wenn KI keine Charts generieren konnte -> Demo-Modus
+                        // Wenn keine Charts generiert → Demo-Modus
                         if (chartConfigs.length === 0) {
-                            const templateErrors = (aiReasoningData.errors || [])
+                            const errors = (aiReasoningData.errors || [])
                                 .filter(e => e.phase === 'config-generation')
                                 .map(e => `${e.template}: ${e.error}`)
                                 .join('; ');
-                            const errorMsg = templateErrors
-                                ? `KI konnte keine Charts generieren. Template-Fehler: ${templateErrors}`
-                                : `KI konnte keine Charts generieren (${selectedTemplates.length} Templates ausgewählt, aber alle Configs fehlgeschlagen)`;
-                            throw new Error(errorMsg);
+                            throw new Error(errors
+                                ? `KI konnte keine Charts generieren: ${errors}`
+                                : 'KI konnte keine Charts generieren');
                         }
 
                     } catch (error) {
@@ -3189,7 +3601,6 @@ Jede Config muss direkt vom Renderer verwendbar sein mit allen erforderlichen Fe
                             timestamp: new Date().toISOString()
                         });
 
-                        // Demo-Daten laden für den gewählten Typ
                         console.log('Wechsel zu Demo-Modus...');
                         generateChartVariants(chartType);
                     }
@@ -4702,32 +5113,162 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             section.style.display = 'block';
 
             let html = '';
-            const isDemo = !sessionStorage.getItem('apiKey');
             const profile = aiReasoningData.profile || {};
             const reasoning = aiReasoningData.reasoning || {};
+            const generationMode = aiReasoningData.generationMode || 'demo';
+            const isDemoMode = generationMode === 'demo';
 
-            // 1. DATENPROFIL - Überblick über die Quelldaten
+            // Demo-Modus Banner
+            if (isDemoMode) {
+                const errorMessages = (aiReasoningData.errors || []).map(e => e.error).join(', ');
+                html += `
+                    <div class="demo-warning" style="background: #fef3c7; border: 2px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                        <strong style="color: #92400e;">Demo-Modus aktiv</strong><br>
+                        <span style="color: #78350f;">
+                            ${aiReasoningData.apiKeyPresent
+                                ? 'KI-Generierung fehlgeschlagen - Beispieldaten werden angezeigt.'
+                                : 'Kein API-Key vorhanden - Beispieldaten werden angezeigt.'}
+                        </span>
+                        ${errorMessages ? `<br><br><span style="color: #b45309; font-size: 12px;">Fehler: ${errorMessages}</span>` : ''}
+                    </div>
+                `;
+            }
+
+            // ① PIPELINE-PERFORMANCE
+            html += _renderPipelinePerformance();
+
+            // ② DATENPROFIL
+            html += _renderDataProfile(profile);
+
+            // ③ ERKANNTE DATENMUSTER
+            html += _renderDataPatterns(reasoning);
+
+            // ④ LAYOUTVARIANTEN & FEATURES
+            html += _renderVariantsAndFeatures();
+
+            // ⑤ GELADENE PROMPTS
+            html += _renderLoadedPrompts();
+
+            // ⑥ FEHLER
+            html += _renderErrors();
+
+            // Timestamp
+            if (aiReasoningData.timestamp) {
+                html += `<div class="reasoning-timestamp">Generiert: ${new Date(aiReasoningData.timestamp).toLocaleString('de-DE')}</div>`;
+            }
+
+            content.innerHTML = html;
+        }
+
+        // --- Helper-Funktionen fuer renderReasoningSection ---
+
+        function _renderPipelinePerformance() {
+            const callLog = aiReasoningData.callLog || [];
+            if (callLog.length === 0) return '';
+
+            // Gruppiere Calls nach Typ
+            const prompt2Calls = callLog.filter(c => c.label.startsWith('PROMPT-2'));
+            const prompt3Calls = callLog.filter(c => c.label.startsWith('PROMPT-3'));
+            const chartCalls = callLog.filter(c => c.label.startsWith('Chart-Prompt'));
+
+            function aggregateGroup(calls, label) {
+                if (calls.length === 0) return null;
+                const totalDuration = calls.reduce((s, c) => s + (c.duration || 0), 0);
+                const totalInput = calls.reduce((s, c) => s + (c.usage?.input_tokens || 0), 0);
+                const totalOutput = calls.reduce((s, c) => s + (c.usage?.output_tokens || 0), 0);
+                const totalCacheRead = calls.reduce((s, c) => s + (c.usage?.cache_read_input_tokens || 0), 0);
+                const totalCacheWrite = calls.reduce((s, c) => s + (c.usage?.cache_creation_input_tokens || 0), 0);
+                return { label, count: calls.length, totalDuration, totalInput, totalOutput, totalCacheRead, totalCacheWrite };
+            }
+
+            const groups = [
+                aggregateGroup(prompt2Calls, 'PROMPT-2 (Varianten)'),
+                aggregateGroup(prompt3Calls, 'PROMPT-3 (Configs)'),
+                aggregateGroup(chartCalls, 'Chart-Prompt (SVGs)')
+            ].filter(Boolean);
+
+            // Kosten berechnen (Anthropic claude-sonnet-4-20250514 Preise)
+            const INPUT_COST = 3.0;    // $/MTok
+            const OUTPUT_COST = 15.0;  // $/MTok
+            const CACHE_READ_COST = 0.30; // $/MTok
+
+            function calcCost(input, output, cacheRead) {
+                return ((input / 1e6) * INPUT_COST) + ((output / 1e6) * OUTPUT_COST) + ((cacheRead / 1e6) * CACHE_READ_COST);
+            }
+
+            function formatTokens(n) {
+                if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+                return n.toString();
+            }
+
+            const totalInput = groups.reduce((s, g) => s + g.totalInput, 0);
+            const totalOutput = groups.reduce((s, g) => s + g.totalOutput, 0);
+            const totalCacheRead = groups.reduce((s, g) => s + g.totalCacheRead, 0);
+            const totalDuration = groups.reduce((s, g) => s + g.totalDuration, 0);
+            const totalCost = calcCost(totalInput, totalOutput, totalCacheRead);
+            const cacheSavings = ((totalCacheRead / 1e6) * (INPUT_COST - CACHE_READ_COST));
+
+            let tableRows = groups.map(g => {
+                const cost = calcCost(g.totalInput, g.totalOutput, g.totalCacheRead);
+                const countLabel = g.count > 1 ? ` (x${g.count})` : '';
+                const cacheInfo = g.totalCacheRead > 0
+                    ? `<span class="pipeline-cache-hit">${formatTokens(g.totalCacheRead)} Cache</span>`
+                    : (g.totalCacheWrite > 0 ? `<span class="pipeline-cache-write">${formatTokens(g.totalCacheWrite)} Write</span>` : '-');
+                return `<tr>
+                    <td>${g.label}${countLabel}</td>
+                    <td class="token-count">${formatTokens(g.totalInput)}</td>
+                    <td class="token-count">${formatTokens(g.totalOutput)}</td>
+                    <td>${cacheInfo}</td>
+                    <td>$${cost.toFixed(3)}</td>
+                    <td>${g.totalDuration.toFixed(1)}s</td>
+                </tr>`;
+            }).join('');
+
+            // Gesamt-Zeile
+            tableRows += `<tr class="pipeline-total">
+                <td>GESAMT (${callLog.length} Calls)</td>
+                <td class="token-count">${formatTokens(totalInput)}</td>
+                <td class="token-count">${formatTokens(totalOutput)}</td>
+                <td>${totalCacheRead > 0 ? `<span class="pipeline-cache-hit">-$${cacheSavings.toFixed(3)} gespart</span>` : '-'}</td>
+                <td>$${totalCost.toFixed(3)}</td>
+                <td>${totalDuration.toFixed(1)}s</td>
+            </tr>`;
+
+            return `
+                <div class="reasoning-section" style="background: #f8fafc; border-left: 3px solid #3b82f6;">
+                    <div class="reasoning-section-title" style="color: #1d4ed8;">Pipeline-Performance</div>
+                    <table class="pipeline-table">
+                        <thead>
+                            <tr>
+                                <th>Schritt</th>
+                                <th>Input</th>
+                                <th>Output</th>
+                                <th>Cache</th>
+                                <th>Kosten</th>
+                                <th>Dauer</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function _renderDataProfile(profile) {
             const positionLabels = profile.position_labels || [];
             const periodLabels = profile.period_labels || [];
             const dataFrequency = profile.data_frequency || '';
             const isCumulative = profile.is_cumulative || '';
 
-            // Formatiere Positionen für Anzeige (max. 5, dann "...")
             const positionsDisplay = positionLabels.length > 0
                 ? (positionLabels.length <= 5
                     ? positionLabels.join(', ')
                     : positionLabels.slice(0, 5).join(', ') + ` ... (+${positionLabels.length - 5})`)
                 : '-';
-
-            // Formatiere Perioden für Anzeige
-            const periodsDisplay = periodLabels.length > 0
-                ? periodLabels.join(', ')
-                : '-';
-
-            // Zusatzinfo für Datentyp
+            const periodsDisplay = periodLabels.length > 0 ? periodLabels.join(', ') : '-';
             const dataTypeInfo = [dataFrequency, isCumulative].filter(Boolean).join(', ');
 
-            html += `
+            return `
                 <div class="reasoning-section">
                     <div class="reasoning-section-title">Datenprofil</div>
                     <div class="reasoning-item">
@@ -4748,230 +5289,177 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                     </div>
                 </div>
             `;
+        }
 
-            // 2. ERKANNTE DATENMUSTER - Was die KI in den Daten gefunden hat
-            if (reasoning.dataInsights && reasoning.dataInsights.length > 0) {
-                html += `
-                    <div class="reasoning-section">
-                        <div class="reasoning-section-title">Erkannte Datenmuster</div>
-                        ${reasoning.dataInsights.map((insight, i) => `
-                            <div class="reasoning-item">
-                                <span class="reasoning-label">Muster ${i + 1}:</span>
-                                <span class="reasoning-value">${insight}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // 3. ENTSCHEIDUNGSBEGRÜNDUNG - Warum diese Chart-Auswahl
-            html += `
+        function _renderDataPatterns(reasoning) {
+            if (!reasoning.dataInsights || reasoning.dataInsights.length === 0) return '';
+            return `
                 <div class="reasoning-section">
-                    <div class="reasoning-section-title">Entscheidungsbegründung</div>
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">Warum diese Charts?</span>
-                        <span class="reasoning-value">${reasoning.chartTypeReason || 'Automatische Auswahl basierend auf Datenstruktur.'}</span>
-                    </div>
-                    ${reasoning.mixStrategy ? `
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">Mix-Strategie:</span>
-                        <span class="reasoning-value">${reasoning.mixStrategy}</span>
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-
-            // 4. Chart-Auswahl mit Modus
-            const chartTypeLabel = {
-                'waterfall': 'Waterfall Charts',
-                'bar': 'Bar Charts',
-                'stacked-bar': 'Stacked Bar Charts',
-                'stacked_bar': 'Stacked Bar Charts'  // Alternative Schreibweise
-            };
-
-            // Generierungsmodus Label (nur noch 2 Modi: ai und demo)
-            const generationModeLabels = {
-                'ai': 'KI-generiert (Claude API)',
-                'demo': 'Demo-Modus (Beispieldaten)'
-            };
-            const generationMode = aiReasoningData.generationMode || 'demo';
-            const generationModeLabel = generationModeLabels[generationMode] || 'Demo-Modus (Beispieldaten)';
-            const isDemoMode = generationMode === 'demo';
-
-            // Zaehle KI-generierte Charts
-            const aiGeneratedCount = aiReasoningData.chartConfigs.filter(c => c._generatedBy === 'ai').length;
-
-            // Demo-Modus Banner (wenn nicht KI)
-            if (isDemoMode) {
-                const errorMessages = (aiReasoningData.errors || []).map(e => e.error).join(', ');
-                html += `
-                    <div class="demo-warning" style="background: #fef3c7; border: 2px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-                        <strong style="color: #92400e;">⚠️ Demo-Modus aktiv</strong><br>
-                        <span style="color: #78350f;">
-                            ${aiReasoningData.apiKeyPresent
-                                ? 'KI-Generierung fehlgeschlagen - Beispieldaten werden angezeigt.'
-                                : 'Kein API-Key vorhanden - Beispieldaten werden angezeigt.'}
-                        </span>
-                        ${errorMessages ? `<br><br><span style="color: #b45309; font-size: 12px;">Fehler: ${errorMessages}</span>` : ''}
-                    </div>
-                `;
-            }
-
-            html += `
-                <div class="reasoning-section">
-                    <div class="reasoning-section-title">Generierungseinstellungen</div>
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">Chart-Typ:</span>
-                        <span class="reasoning-value">${chartTypeLabel[aiReasoningData.chartType] || aiReasoningData.chartType || 'Nicht festgelegt'}</span>
-                    </div>
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">Charts:</span>
-                        <span class="reasoning-value">
-                            ${aiReasoningData.chartCount} generiert${aiGeneratedCount > 0 ? ` <span style="color: #16a34a;">(${aiGeneratedCount} via KI)</span>` : ''}${aiReasoningData.duplicatesSkipped > 0 ? ` <span style="color: #9ca3af;">· ${aiReasoningData.duplicatesSkipped} Duplikate übersprungen</span>` : ''}
-                        </span>
-                    </div>
-                    <div class="reasoning-item">
-                        <span class="reasoning-label">Modus:</span>
-                        <span class="reasoning-value" style="color: ${generationMode === 'ai' ? '#16a34a' : '#d97706'}; font-weight: 500;">
-                            ${generationModeLabel}
-                        </span>
-                        ${aiReasoningData.apiKeyPresent ? '' : '<span style="color: #9ca3af; margin-left: 8px;">(kein API-Key)</span>'}
-                    </div>
-                    ${aiReasoningData.chartCountNote ? `
-                    <div class="reasoning-item" style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 4px;">
-                        <span class="reasoning-value" style="color: #0369a1; font-size: 12px;">
-                            ${aiReasoningData.chartCountNote}
-                        </span>
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-
-            // 5. VERWENDETE TEMPLATES - Welche Layouts wurden angewendet
-            if (aiReasoningData.selectedTemplates.length > 0) {
-                // Ermittle welche Templates tatsächlich zu Charts führten
-                // Normalisiere IDs: "WF-01" und "WF01" sollen matchen
-                const normalizeId = (id) => id ? id.toUpperCase().replace(/-/g, '') : '';
-
-                const usedTemplateIds = new Set(
-                    aiReasoningData.chartConfigs
-                        .map(c => normalizeId(c._layoutId || c.layoutId))
-                        .filter(id => id)
-                );
-
-                // Debug-Log
-                console.log('Template-Matching Debug:', {
-                    chartLayoutIds: aiReasoningData.chartConfigs.map(c => c._layoutId || c.layoutId),
-                    normalizedChartIds: [...usedTemplateIds],
-                    templateIds: aiReasoningData.selectedTemplates.map(t => t.template_id)
-                });
-
-                html += `
-                    <div class="reasoning-section">
-                        <div class="reasoning-section-title">Verwendete Templates</div>
-                        ${aiReasoningData.selectedTemplates.map((t, i) => {
-                            const templateId = t.template_id || '';
-                            const isUsed = usedTemplateIds.has(normalizeId(templateId));
-                            const itemStyle = isUsed
-                                ? 'border: 2px solid #22c55e; border-radius: 6px; padding: 6px 10px; background: #f0fdf4;'
-                                : 'padding: 6px 10px; opacity: 0.6;';
-                            const statusIcon = isUsed ? '✓' : '○';
-                            const statusColor = isUsed ? '#15803d' : '#9ca3af';
-                            return `
-                            <div class="reasoning-item" style="${itemStyle}">
-                                <span style="color: ${statusColor}; margin-right: 6px;">${statusIcon}</span>
-                                <span class="reasoning-label">${templateId || 'Unbekannt'}:</span>
-                                <span class="reasoning-value">${t.name || ''} (${t.chart_type || 'Unbekannt'})</span>
-                            </div>
-                        `}).join('')}
-                    </div>
-                `;
-            }
-
-            // 6. GENERIERTE CHARTS - Übersicht der erstellten Visualisierungen
-            if (aiReasoningData.chartConfigs.length > 0) {
-                const templateReasons = reasoning.templateReasons || [];
-
-                html += `
-                    <div class="reasoning-section">
-                        <div class="reasoning-section-title">Generierte Charts (${aiReasoningData.chartConfigs.length})</div>
-                        ${aiReasoningData.chartConfigs.map((c, i) => {
-                            const reasonObj = templateReasons[i] || {};
-                            const reasonText = reasonObj.reason || c._rankingReason || '';
-                            // Ersetze "Beispiel" durch "Chart" im Titel
-                            const cleanTitle = (c.title || 'Ohne Titel').replace(/Beispiel/g, 'Chart');
-                            return `
-                            <div class="reasoning-item reasoning-chart-item">
-                                <span class="reasoning-chart-title">${i + 1}. ${cleanTitle}${reasonText ? ' - ' + reasonText : ''}</span>
-                            </div>
-                        `}).join('')}
-                    </div>
-                `;
-            }
-
-            // 7. GELADENE PROMPTS - Technische Details zur KI-Generierung
-            if (PromptLoader.loadedPrompts && PromptLoader.loadedPrompts.length > 0) {
-                const totalTokens = PromptLoader.loadedPrompts.reduce((sum, p) => sum + p.tokens, 0);
-                const totalSize = PromptLoader.loadedPrompts.reduce((sum, p) => sum + p.size, 0);
-                const totalRawSize = PromptLoader.loadedPrompts.reduce((sum, p) => sum + (p.rawSize || p.size), 0);
-                const reduction = totalRawSize > totalSize ? Math.round((1 - totalSize/totalRawSize) * 100) : 0;
-
-                html += `
-                    <div class="reasoning-section" style="background: #f0fdf4; border-left: 3px solid #22c55e;">
-                        <div class="reasoning-section-title" style="color: #15803d;">
-                            Geladene Prompts (${PromptLoader.loadedPrompts.length})
+                    <div class="reasoning-section-title">Erkannte Datenmuster</div>
+                    ${reasoning.dataInsights.map((insight, i) => `
+                        <div class="reasoning-item">
+                            <span class="reasoning-label">Muster ${i + 1}:</span>
+                            <span class="reasoning-value">${insight}</span>
                         </div>
-                        ${PromptLoader.loadedPrompts.map(p => {
-                            const wasExtracted = p.rawSize && p.rawSize !== p.size;
-                            const reductionPct = wasExtracted ? Math.round((1 - p.size/p.rawSize) * 100) : 0;
-                            return `
-                            <div class="reasoning-item">
-                                <span class="reasoning-label">${p.name}:</span>
-                                <span class="reasoning-value">
-                                    ${p.file}
-                                    <span style="color: #6b7280; font-size: 11px;">
-                                        (${(p.size / 1024).toFixed(1)} KB, ~${p.tokens.toLocaleString('de-DE')} Tokens${wasExtracted ? `, -${reductionPct}%` : ''})
-                                    </span>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function _renderVariantsAndFeatures() {
+            const variants = aiReasoningData.variants || [];
+            const chartConfigs = aiReasoningData.chartConfigs || [];
+
+            // Wenn keine Varianten-Daten, zeige Configs als Fallback (Demo-Modus)
+            if (variants.length === 0 && chartConfigs.length === 0) return '';
+
+            // Feature-ID zu lesbarem Namen
+            const featureNames = {
+                bracket: 'Bracket',
+                scaleBreak: 'Scale-Break',
+                categoryBrackets: 'Category-Brackets',
+                arrows: 'Arrows',
+                benchmarkLines: 'Benchmark',
+                grouping: 'Grouping',
+                negativeBridges: 'Neg. Bridges'
+            };
+
+            function renderFeatureTag(featureId, featureConfig) {
+                const name = featureNames[featureId] || featureId;
+                if (!featureConfig || !featureConfig.enabled) {
+                    return `<span class="feature-tag feature-tag-disabled" title="${featureConfig?._reason || 'Deaktiviert'}">${name}</span>`;
+                }
+                // Detail-Info aus Config extrahieren
+                let detail = '';
+                if (featureId === 'bracket' && featureConfig.label) detail = ': ' + featureConfig.label;
+                else if (featureId === 'bracket' && featureConfig.mode) detail = ' (' + featureConfig.mode + ')';
+                else if (featureId === 'grouping' && featureConfig.groups) detail = ': ' + featureConfig.groups.length + ' Gruppen';
+                else if (featureId === 'categoryBrackets' && featureConfig.items) detail = ': ' + featureConfig.items.length;
+                else if (featureId === 'benchmarkLines' && featureConfig.lines) detail = ': ' + featureConfig.lines.length + ' Linien';
+                else if (featureId === 'scaleBreak' && featureConfig.breakAt) detail = ' (' + featureConfig.breakAt + ')';
+
+                return `<span class="feature-tag feature-tag-active" title="${featureConfig._reason || ''}">${name}${detail}</span>`;
+            }
+
+            let html = '';
+            const usedCount = variants.filter(v => !v.wasDeduped).length || chartConfigs.length;
+            const dedupedCount = variants.filter(v => v.wasDeduped).length || 0;
+
+            html += `<div class="reasoning-section">`;
+            html += `<div class="reasoning-section-title">Layoutvarianten & Features (${usedCount} generiert${dedupedCount > 0 ? `, ${dedupedCount} Duplikate` : ''})</div>`;
+
+            if (variants.length > 0) {
+                // Varianten mit Feature-Details
+                variants.forEach((v, i) => {
+                    const cardClass = v.wasDeduped ? 'variant-card variant-deduped' : 'variant-card variant-used';
+                    const statusIcon = v.wasDeduped ? '○' : '&#10003;';
+                    const statusColor = v.wasDeduped ? '#9ca3af' : '#15803d';
+
+                    html += `<div class="${cardClass}">`;
+                    html += `<div class="variant-card-header">`;
+                    html += `<span class="variant-card-title"><span style="color: ${statusColor}; margin-right: 4px;">${statusIcon}</span>${i + 1}. ${v.title || 'Ohne Titel'}</span>`;
+                    html += `<span class="variant-card-template">${v.templateId || ''}</span>`;
+                    html += `</div>`;
+
+                    if (v.perspective) {
+                        html += `<div class="variant-card-perspective">Perspektive: ${v.perspective}</div>`;
+                    }
+
+                    // Feature-Tags
+                    const features = v.features || {};
+                    const featureKeys = Object.keys(features);
+                    if (featureKeys.length > 0) {
+                        html += `<div class="feature-tags">`;
+                        // Aktive Features zuerst, dann deaktivierte
+                        const activeFeatures = featureKeys.filter(k => features[k]?.enabled);
+                        const disabledFeatures = featureKeys.filter(k => !features[k]?.enabled);
+                        activeFeatures.forEach(k => { html += renderFeatureTag(k, features[k]); });
+                        disabledFeatures.forEach(k => { html += renderFeatureTag(k, features[k]); });
+                        html += `</div>`;
+
+                        // Reasons fuer aktive Features
+                        const reasons = activeFeatures
+                            .filter(k => features[k]?._reason)
+                            .map(k => `${featureNames[k] || k}: ${features[k]._reason}`);
+                        if (reasons.length > 0) {
+                            html += `<div class="feature-reason">${reasons.join(' | ')}</div>`;
+                        }
+                    }
+
+                    if (v.wasDeduped) {
+                        html += `<div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Duplikat - nicht generiert</div>`;
+                    }
+
+                    html += `</div>`;
+                });
+            } else {
+                // Fallback: Nur Configs anzeigen (Demo-Modus)
+                chartConfigs.forEach((c, i) => {
+                    const cleanTitle = (c.title || 'Ohne Titel').replace(/Beispiel/g, 'Chart');
+                    html += `<div class="variant-card variant-used">`;
+                    html += `<div class="variant-card-header">`;
+                    html += `<span class="variant-card-title">${i + 1}. ${cleanTitle}</span>`;
+                    html += `<span class="variant-card-template">${c._layoutId || ''}</span>`;
+                    html += `</div></div>`;
+                });
+            }
+
+            html += `</div>`;
+            return html;
+        }
+
+        function _renderLoadedPrompts() {
+            if (!PromptLoader.loadedPrompts || PromptLoader.loadedPrompts.length === 0) return '';
+
+            const totalTokens = PromptLoader.loadedPrompts.reduce((sum, p) => sum + p.tokens, 0);
+            const totalSize = PromptLoader.loadedPrompts.reduce((sum, p) => sum + p.size, 0);
+            const totalRawSize = PromptLoader.loadedPrompts.reduce((sum, p) => sum + (p.rawSize || p.size), 0);
+            const reduction = totalRawSize > totalSize ? Math.round((1 - totalSize/totalRawSize) * 100) : 0;
+
+            return `
+                <div class="reasoning-section" style="background: #f0fdf4; border-left: 3px solid #22c55e;">
+                    <div class="reasoning-section-title" style="color: #15803d;">
+                        Geladene Prompts (${PromptLoader.loadedPrompts.length})
+                    </div>
+                    ${PromptLoader.loadedPrompts.map(p => {
+                        const wasExtracted = p.rawSize && p.rawSize !== p.size;
+                        const reductionPct = wasExtracted ? Math.round((1 - p.size/p.rawSize) * 100) : 0;
+                        return `
+                        <div class="reasoning-item">
+                            <span class="reasoning-label">${p.name}:</span>
+                            <span class="reasoning-value">
+                                ${p.file}
+                                <span style="color: #6b7280; font-size: 11px;">
+                                    (${(p.size / 1024).toFixed(1)} KB, ~${p.tokens.toLocaleString('de-DE')} Tokens${wasExtracted ? `, -${reductionPct}%` : ''})
                                 </span>
-                            </div>
-                        `}).join('')}
-                        <div class="reasoning-item" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #d1fae5;">
-                            <span class="reasoning-label">Gesamt:</span>
-                            <span class="reasoning-value" style="font-weight: 600; color: ${totalTokens > 20000 ? '#dc2626' : '#15803d'};">
-                                ${(totalSize / 1024).toFixed(1)} KB, ~${totalTokens.toLocaleString('de-DE')} Tokens
-                                ${reduction > 0 ? ` (${reduction}% reduziert durch Extraktion)` : ''}
-                                ${totalTokens > 20000 ? ' ⚠️ Überschreitet Rate-Limit!' : ''}
                             </span>
                         </div>
+                    `}).join('')}
+                    <div class="reasoning-item" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #d1fae5;">
+                        <span class="reasoning-label">Gesamt:</span>
+                        <span class="reasoning-value" style="font-weight: 600; color: ${totalTokens > 20000 ? '#dc2626' : '#15803d'};">
+                            ${(totalSize / 1024).toFixed(1)} KB, ~${totalTokens.toLocaleString('de-DE')} Tokens
+                            ${reduction > 0 ? ` (${reduction}% reduziert durch Extraktion)` : ''}
+                            ${totalTokens > 20000 ? ' Ueberschreitet Rate-Limit!' : ''}
+                        </span>
                     </div>
-                `;
-            }
+                </div>
+            `;
+        }
 
-            // 8. Fehler anzeigen (wenn vorhanden)
-            if (aiReasoningData.errors && aiReasoningData.errors.length > 0) {
-                html += `
-                    <div class="reasoning-section" style="background: #fef2f2; border-left: 3px solid #ef4444;">
-                        <div class="reasoning-section-title" style="color: #dc2626;">Fehler bei KI-Generierung</div>
-                        ${aiReasoningData.errors.map(err => `
-                            <div class="reasoning-item">
-                                <span class="reasoning-label">${err.phase}${err.template ? ' (' + err.template + ')' : ''}:</span>
-                                <span class="reasoning-value" style="color: #dc2626;">${err.error}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // Timestamp
-            if (aiReasoningData.timestamp) {
-                html += `
-                    <div class="reasoning-timestamp">
-                        Generiert: ${new Date(aiReasoningData.timestamp).toLocaleString('de-DE')}
-                    </div>
-                `;
-            }
-
-            content.innerHTML = html;
+        function _renderErrors() {
+            if (!aiReasoningData.errors || aiReasoningData.errors.length === 0) return '';
+            return `
+                <div class="reasoning-section" style="background: #fef2f2; border-left: 3px solid #ef4444;">
+                    <div class="reasoning-section-title" style="color: #dc2626;">Fehler bei KI-Generierung</div>
+                    ${aiReasoningData.errors.map(err => `
+                        <div class="reasoning-item">
+                            <span class="reasoning-label">${err.phase}${err.template ? ' (' + err.template + ')' : ''}:</span>
+                            <span class="reasoning-value" style="color: #dc2626;">${err.error}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
 
         // =====================================================
@@ -5007,6 +5495,13 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
             // Validiere Configs - entferne ungültige
             configsToRender = configsToRender.filter(config => {
                 if (!config) return false;
+
+                // KI-generierte SVGs sind immer gueltig (brauchen keine bars/periods/etc.)
+                if (config._svgHtml) {
+                    console.log(`KI-SVG vorhanden: "${config.title || 'Ohne Titel'}" (${config._svgHtml.length} Zeichen)`);
+                    return true;
+                }
+
                 const configType = detectChartType(config);
                 console.log(`=== VALIDIERE CONFIG ===`);
                 console.log(`Typ: ${configType}, Titel: "${config.title || 'KEIN TITEL'}"`);
@@ -5114,21 +5609,50 @@ End-Wert = Start-Wert + Summe(alle increase/decrease values)
                 </div>
             `).join('');
 
-            // Rendere jeden Chart basierend auf dem gewählten Typ
+            // Rendere jeden Chart: KI-SVG direkt einfügen oder JS-Fallback
             configsToRender.forEach((config, index) => {
-                const chartType = selectedChartType.replace('_', '-');
-                switch (chartType) {
-                    case 'waterfall':
-                        renderWaterfallChart(`chart${index}`, config);
-                        break;
-                    case 'bar':
-                        renderBarChart(`chart${index}`, config);
-                        break;
-                    case 'stacked-bar':
-                        renderStackedBarChart(`chart${index}`, config);
-                        break;
-                    default:
-                        renderWaterfallChart(`chart${index}`, config);
+                const svgElement = document.getElementById(`chart${index}`);
+                if (!svgElement) return;
+
+                if (config._svgHtml) {
+                    // KI-generiertes SVG direkt einfügen
+                    const container = svgElement.parentElement;
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = config._svgHtml;
+                    const newSvg = tempDiv.querySelector('svg');
+                    if (newSvg) {
+                        newSvg.id = `chart${index}`;
+                        // Stelle sicher dass viewBox gesetzt ist
+                        if (!newSvg.getAttribute('viewBox')) {
+                            newSvg.setAttribute('viewBox', '0 0 1200 500');
+                        }
+                        svgElement.replaceWith(newSvg);
+                        console.log(`Chart ${index}: KI-SVG eingefügt (${config._svgHtml.length} Zeichen)`);
+                    } else {
+                        console.warn(`Chart ${index}: SVG-Element nicht im KI-Output gefunden, verwende JS-Fallback`);
+                        // Fallback zu JS-Rendering
+                        const ct = selectedChartType.replace('_', '-');
+                        if (ct === 'bar') renderBarChart(`chart${index}`, config);
+                        else if (ct === 'stacked-bar') renderStackedBarChart(`chart${index}`, config);
+                        else renderWaterfallChart(`chart${index}`, config);
+                    }
+                } else {
+                    // JS-Rendering (Standard-Weg für deterministische + Demo-Configs)
+                    const chartType = selectedChartType.replace('_', '-');
+                    switch (chartType) {
+                        case 'waterfall':
+                            renderWaterfallChart(`chart${index}`, config);
+                            break;
+                        case 'bar':
+                            renderBarChart(`chart${index}`, config);
+                            break;
+                        case 'stacked-bar':
+                            renderStackedBarChart(`chart${index}`, config);
+                            break;
+                        default:
+                            renderWaterfallChart(`chart${index}`, config);
+                    }
+                    console.log(`Chart ${index}: JS-Rendering (${config._generatedBy || 'demo'})`);
                 }
             });
         }
