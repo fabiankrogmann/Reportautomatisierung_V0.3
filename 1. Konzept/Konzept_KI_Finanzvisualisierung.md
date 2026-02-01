@@ -337,10 +337,10 @@ Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generi
 |---|-------|--------|--------|--------|
 | 1 | `PROMPT-1-UNIVERSAL-ANALYZER.md` | **KI (aktiv)** | upload.html | analysisResult |
 | 2 | `PROMPT-2-VARIANT-GENERATOR.md` | **KI (aktiv)** | charts.html | variants[] |
-| 3 | `PROMPT-3-CONFIG-GENERATOR.md` | **Ersetzt durch `DeterministicConfigGenerator`** | - | chartConfig |
-| 4 | `WATERFALL-CHART-PROMPT.md` | **Ersetzt durch JS-Renderer** | - | SVG |
-| 5 | `BAR-CHART-PROMPT.md` | **Ersetzt durch JS-Renderer** | - | SVG |
-| 6 | `STACKED-BAR-CHART-PROMPT.md` | **Ersetzt durch JS-Renderer** | - | SVG |
+| 3 | `archiv/PROMPT-3-CONFIG-GENERATOR (archiviert).md` | **Ersetzt durch `DeterministicConfigGenerator`** | - | chartConfig |
+| 4 | `archiv/WATERFALL-CHART-PROMPT (archiviert).md` | **Ersetzt durch JS-Renderer** | - | SVG |
+| 5 | `archiv/BAR-CHART-PROMPT (archiviert).md` | **Ersetzt durch JS-Renderer** | - | SVG |
+| 6 | `archiv/STACKED-BAR-CHART-PROMPT (archiviert).md` | **Ersetzt durch JS-Renderer** | - | SVG |
 
 **Feature-Dateien (für Waterfall):**
 - `Features/Waterfall/_FEATURE-CATALOG.md` – Aktivierungsregeln, Konflikte (Input für `DeterministicConfigGenerator._activateFeatures()`)
@@ -351,6 +351,10 @@ Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generi
 - `COLOR-SCHEMA-PROMPT.md` – für dynamische Farbgenerierung in colors.html
 
 **Archiviert (in `4. Prompts/archiv/`):**
+- PROMPT-3-CONFIG-GENERATOR (archiviert).md
+- BAR-CHART-PROMPT (archiviert).md
+- STACKED-BAR-CHART-PROMPT (archiviert).md
+- WATERFALL-CHART-PROMPT (archiviert).md
 - DATA-ANALYZER-PROMPT (archiviert).md
 - PERSPECTIVE-DERIVATION-PROMPT (archiviert).md
 - LAYOUT-RANKING-PROMPT (archiviert).md

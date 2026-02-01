@@ -17,9 +17,12 @@ Reportautomatisierung_V0.3/
 ├── 4. Prompts/                    # Prompt-Definitionen (Source of Truth)
 │   ├── PROMPT-1-UNIVERSAL-ANALYZER.md    # Datenanalyse + Extraktion
 │   ├── PROMPT-2-VARIANT-GENERATOR.md     # Varianten-Generierung
-│   ├── PROMPT-3-CONFIG-GENERATOR.md      # Config-Erstellung
 │   ├── COLOR-SCHEMA-PROMPT.md            # Farbschema (colors.html)
 │   ├── archiv/                           # Archivierte Prompts
+│   │   ├── PROMPT-3-CONFIG-GENERATOR (archiviert).md
+│   │   ├── BAR-CHART-PROMPT (archiviert).md
+│   │   ├── STACKED-BAR-CHART-PROMPT (archiviert).md
+│   │   ├── WATERFALL-CHART-PROMPT (archiviert).md
 │   │   ├── DATA-ANALYZER-PROMPT (archiviert).md
 │   │   ├── PERSPECTIVE-DERIVATION-PROMPT (archiviert).md
 │   │   ├── LAYOUT-RANKING-PROMPT (archiviert).md
@@ -36,10 +39,9 @@ Reportautomatisierung_V0.3/
 │   │       ├── BENCHMARK-LINES.md       # Horizontale Zielwert-Linien
 │   │       ├── NEGATIVE-BRIDGES.md      # Negative Waterfall-Logik
 │   │       └── GROUPING.md             # Balken-Gruppierung
-│   └── Prompts for Charts/              # Legacy (nicht mehr im Standard-Workflow)
-│       ├── BAR-CHART-PROMPT.md           # Archiviert — JS-Renderer übernimmt
-│       ├── STACKED-BAR-CHART-PROMPT.md   # Archiviert — JS-Renderer übernimmt
-│       └── WATERFALL-CHART-PROMPT.md     # Archiviert — JS-Renderer übernimmt
+│   └── Prompts for Charts/
+│       └── Analyse/
+│           └── WATERFALL-FEATURE-ANALYSE.md
 ├── 5. Datenbeispiele/             # 50 Testdateien (CSV, Excel)
 │   ├── 01_GuV_Monatssicht_IST_FC_BUD.xlsx
 │   ├── 02_GuV_Faktentabelle_SEL_CUM.csv
@@ -115,15 +117,19 @@ Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generi
 |---|--------|-------|--------|--------|
 | 1 | Universal Analyzer | `PROMPT-1-UNIVERSAL-ANALYZER.md` | **KI (aktiv)** | analysisResult |
 | 2 | Variant Generator | `PROMPT-2-VARIANT-GENERATOR.md` | **KI (aktiv)** | variants[] |
-| 3 | Config Generator | `PROMPT-3-CONFIG-GENERATOR.md` | **Ersetzt durch `DeterministicConfigGenerator`** | chartConfig |
-| 4 | Waterfall Chart | `Prompts for Charts/WATERFALL-CHART-PROMPT.md` | **Ersetzt durch JS-Renderer** | SVG |
-| 5 | Bar Chart | `Prompts for Charts/BAR-CHART-PROMPT.md` | **Ersetzt durch JS-Renderer** | SVG |
-| 6 | Stacked Bar Chart | `Prompts for Charts/STACKED-BAR-CHART-PROMPT.md` | **Ersetzt durch JS-Renderer** | SVG |
+| 3 | Config Generator | `archiv/PROMPT-3-CONFIG-GENERATOR (archiviert).md` | **Ersetzt durch `DeterministicConfigGenerator`** | chartConfig |
+| 4 | Waterfall Chart | `archiv/WATERFALL-CHART-PROMPT (archiviert).md` | **Ersetzt durch JS-Renderer** | SVG |
+| 5 | Bar Chart | `archiv/BAR-CHART-PROMPT (archiviert).md` | **Ersetzt durch JS-Renderer** | SVG |
+| 6 | Stacked Bar Chart | `archiv/STACKED-BAR-CHART-PROMPT (archiviert).md` | **Ersetzt durch JS-Renderer** | SVG |
 
 **Zusätzlich:**
 - `COLOR-SCHEMA-PROMPT.md` – für dynamische Farbgenerierung in colors.html
 
 **Archiviert (in `4. Prompts/archiv/`):**
+- PROMPT-3-CONFIG-GENERATOR (archiviert).md
+- BAR-CHART-PROMPT (archiviert).md
+- STACKED-BAR-CHART-PROMPT (archiviert).md
+- WATERFALL-CHART-PROMPT (archiviert).md
 - DATA-ANALYZER-PROMPT (archiviert).md
 - PERSPECTIVE-DERIVATION-PROMPT (archiviert).md
 - LAYOUT-RANKING-PROMPT (archiviert).md
