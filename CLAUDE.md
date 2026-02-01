@@ -7,13 +7,25 @@ Automatisierte Chart-Generierung für Finanzreports mit Waterfall, Stacked Bar u
 ```
 Reportautomatisierung_V0.3/
 ├── 1. Konzept/                    # Konzeptdokumentation
-│   ├── Konzept_KI_Finanzvisualisierung.md
-│   └── ARCHITEKTUR-FINALE-V2.md   # Architektur-Entscheidungen
+│   └── Konzept_KI_Finanzvisualisierung.md
 ├── 3. HTML-Seiten/                # Frontend (Workflow)
 │   ├── upload.html                # 1. Daten-Upload + Analyse (PROMPT-1)
 │   ├── results.html               # 2. Ergebnisanzeige + Chart-Auswahl
 │   ├── colors.html                # 3. Farbschema (optional)
-│   └── charts.html                # 4. Chart-Generierung + Export (PROMPT-2 + deterministisch)
+│   ├── charts.html                # 4. Chart-Generierung + Export (nur HTML/CSS + Script-Tags)
+│   └── js/                        # Externalisierte JavaScript-Module
+│       ├── template-loader.js     # Globale Variablen, ConfigLoader, TemplateLoader
+│       ├── api-client.js          # APIClient + JSON-Reparatur
+│       ├── prompt-loader.js       # PromptLoader (nur variant_generator)
+│       ├── data-profiler.js       # DataProfiler
+│       ├── deterministic-config.js # ChartMixer + DeterministicConfigGenerator
+│       ├── normalize-config.js    # normalizeConfigForRenderer + Fingerprint
+│       ├── ui-helpers.js          # UI-Funktionen, Reasoning, Tooltip
+│       ├── renderer-waterfall.js  # renderWaterfallChart()
+│       ├── renderer-bar.js        # renderBarChart()
+│       ├── renderer-stacked.js    # renderStackedBarChart()
+│       ├── export-engine.js       # SVG/PNG/HTML/ZIP Download
+│       └── main.js                # initializeCharts + Orchestrierung
 ├── 4. Prompts/                    # Prompt-Definitionen (Source of Truth)
 │   ├── PROMPT-1-UNIVERSAL-ANALYZER.md    # Datenanalyse + Extraktion
 │   ├── PROMPT-2-VARIANT-GENERATOR.md     # Varianten-Generierung
@@ -42,10 +54,10 @@ Reportautomatisierung_V0.3/
 │   └── Prompts for Charts/
 │       └── Analyse/
 │           └── WATERFALL-FEATURE-ANALYSE.md
-├── 5. Datenbeispiele/             # 50 Testdateien (CSV, Excel)
-│   ├── 01_GuV_Monatssicht_IST_FC_BUD.xlsx
-│   ├── 02_GuV_Faktentabelle_SEL_CUM.csv
-│   └── ... (weitere 48 Dateien)
+├── 5. Datenbeispiele/             # Testdateien (CSV, Excel)
+│   ├── Testdaten_1/               # 50 Testdateien (Basis)
+│   ├── Testdaten_2/               # 51 Testdateien (Erweitert)
+│   └── Testdaten_3/               # 78 Testdateien (SaaS/ARR/MRR Szenarien)
 ├── 6. Bibliotheken/               # Modulare Konfigurationen (JSON)
 │   ├── templates.json             # 40 Chart-Templates (inkl. Feature-Metadaten)
 │   ├── color-schemes.json         # Farbpaletten (modular erweiterbar)
@@ -55,8 +67,12 @@ Reportautomatisierung_V0.3/
 │   ├── tester.md
 │   ├── clean-coder.md
 │   └── documenter.md
+├── 7. Skills/                     # Rollen-Definitionen
+│   └── new-layout.md              # Neues Layout erstellen
 └── .claude/skills/                # Claude Code Skills
-    └── chart-prompt-sync.md       # Prompt-Verwaltung
+    ├── chart-prompt-sync.md       # Prompt-Verwaltung
+    ├── new-layout.md              # Neues Layout erstellen
+    └── prompt-integrity-check.md  # Prompt-Integritätsprüfung
 ```
 
 ## Wichtige Regeln
@@ -67,8 +83,8 @@ Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generi
 
 - **PROMPT-1** (upload.html): KI-Datenanalyse — bleibt KI-gestützt
 - **PROMPT-2** (charts.html): KI-Varianten-Generierung — bleibt KI-gestützt
-- **DeterministicConfigGenerator** (charts.html): Ersetzt PROMPT-3 — reines JavaScript
-- **JS-Rendering-Engine** (charts.html): Ersetzt Chart-Prompts — `renderWaterfallChart()`, `renderBarChart()`, `renderStackedBarChart()`
+- **DeterministicConfigGenerator** (js/deterministic-config.js): Ersetzt PROMPT-3 — reines JavaScript
+- **JS-Rendering-Engine** (js/renderer-*.js): Ersetzt Chart-Prompts — `renderWaterfallChart()`, `renderBarChart()`, `renderStackedBarChart()`
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -109,7 +125,7 @@ Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generi
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-**Einsparung:** ~94.000 Tokens pro Durchlauf (96%) — von 14 API-Calls auf 1.
+**Einsparung:** ~94.000 Tokens pro Durchlauf (96%) — von 14 API-Calls auf 2.
 
 ### Prompt-Dateien
 
@@ -250,13 +266,12 @@ Das System generiert 3-10 unterschiedliche Varianten pro Chart-Typ:
 fingerprint = `${chartType}:${perspectiveId}:${titleHash}:${dataStructure}`
 ```
 
-### Zwei Modi
+### Modus
 
-Das System kennt nur **zwei Modi**:
+Das System kennt nur **einen Modus**:
 - **`deterministic`** (Standard): PROMPT-2 (KI) + DeterministicConfigGenerator + JS-Renderer
-- **`demo`**: Vordefinierte Demo-Daten ohne API-Calls
 
-**Kein Fallback!** Fehler werden angezeigt, kein stilles Fallback auf andere Modi.
+**Kein Fallback!** Fehler werden angezeigt, kein stilles Fallback.
 
 ## Skills
 

@@ -103,7 +103,7 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
 │  │ PromptLoader │  │TemplateLoader│  │  APIClient   │              │
 │  │              │  │              │  │              │              │
-│  │ Lädt .md     │  │ Lädt 30      │  │ Anthropic/   │              │
+│  │ Lädt .md     │  │ Lädt 40      │  │ Anthropic/   │              │
 │  │ Prompts      │  │ Templates    │  │ OpenAI       │              │
 │  └──────────────┘  └──────────────┘  └──────────────┘              │
 │         │                 │                 │                       │
@@ -329,7 +329,7 @@ Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generi
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-**Einsparung:** ~94.000 Tokens pro Durchlauf (96%) — von 14 API-Calls auf 1.
+**Einsparung:** ~94.000 Tokens pro Durchlauf (96%) — von 14 API-Calls auf 2.
 
 ### 4.2 Prompt-Dateien
 
@@ -798,7 +798,6 @@ Die Provider-Auswahl erfolgt in `upload.html`.
 | Modus | Beschreibung |
 |-------|--------------|
 | **deterministic** | PROMPT-2 (KI) + DeterministicConfigGenerator + JS-Renderer |
-| **demo** | Vordefinierte Beispieldaten ohne API |
 
 **Wichtig:** Kein Fallback. Fehler werden angezeigt, kein stilles Fallback auf andere Modi.
 
