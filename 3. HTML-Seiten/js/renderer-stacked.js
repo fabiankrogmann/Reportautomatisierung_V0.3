@@ -22,8 +22,8 @@ function renderStackedBarChart(svgId, config) {
         return;
     }
 
-    const width = 1200;
-    const height = 500;
+    const width = CHART_DEFAULTS.width;
+    const height = CHART_DEFAULTS.height;
     const margin = { top: 80, right: 40, bottom: 100, left: 40 };
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;

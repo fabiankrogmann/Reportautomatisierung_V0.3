@@ -1,4 +1,16 @@
+function escapeHtml(str) {
+    if (typeof str !== 'string') return str;
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 function showLoadingState() {
+    // Vorheriges Interval aufräumen falls vorhanden
+    if (window.loadingInterval) {
+        clearInterval(window.loadingInterval);
+        window.loadingInterval = null;
+    }
     document.getElementById('charts-wrapper').innerHTML = `
         <div class="chart-container">
             <div class="loading-state">
@@ -33,7 +45,7 @@ function showEmptyState(message) {
             <div class="empty-state">
                 <div class="empty-state-icon">📊</div>
                 <div class="empty-state-title">Keine Charts verfügbar</div>
-                <p>${message}</p>
+                <p>${escapeHtml(message)}</p>
                 <a href="upload.html" class="btn btn-primary" style="margin-top: 20px;">Neue Analyse starten</a>
             </div>
         </div>

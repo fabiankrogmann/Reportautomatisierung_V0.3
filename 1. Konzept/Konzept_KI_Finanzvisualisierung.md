@@ -28,7 +28,7 @@ upload.html → results.html → colors.html → charts.html
 
 | Komponente | Funktion |
 |------------|----------|
-| **Template-Bibliothek** | 40 vordefinierte Layout-Templates (JSON, inkl. Feature-Metadaten) |
+| **Template-Bibliothek** | 39 vordefinierte Layout-Templates (JSON, inkl. Feature-Metadaten) |
 | **Prompt-System** | 2 KI-Prompts (Analyse + Varianten) + deterministische Config-Generierung |
 | **VariantGenerator** | Erzeugt 3-10 Chart-Varianten pro Typ |
 | **DeterministicConfigGenerator** | Erzeugt Chart-Konfigurationen deterministisch (JavaScript) |
@@ -103,7 +103,7 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
 │  │ PromptLoader │  │TemplateLoader│  │  APIClient   │              │
 │  │              │  │              │  │              │              │
-│  │ Lädt .md     │  │ Lädt 40      │  │ Anthropic/   │              │
+│  │ Lädt .md     │  │ Lädt 39      │  │ Anthropic/   │              │
 │  │ Prompts      │  │ Templates    │  │ OpenAI       │              │
 │  └──────────────┘  └──────────────┘  └──────────────┘              │
 │         │                 │                 │                       │
@@ -128,7 +128,7 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 | Komponente | Aufgabe | Typ |
 |------------|---------|-----|
 | **PromptLoader** | Lädt Prompts aus .md-Dateien (Single Source of Truth) | Statisch |
-| **TemplateLoader** | Verwaltet 40 Chart-Templates | Statisch |
+| **TemplateLoader** | Verwaltet 39 Chart-Templates | Statisch |
 | **VariantGenerator** | Erzeugt 3-10 unterschiedliche Chart-Varianten | KI |
 | **APIClient** | Zentrale API-Integration (Anthropic/OpenAI) | Integration |
 | **DeterministicConfigGenerator** | Generiert Chart-Konfigurationen deterministisch | JavaScript |
@@ -184,7 +184,7 @@ Nur 3 Chart-Typen sind implementiert (bewusst limitiert):
 
 ## 3. Template-Bibliothek
 
-Die Bibliothek umfasst 40 Templates in `6. Bibliotheken/templates.json`, verteilt auf drei Chart-Typen.
+Die Bibliothek umfasst 39 Templates in `6. Bibliotheken/templates.json`, verteilt auf drei Chart-Typen.
 
 ### 3.1 Verteilung nach Chart-Typ
 
@@ -193,7 +193,7 @@ Die Bibliothek umfasst 40 Templates in `6. Bibliotheken/templates.json`, verteil
 | Waterfall | 19 | Bridges, Strukturen, Varianzen, Layout-Varianten |
 | Stacked Bar | 10 | Zusammensetzungen, Trends, Monthly |
 | Bar Chart | 10 | Vergleiche, Rankings |
-| **Gesamt** | **40** | |
+| **Gesamt** | **39** | |
 
 ### 3.2 Perspektiven-Matrix
 
@@ -377,6 +377,10 @@ Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generi
 - PERSPECTIVE-DERIVATION-PROMPT (archiviert).md
 - LAYOUT-RANKING-PROMPT (archiviert).md
 - FIELD-MAPPING-PROMPT (archiviert).md
+- RANKING-MIX-PROMPT.md.archived
+
+**Weitere:**
+- `PROMPT-INTEGRITY-VALIDATOR.md` – Pipeline-Integritätsprüfung (Template-IDs, Szenario-Formeln)
 
 ### 4.3 PROMPT 1: Universal Analyzer
 
@@ -1096,7 +1100,7 @@ Diese Beispiele dienen als Formatvorlage für die KI-Generierung.
 
 **Dokumentation aktualisiert:**
 - `ARCHITEKTUR-FINALE-V2.md` gelöscht (komplett veraltet, referenzierte PROMPT-3/PROMPT-4)
-- Konzept: "30 Templates" → "40 Templates", "auf 1 API-Call" → "auf 2 API-Calls"
+- Konzept: "30 Templates" → "39 Templates", "auf 1 API-Call" → "auf 2 API-Calls"
 - CLAUDE.md: Projektstruktur um `js/`-Ordner erweitert, Testdaten-Struktur korrigiert (Unterordner)
 - Skills-Dateien (`new-layout.md`, `prompt-integrity-check.md`) dokumentiert
 
@@ -1107,4 +1111,4 @@ Diese Beispiele dienen als Formatvorlage für die KI-Generierung.
 - 7 Waterfall-Features implementiert (Bracket, Scale-Break, Category-Brackets, Arrows, Benchmark-Lines, Negative Bridges, Grouping)
 - Einsparung: ~94.000 Tokens pro Durchlauf (96%) — von 14 API-Calls auf 2
 - Feature-Architektur mit modularen Feature-Dateien in `4. Prompts/Features/`
-- 40 Templates in `templates.json` (19 Waterfall, 10 Stacked Bar, 10 Bar Chart)
+- 39 Templates in `templates.json` (19 Waterfall, 10 Stacked Bar, 10 Bar Chart)

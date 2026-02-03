@@ -2,7 +2,7 @@
   "version": "1.0",
   "description": "Template-Bibliothek für KI-gestützte Finanzvisualisierung",
   "chart_types": ["waterfall", "stacked_bar", "bar"],
-  "total_templates": 40,
+  "total_templates": 39,
 
   "templates": {
     "waterfall": [

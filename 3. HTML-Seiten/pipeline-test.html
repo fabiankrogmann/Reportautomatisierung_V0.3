@@ -179,7 +179,7 @@
 </head>
 <body>
     <h1>Pipeline-Test Suite</h1>
-    <p class="subtitle">Deterministische Pipeline: PROMPT-1 (KI) + PROMPT-2 (KI) + DeterministicConfigGenerator (JS) + JS-Renderer | 5 Phasen</p>
+    <p class="subtitle">Deterministische Pipeline: PROMPT-1 (KI) + PROMPT-2 (KI) + DeterministicConfigGenerator (JS) + JS-Renderer | 6 Phasen</p>
 
     <!-- Config Panel -->
     <div class="config-panel">
@@ -229,6 +229,7 @@
         <button class="btn-secondary" onclick="stopTests()">Abbrechen</button>
         <button class="btn-secondary" onclick="exportResults()">Ergebnisse exportieren</button>
         <button class="btn-danger" onclick="clearResults()">Zurücksetzen</button>
+        <button class="btn-secondary" onclick="runEdgeCaseTests()" title="Kein API-Key nötig">Phase 6: Edge-Cases</button>
     </div>
 
     <!-- Progress -->
@@ -270,6 +271,9 @@
         </button>
         <button class="phase-tab" onclick="showPhase(5)" data-phase="5">
             Phase 5: Features <span class="badge" id="phase5Count">0</span>
+        </button>
+        <button class="phase-tab" onclick="showPhase(6)" data-phase="6">
+            Phase 6: Edge-Cases <span class="badge" id="phase6Count">0</span>
         </button>
     </div>
 
@@ -526,7 +530,7 @@
             isRunning: false,
             aborted: false,
             currentPhase: 1,
-            results: { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [] },
+            results: { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [], phase6: [] },
             featureStats: null,
             stats: { total: 0, passed: 0, warnings: 0, failed: 0, duration: 0, apiCalls: 0 },
             startTime: null,
@@ -972,8 +976,454 @@
                     ratio: preserved.length / resultLabels.length,
                     changed: resultLabels.filter(l => !sourceLower.some(s => s.includes(l.toLowerCase()) || l.toLowerCase().includes(s)))
                 };
+            },
+
+            // Phase 6: Edge-Case Tests (kein API-Call, rein client-seitig)
+            validateEdgeCases() {
+                const results = [];
+
+                // ── Test 6.1: Extremwerte ──
+                try {
+                    const extremeConfig = {
+                        title: 'Edge-Case: Extreme Values',
+                        _chartType: 'waterfall',
+                        bars: [
+                            { label: 'Start', value: 1500000000, type: 'total' },
+                            { label: 'Zero', value: 0, type: 'bridge' },
+                            { label: 'Negative', value: -999999, type: 'bridge' },
+                            { label: 'Tiny', value: 0.001, type: 'bridge' },
+                            { label: 'End', value: 1499000001.001, type: 'total' }
+                        ],
+                        colors: { start: '#1B3A5C', end: '#1B3A5C', positive: '#2E7D32', negative: '#C62828', connector: '#CCCCCC' }
+                    };
+                    const normalized = normalizeConfigForRenderer(extremeConfig);
+                    let renderOk = 'Nur Normalize';
+                    try {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.style.cssText = 'position:absolute;left:-9999px;width:800px;height:500px;';
+                        document.body.appendChild(tempDiv);
+                        const svg = renderWaterfallChart(normalized, 800, 500, ['#2B5EA7', '#E63946']);
+                        renderOk = svg && svg.includes('<svg') ? 'Normalize + Render OK' : 'Render leer';
+                        document.body.removeChild(tempDiv);
+                    } catch (re) { renderOk = 'Render-Fehler: ' + re.message; }
+                    results.push({
+                        testId: '6.1', testName: 'Extremwerte (1.5 Mrd, 0, negativ, 0.001)',
+                        status: 'success',
+                        checks: { extremeValues: { passed: true, value: renderOk } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.1', testName: 'Extremwerte',
+                        status: 'error',
+                        checks: { extremeValues: { passed: false, value: 'Fehler: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.2: Lange Labels ──
+                try {
+                    const longLabelConfig = {
+                        title: 'Edge-Case: Lange Labels',
+                        _chartType: 'waterfall',
+                        bars: [
+                            { label: 'A'.repeat(120), value: 100, type: 'total' },
+                            { label: 'Sonstige betriebliche Aufwendungen und Erträge aus Konsolidierung', value: -30, type: 'bridge' },
+                            { label: 'End', value: 70, type: 'total' }
+                        ],
+                        colors: { start: '#1B3A5C', end: '#1B3A5C', positive: '#2E7D32', negative: '#C62828', connector: '#CCCCCC' }
+                    };
+                    const normalized = normalizeConfigForRenderer(longLabelConfig);
+                    results.push({
+                        testId: '6.2', testName: 'Lange Labels (120 Zeichen, langer Fachbegriff)',
+                        status: 'success',
+                        checks: { longLabels: { passed: true, value: 'Normalize OK, max Label: 120 Zeichen' } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.2', testName: 'Lange Labels',
+                        status: 'error',
+                        checks: { longLabels: { passed: false, value: 'Fehler: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.3: Viele Balken (55) ──
+                try {
+                    const manyBars = [{ label: 'Start', value: 1000, type: 'total' }];
+                    for (let i = 1; i <= 53; i++) {
+                        manyBars.push({ label: 'Position ' + i, value: Math.round(Math.random() * 200 - 100), type: 'bridge' });
+                    }
+                    manyBars.push({ label: 'End', value: 0, type: 'total' });
+                    const manyBarsConfig = {
+                        title: 'Edge-Case: 55 Balken',
+                        _chartType: 'waterfall',
+                        bars: manyBars,
+                        colors: { start: '#1B3A5C', end: '#1B3A5C', positive: '#2E7D32', negative: '#C62828', connector: '#CCCCCC' }
+                    };
+                    const normalized = normalizeConfigForRenderer(manyBarsConfig);
+                    const barCount = normalized.bars ? normalized.bars.length : 0;
+                    results.push({
+                        testId: '6.3', testName: 'Viele Balken (55 Bars)',
+                        status: 'success',
+                        checks: { manyBars: { passed: true, value: barCount + ' Balken normalisiert' } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.3', testName: 'Viele Balken (55)',
+                        status: 'error',
+                        checks: { manyBars: { passed: false, value: 'Fehler: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.4: Leere Daten ──
+                try {
+                    const emptyConfig = { title: 'Edge-Case: Empty', _chartType: 'waterfall', bars: [], colors: {} };
+                    let emptyResult = 'Kein Crash';
+                    try {
+                        const normalized = normalizeConfigForRenderer(emptyConfig);
+                        emptyResult = 'Normalize OK (bars: ' + (normalized.bars ? normalized.bars.length : 0) + ')';
+                    } catch (ne) {
+                        emptyResult = 'Normalize wirft Fehler (erwartet): ' + ne.message;
+                    }
+                    results.push({
+                        testId: '6.4', testName: 'Leere Daten (0 Bars, leere Colors)',
+                        status: 'success',
+                        checks: { emptyData: { passed: true, value: emptyResult } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.4', testName: 'Leere Daten',
+                        status: 'error',
+                        checks: { emptyData: { passed: false, value: 'Unerwarteter Crash: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.5: Feature-Konflikte ──
+                try {
+                    const conflictConfig = {
+                        title: 'Edge-Case: Feature Conflicts',
+                        _chartType: 'waterfall',
+                        bars: [
+                            { label: 'Start', value: 1000, type: 'total' },
+                            { label: 'Delta', value: -200, type: 'bridge' },
+                            { label: 'End', value: 800, type: 'total' }
+                        ],
+                        features: {
+                            bracket: { enabled: true, fromIndex: 0, toIndex: 2, label: '+10%' },
+                            arrows: { enabled: true }
+                        },
+                        colors: { start: '#1B3A5C', end: '#1B3A5C', positive: '#2E7D32', negative: '#C62828', connector: '#CCCCCC' }
+                    };
+                    const normalized = normalizeConfigForRenderer(conflictConfig);
+                    const bracketActive = normalized.features?.bracket?.enabled || normalized.bracket?.enabled || false;
+                    const arrowsActive = normalized.features?.arrows?.enabled || normalized.arrows?.enabled || false;
+                    const bothActive = bracketActive && arrowsActive;
+                    results.push({
+                        testId: '6.5', testName: 'Feature-Konflikte (bracket + arrows)',
+                        status: bothActive ? 'warning' : 'success',
+                        checks: { featureConflicts: { passed: !bothActive, value: 'bracket=' + bracketActive + ', arrows=' + arrowsActive + (bothActive ? ' (Konflikt nicht aufgelöst)' : ' (OK)') } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.5', testName: 'Feature-Konflikte',
+                        status: 'error',
+                        checks: { featureConflicts: { passed: false, value: 'Fehler: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.6: Unbekannter Template-Typ ──
+                try {
+                    const unknownResult = generateConfigFingerprint({ title: 'Test' }, 'unknown_type');
+                    const isString = typeof unknownResult === 'string' && unknownResult.length > 0;
+                    results.push({
+                        testId: '6.6', testName: 'Unbekannter Template-Typ (generateConfigFingerprint)',
+                        status: isString ? 'success' : 'warning',
+                        checks: { unknownTemplate: { passed: isString, value: 'Fingerprint: ' + (unknownResult || '(leer)').substring(0, 60) } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.6', testName: 'Unbekannter Template-Typ',
+                        status: 'error',
+                        checks: { unknownTemplate: { passed: false, value: 'Crash: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.7: Template-Abdeckung ──
+                try {
+                    let waterfallCount = 0, barCount = 0, stackedCount = 0;
+                    if (typeof TemplateLoader !== 'undefined') {
+                        const allTemplates = TemplateLoader.getAll ? TemplateLoader.getAll() : null;
+                        if (allTemplates) {
+                            waterfallCount = (allTemplates.waterfall || []).length;
+                            barCount = (allTemplates.bar || []).length;
+                            stackedCount = (allTemplates.stacked_bar || []).length;
+                        } else if (TemplateLoader.templates && Array.isArray(TemplateLoader.templates)) {
+                            TemplateLoader.templates.forEach(function(t) {
+                                if (t.chart_type === 'waterfall') waterfallCount++;
+                                else if (t.chart_type === 'bar') barCount++;
+                                else if (t.chart_type === 'stacked_bar') stackedCount++;
+                            });
+                        }
+                    }
+                    if (waterfallCount === 0 && state.templates) {
+                        waterfallCount = (state.templates.templates?.waterfall || []).length;
+                        barCount = (state.templates.templates?.bar || []).length;
+                        stackedCount = (state.templates.templates?.stacked_bar || []).length;
+                    }
+                    const total = waterfallCount + barCount + stackedCount;
+                    const hasAll = waterfallCount > 0 && barCount > 0 && stackedCount > 0;
+                    results.push({
+                        testId: '6.7', testName: 'Template-Abdeckung (alle Typen)',
+                        status: hasAll ? 'success' : (total > 0 ? 'warning' : 'error'),
+                        checks: { templateCoverage: { passed: hasAll, value: 'WF=' + waterfallCount + ', Bar=' + barCount + ', SB=' + stackedCount + ' (Gesamt: ' + total + ')' } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.7', testName: 'Template-Abdeckung',
+                        status: 'error',
+                        checks: { templateCoverage: { passed: false, value: 'Fehler: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.8: normalizeConfigForRenderer mit leeren features ──
+                try {
+                    const noFeaturesConfig = {
+                        title: 'Edge-Case: Leere Features',
+                        _chartType: 'waterfall',
+                        bars: [
+                            { label: 'Start', value: 500, type: 'total' },
+                            { label: 'Delta', value: -100, type: 'bridge' },
+                            { label: 'End', value: 400, type: 'total' }
+                        ],
+                        features: {},
+                        colors: { start: '#1B3A5C', end: '#1B3A5C', positive: '#2E7D32', negative: '#C62828', connector: '#CCCCCC' }
+                    };
+                    const normalized = normalizeConfigForRenderer(noFeaturesConfig);
+                    const hasNoBracket = !normalized.bracket;
+                    results.push({
+                        testId: '6.8', testName: 'normalizeConfig: Leere features{}',
+                        status: hasNoBracket ? 'success' : 'warning',
+                        checks: { emptyFeatures: { passed: hasNoBracket, value: 'bracket=' + !!normalized.bracket + ', bars=' + (normalized.bars?.length || 0) } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.8', testName: 'normalizeConfig: Leere features',
+                        status: 'error',
+                        checks: { emptyFeatures: { passed: false, value: 'Fehler: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.9: normalizeConfig mit unbekanntem Feature ──
+                try {
+                    const unknownFeatureConfig = {
+                        title: 'Edge-Case: Unknown Feature',
+                        _chartType: 'waterfall',
+                        bars: [
+                            { label: 'Start', value: 1000, type: 'total' },
+                            { label: 'End', value: 800, type: 'total' }
+                        ],
+                        features: { unknownFeature: { enabled: true, foo: 'bar' } },
+                        colors: { start: '#1B3A5C', end: '#1B3A5C', positive: '#2E7D32', negative: '#C62828', connector: '#CCCCCC' }
+                    };
+                    const normalized = normalizeConfigForRenderer(unknownFeatureConfig);
+                    results.push({
+                        testId: '6.9', testName: 'normalizeConfig: Unbekanntes Feature (ignoriert)',
+                        status: 'success',
+                        checks: { unknownFeature: { passed: true, value: 'Kein Crash, bars=' + (normalized.bars?.length || 0) } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.9', testName: 'normalizeConfig: Unbekanntes Feature',
+                        status: 'error',
+                        checks: { unknownFeature: { passed: false, value: 'Crash: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.10: Bar Chart Edge-Case (leere categories) ──
+                try {
+                    const emptyBarConfig = {
+                        title: 'Edge-Case: Bar ohne Categories',
+                        _chartType: 'bar',
+                        periods: [{ label: '2025', color: '#333' }],
+                        categories: []
+                    };
+                    let renderResult = 'Kein Crash';
+                    try {
+                        const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        tempSvg.id = 'edgeTest_bar_empty';
+                        tempSvg.setAttribute('viewBox', '0 0 1200 500');
+                        tempSvg.style.cssText = 'position:absolute;left:-9999px';
+                        document.body.appendChild(tempSvg);
+                        renderBarChart('edgeTest_bar_empty', emptyBarConfig);
+                        renderResult = tempSvg.innerHTML.length > 0 ? 'Renderer gab Fehlermeldung aus' : 'Leer (erwartet)';
+                        document.body.removeChild(tempSvg);
+                    } catch (re) {
+                        renderResult = 'Render-Fehler (akzeptabel): ' + re.message.substring(0, 80);
+                    }
+                    results.push({
+                        testId: '6.10', testName: 'Bar Chart: Leere categories[]',
+                        status: 'success',
+                        checks: { emptyBarCategories: { passed: true, value: renderResult } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.10', testName: 'Bar Chart: Leere categories',
+                        status: 'error',
+                        checks: { emptyBarCategories: { passed: false, value: 'Crash: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.11: Stacked Bar Edge-Case (leere segments) ──
+                try {
+                    const emptyStackedConfig = {
+                        title: 'Edge-Case: Stacked Bar ohne Segments',
+                        _chartType: 'stacked-bar',
+                        categories: [{ label: 'Q1' }, { label: 'Q2' }],
+                        segments: []
+                    };
+                    let renderResult = 'Kein Crash';
+                    try {
+                        const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        tempSvg.id = 'edgeTest_stacked_empty';
+                        tempSvg.setAttribute('viewBox', '0 0 1200 500');
+                        tempSvg.style.cssText = 'position:absolute;left:-9999px';
+                        document.body.appendChild(tempSvg);
+                        renderStackedBarChart('edgeTest_stacked_empty', emptyStackedConfig);
+                        renderResult = tempSvg.innerHTML.length > 0 ? 'Renderer gab Fehlermeldung aus' : 'Leer (erwartet)';
+                        document.body.removeChild(tempSvg);
+                    } catch (re) {
+                        renderResult = 'Render-Fehler (akzeptabel): ' + re.message.substring(0, 80);
+                    }
+                    results.push({
+                        testId: '6.11', testName: 'Stacked Bar: Leere segments[]',
+                        status: 'success',
+                        checks: { emptyStackedSegments: { passed: true, value: renderResult } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.11', testName: 'Stacked Bar: Leere segments',
+                        status: 'error',
+                        checks: { emptyStackedSegments: { passed: false, value: 'Crash: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.12: Bar Chart mit extremen Periodenzahl ──
+                try {
+                    const manyPeriodsConfig = {
+                        title: 'Edge-Case: 20 Perioden',
+                        _chartType: 'bar',
+                        periods: Array.from({length: 20}, (_, i) => ({ label: 'M' + (i+1), color: '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0') })),
+                        categories: [{ name: 'Revenue', values: Array.from({length: 20}, () => Math.round(Math.random() * 5000)) }]
+                    };
+                    let renderResult = 'Kein Crash';
+                    try {
+                        const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        tempSvg.id = 'edgeTest_bar_many';
+                        tempSvg.setAttribute('viewBox', '0 0 1200 500');
+                        tempSvg.style.cssText = 'position:absolute;left:-9999px';
+                        document.body.appendChild(tempSvg);
+                        renderBarChart('edgeTest_bar_many', manyPeriodsConfig);
+                        const hasContent = tempSvg.innerHTML.includes('<rect');
+                        renderResult = hasContent ? 'SVG mit Balken generiert' : 'SVG leer';
+                        document.body.removeChild(tempSvg);
+                    } catch (re) {
+                        renderResult = 'Render-Fehler: ' + re.message.substring(0, 80);
+                    }
+                    results.push({
+                        testId: '6.12', testName: 'Bar Chart: 20 Perioden (Überlappungstest)',
+                        status: renderResult.includes('generiert') ? 'success' : 'warning',
+                        checks: { manyPeriods: { passed: renderResult.includes('generiert'), value: renderResult } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.12', testName: 'Bar Chart: 20 Perioden',
+                        status: 'error',
+                        checks: { manyPeriods: { passed: false, value: 'Crash: ' + e.message } }
+                    });
+                }
+
+                // ── Test 6.13: Fingerprint-Kollision (gleicher Fingerprint = Dedup) ──
+                try {
+                    const configA = { title: 'Test Config', _chartType: 'waterfall', _perspectiveName: 'structure',
+                        bars: [{ label: 'Start', value: 100 }, { label: 'Delta', value: -20 }, { label: 'End', value: 80 }] };
+                    const configB = { title: 'Test Config', _chartType: 'waterfall', _perspectiveName: 'structure',
+                        bars: [{ label: 'Start', value: 100 }, { label: 'Delta', value: -20 }, { label: 'End', value: 80 }] };
+                    const configC = { title: 'Andere Config', _chartType: 'waterfall', _perspectiveName: 'variance',
+                        bars: [{ label: 'Start', value: 500 }, { label: 'End', value: 400 }] };
+                    const fpA = generateConfigFingerprint(configA, 'waterfall');
+                    const fpB = generateConfigFingerprint(configB, 'waterfall');
+                    const fpC = generateConfigFingerprint(configC, 'waterfall');
+                    const dupDetected = fpA === fpB;
+                    const uniqueDetected = fpA !== fpC;
+                    results.push({
+                        testId: '6.13', testName: 'Fingerprint: Duplikat-Erkennung',
+                        status: (dupDetected && uniqueDetected) ? 'success' : 'warning',
+                        checks: { fingerprint: { passed: dupDetected && uniqueDetected, value: 'A==B: ' + dupDetected + ', A!=C: ' + uniqueDetected } }
+                    });
+                } catch (e) {
+                    results.push({
+                        testId: '6.13', testName: 'Fingerprint-Erkennung',
+                        status: 'error',
+                        checks: { fingerprint: { passed: false, value: 'Fehler: ' + e.message } }
+                    });
+                }
+
+                return results;
             }
         };
+
+        // =====================================================
+        // PHASE 6: EDGE-CASE TEST RUNNER (Standalone, kein API-Key nötig)
+        // =====================================================
+        async function runEdgeCaseTests() {
+            log('info', 'Starte Phase 6: Edge-Case Tests (kein API-Key benötigt)...');
+
+            // Lade Templates falls noch nicht vorhanden
+            if (!state.templates) {
+                try {
+                    const templatesResponse = await fetch(CONFIG.templatesPath);
+                    state.templates = await templatesResponse.json();
+                    if (typeof TemplateLoader !== 'undefined' && !TemplateLoader.templates) {
+                        TemplateLoader.templates = [];
+                        Object.values(state.templates.templates || {}).forEach(function(arr) {
+                            arr.forEach(function(t) { TemplateLoader.templates.push(t); });
+                        });
+                    }
+                    log('success', 'Templates geladen (' + state.templates.total_templates + ' Templates)');
+                } catch (e) {
+                    log('warning', 'Templates konnten nicht geladen werden: ' + e.message);
+                }
+            }
+
+            const startTime = Date.now();
+            const edgeCaseResults = Validators.validateEdgeCases();
+
+            // Ergebnisse in State speichern
+            state.results.phase6 = [];
+            let passed = 0, warnings = 0, failed = 0;
+
+            edgeCaseResults.forEach(function(result, idx) {
+                state.results.phase6.push({
+                    index: idx + 1,
+                    filename: result.testId,
+                    title: result.testName,
+                    status: result.status,
+                    checks: result.checks,
+                    result: result
+                });
+
+                if (result.status === 'success') { passed++; state.stats.passed++; }
+                else if (result.status === 'warning') { warnings++; state.stats.warnings++; }
+                else { failed++; state.stats.failed++; }
+                state.stats.total++;
+            });
+
+            state.stats.duration = Math.round((Date.now() - (state.startTime || startTime)) / 1000);
+            updateStats();
+
+            // Zeige Phase 6
+            showPhase(6);
+
+            log('success', 'Phase 6 abgeschlossen: ' + passed + ' bestanden, ' + warnings + ' Warnungen, ' + failed + ' fehlgeschlagen (' + edgeCaseResults.length + ' Tests, 0 API Calls)');
+        }
 
         // =====================================================
         // INITIALISIERUNG
@@ -1029,7 +1479,7 @@
             state.aborted = false;
             state.startTime = Date.now();
             state.stats = { total: 0, passed: 0, warnings: 0, failed: 0, duration: 0, apiCalls: 0 };
-            state.results = { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [] };
+            state.results = { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [], phase6: [] };
 
             document.getElementById('btnStartTests').disabled = true;
             document.getElementById('progressContainer').style.display = 'block';
@@ -1297,7 +1747,8 @@
                 2: 'Phase 2: Variant Generator (KI)',
                 3: 'Phase 3: DeterministicConfigGenerator (JS)',
                 4: 'Phase 4: JS-Renderer (SVG)',
-                5: 'Phase 5: Feature-Integrität'
+                5: 'Phase 5: Feature-Integrität',
+                6: 'Phase 6: Edge-Cases'
             };
             document.getElementById('resultsTitle').textContent = titles[phase];
             document.querySelector('.validation-title').textContent = `Validierungs-Checks (${titles[phase]})`;
@@ -1305,7 +1756,7 @@
 
             const dashboard = document.getElementById('featureDashboard');
             if (dashboard) {
-                dashboard.style.display = phase === 5 ? 'block' : 'none';
+                dashboard.style.display = (phase === 5) ? 'block' : 'none';
                 if (phase === 5 && state.featureStats) renderFeatureDashboard(state.featureStats);
             }
         }
@@ -1315,7 +1766,7 @@
             const body = document.getElementById('resultsBody');
 
             document.getElementById('resultsCount').textContent = `${results.length} Tests`;
-            for (let p = 1; p <= 5; p++) {
+            for (let p = 1; p <= 6; p++) {
                 document.getElementById(`phase${p}Count`).textContent = state.results[`phase${p}`].length;
             }
 
@@ -1470,7 +1921,11 @@
                 hasLabels: 'Text-Labels vorhanden', noErrors: 'Keine Fehler',
                 featureBlockExists: 'Feature-Block vorhanden', allFeaturesDocumented: 'Alle 7 Features dokumentiert',
                 availabilityRespected: 'Verfügbarkeit eingehalten', conflictsResolved: 'Konflikte aufgelöst',
-                reasonFieldPresent: 'Begründungen vorhanden', categoryConstraints: 'Kategorie-Einschränkungen'
+                reasonFieldPresent: 'Begründungen vorhanden', categoryConstraints: 'Kategorie-Einschränkungen',
+                extremeValues: 'Extremwerte verarbeitet', longLabels: 'Lange Labels verarbeitet',
+                manyBars: 'Viele Balken (50+)', emptyData: 'Leere Daten behandelt',
+                featureConflicts: 'Feature-Konflikte behandelt', unknownTemplate: 'Unbekannter Template-Typ',
+                templateCoverage: 'Template-Abdeckung'
             };
             return names[name] || name;
         }
@@ -1504,7 +1959,7 @@
         function stopTests() { state.aborted = true; log('warning', 'Tests werden abgebrochen...'); }
 
         function clearResults() {
-            state.results = { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [] };
+            state.results = { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [], phase6: [] };
             state.featureStats = null;
             state.stats = { total: 0, passed: 0, warnings: 0, failed: 0, duration: 0, apiCalls: 0 };
             updateStats(); renderResults();

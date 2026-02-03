@@ -201,35 +201,6 @@ const PromptLoader = {
     },
 
     /**
-     * Lädt alle Prompts vor (für schnellere Generierung)
-     * @throws {Error} - Wenn ein Prompt nicht geladen werden kann
-     */
-    async preloadAll() {
-        const promptNames = Object.keys(this.promptFiles);
-        const errors = [];
-
-        for (const name of promptNames) {
-            try {
-                await this.load(name);
-            } catch (error) {
-                errors.push({ name, error: error.message });
-            }
-        }
-
-        if (errors.length > 0) {
-            const errorDetails = errors.map(e => `- ${e.name}: ${e.error}`).join('\n');
-            const errorMsg = `PromptLoader: ${errors.length} von ${promptNames.length} Prompts konnten nicht geladen werden:\n${errorDetails}`;
-            console.error(errorMsg);
-            throw new Error(errorMsg);
-        }
-
-        // Zusammenfassung ausgeben
-        const totalTokens = Object.values(this.cache).reduce((sum, c) => sum + c.tokens, 0);
-        const totalSize = Object.values(this.cache).reduce((sum, c) => sum + c.size, 0);
-        console.log(`PromptLoader: Alle ${promptNames.length} Prompts geladen (${(totalSize/1024).toFixed(1)} KB, ~${totalTokens} Tokens gesamt)`);
-    },
-
-    /**
      * Prüft ob Prompts neu geladen werden müssen
      * Vergleicht Hashes der gecachten Prompts mit aktuellen Dateien
      * @returns {Promise<Object>} - { valid: [], invalid: [], errors: [] }
@@ -316,32 +287,3 @@ const PromptLoader = {
     }
 };
 
-
-// =====================================================
-// LAYOUT-RANKING API-CALL - ENTFERNT (Phase 1 Refactoring)
-// =====================================================
-// =====================================================
-// LEGACY-CODE ENTFERNT (Bereinigung Januar 2026)
-// =====================================================
-// Entfernte Funktionen:
-// - generateAllConfigsViaAPI() - wurde nie aufgerufen
-// - generateChartsWithRanking() - durch Template-Workflow ersetzt
-// Das System generiert nun ALLE Templates des gewählten Typs direkt
-// über den Template-basierten Workflow (TemplateLoader + ChartMixer).
-
-// Hilfsfunktion: Keywords aus Analyse extrahieren
-function extractKeywordsFromAnalysis(analysis) {
-    const keywords = [];
-    if (Array.isArray(analysis?.positions)) {
-        analysis.positions.forEach(p => {
-            if (p.label) {
-                keywords.push(p.label.toLowerCase());
-            }
-        });
-    }
-    // Zusätzliche Keywords aus dataFormat
-    if (analysis?.dataFormat) {
-        keywords.push(analysis.dataFormat.toLowerCase());
-    }
-    return keywords.slice(0, 20); // Max 20 Keywords
-}

@@ -54,8 +54,8 @@ function renderBarChart(svgId, config) {
     // Automatische Farbabstufung anwenden (falls nicht bereits definiert)
     config.periods = applyAutoGradientColors(config.periods);
 
-    const width = 1200;  // Breitformat für Charts
-    const height = 500;  // Kompaktere Höhe für Charts
+    const width = CHART_DEFAULTS.width;
+    const height = CHART_DEFAULTS.height;
     const numCategories = config.categories.length;
 
     // Bei mehreren Kategorien: mehr Platz oben für Kategorie-Überschriften

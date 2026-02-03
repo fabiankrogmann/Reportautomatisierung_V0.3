@@ -13,6 +13,7 @@ Reportautomatisierung_V0.3/
 │   ├── results.html               # 2. Ergebnisanzeige + Chart-Auswahl
 │   ├── colors.html                # 3. Farbschema (optional)
 │   ├── charts.html                # 4. Chart-Generierung + Export (nur HTML/CSS + Script-Tags)
+│   ├── pipeline-test.html         # 5. Pipeline-Validierung (Test-Tool)
 │   └── js/                        # Externalisierte JavaScript-Module
 │       ├── template-loader.js     # Globale Variablen, ConfigLoader, TemplateLoader
 │       ├── api-client.js          # APIClient + JSON-Reparatur
@@ -30,6 +31,7 @@ Reportautomatisierung_V0.3/
 │   ├── PROMPT-1-UNIVERSAL-ANALYZER.md    # Datenanalyse + Extraktion
 │   ├── PROMPT-2-VARIANT-GENERATOR.md     # Varianten-Generierung
 │   ├── COLOR-SCHEMA-PROMPT.md            # Farbschema (colors.html)
+│   ├── PROMPT-INTEGRITY-VALIDATOR.md     # Pipeline-Integritätsprüfung
 │   ├── archiv/                           # Archivierte Prompts
 │   │   ├── PROMPT-3-CONFIG-GENERATOR (archiviert).md
 │   │   ├── BAR-CHART-PROMPT (archiviert).md
@@ -57,11 +59,13 @@ Reportautomatisierung_V0.3/
 ├── 5. Datenbeispiele/             # Testdateien (CSV, Excel)
 │   ├── Testdaten_1/               # 50 Testdateien (Basis)
 │   ├── Testdaten_2/               # 51 Testdateien (Erweitert)
-│   └── Testdaten_3/               # 78 Testdateien (SaaS/ARR/MRR Szenarien)
+│   └── Testdaten_3/               # 77 Testdateien (SaaS/ARR/MRR Szenarien)
 ├── 6. Bibliotheken/               # Modulare Konfigurationen (JSON)
-│   ├── templates.json             # 40 Chart-Templates (inkl. Feature-Metadaten)
+│   ├── templates.json             # 39 Chart-Templates (inkl. Feature-Metadaten)
 │   ├── color-schemes.json         # Farbpaletten (modular erweiterbar)
 │   └── chart-examples.json        # Beispiel-Configs für KI-Training
+├── 6. Beispiele/                  # Legacy HTML Chart-Beispiele
+├── scripts/                       # Offline-Batch-Utilities (generate-full-configs.js, enrich-features.js)
 ├── 7. Skills/                     # Rollen-Definitionen
 │   ├── architect.md
 │   ├── tester.md
@@ -139,6 +143,7 @@ Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generi
 
 **Zusätzlich:**
 - `COLOR-SCHEMA-PROMPT.md` – für dynamische Farbgenerierung in colors.html
+- `PROMPT-INTEGRITY-VALIDATOR.md` – Pipeline-Integritätsprüfung (Template-IDs, Szenario-Formeln)
 
 **Archiviert (in `4. Prompts/archiv/`):**
 - PROMPT-3-CONFIG-GENERATOR (archiviert).md
@@ -149,6 +154,7 @@ Das System verwendet eine 2-stufige KI-Pipeline + deterministische Config-Generi
 - PERSPECTIVE-DERIVATION-PROMPT (archiviert).md
 - LAYOUT-RANKING-PROMPT (archiviert).md
 - FIELD-MAPPING-PROMPT (archiviert).md
+- RANKING-MIX-PROMPT.md.archived
 
 ### Spracherhaltung (KRITISCH)
 
@@ -243,7 +249,7 @@ Daten werden via `sessionStorage` zwischen den Seiten übergeben.
 
 ### Template-Bibliothek
 
-- 40 Templates in `6. Bibliotheken/templates.json`
+- 39 Templates in `6. Bibliotheken/templates.json`
 - 19 Waterfall (WF-01 bis WF-19, inkl. Layout-Varianten mit Compare-Bars)
 - 10 Stacked Bar (SB-01 bis SB-10)
 - 10 Bar Chart (BC-01 bis BC-10)

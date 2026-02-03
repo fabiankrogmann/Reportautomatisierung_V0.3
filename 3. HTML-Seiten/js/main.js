@@ -7,72 +7,71 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeCharts();
 });
 
+/**
+ * Lädt Analyse-Ergebnis und Colors aus sessionStorage
+ * @returns {boolean} true wenn erfolgreich, false wenn keine Daten
+ */
+function _loadAnalysisFromSession() {
+    const resultRaw = sessionStorage.getItem('analysisResult');
+    if (!resultRaw) return false;
+
+    analysisResult = JSON.parse(resultRaw);
+
+    if (typeof analysisResult.result === 'string') {
+        analysisResult.parsed = JSON.parse(analysisResult.result);
+    } else {
+        analysisResult.parsed = analysisResult.result;
+    }
+
+    const colorsRaw = sessionStorage.getItem('companyColors');
+    if (colorsRaw) {
+        companyColors = JSON.parse(colorsRaw);
+    }
+
+    return true;
+}
+
+/**
+ * Bestimmt den Chart-Typ aus User-Auswahl oder KI-Empfehlung
+ * @returns {string} chartType (z.B. 'waterfall', 'bar', 'stacked-bar')
+ */
+function _resolveChartType() {
+    const rec = analysisResult.parsed.recommendation;
+    let chartType;
+
+    if (rec?.selectedChart) {
+        chartType = rec.selectedChart;
+    } else if (rec?.primaryChart) {
+        chartType = rec.primaryChart;
+    } else {
+        chartType = 'waterfall';
+    }
+
+    console.log('chartType:', chartType, '(selectedChart:', rec?.selectedChart, ', primaryChart:', rec?.primaryChart, ')');
+    return chartType;
+}
+
 async function initializeCharts() {
     try {
-        // HINWEIS: Prompts werden NICHT mehr vorab geladen
-        // Stattdessen wird nur der benötigte Chart-Prompt später geladen
-        // Das spart ~20.000 Tokens pro Generierung!
-
-        // Lade Analyse-Ergebnis
-        const resultRaw = sessionStorage.getItem('analysisResult');
-        if (!resultRaw) {
+        // Lade Analyse-Ergebnis aus Session
+        if (!_loadAnalysisFromSession()) {
             showEmptyState('Keine Analyseergebnisse gefunden. Bitte starte eine neue Analyse.');
             return;
         }
 
-        analysisResult = JSON.parse(resultRaw);
-
-        // Parse das result wenn es ein String ist
-        if (typeof analysisResult.result === 'string') {
-            analysisResult.parsed = JSON.parse(analysisResult.result);
-        } else {
-            analysisResult.parsed = analysisResult.result;
-        }
-
-        // Lade Company Colors
-        const colorsRaw = sessionStorage.getItem('companyColors');
-        if (colorsRaw) {
-            companyColors = JSON.parse(colorsRaw);
-        }
-
-        // Chart-Anzahl: ALLE Templates des gewählten Typs generieren
-        // (Slider wurde in Phase 1 entfernt - keine User-Auswahl mehr)
-        // chartCount bleibt auf 12 (Maximum aus templates.json)
         console.log('Chart-Anzahl: Generiere alle Templates des Typs (max', chartCount, ')');
 
         // Ermittle Chart-Typ
-        console.log('=== CHART-TYP DEBUG (charts.html) ===');
-        console.log('Gesamtes analysisResult.parsed.recommendation:', JSON.stringify(analysisResult.parsed.recommendation, null, 2));
-        console.log('selectedChart:', analysisResult.parsed.recommendation?.selectedChart);
-        console.log('primaryChart:', analysisResult.parsed.recommendation?.primaryChart);
-        console.log('_userSelectedChart:', analysisResult.parsed.recommendation?._userSelectedChart);
-
-        // chartType kommt aus User-Auswahl in results.html (selectedChart)
-        // Fallback auf primaryChart (KI-Empfehlung) wenn nichts gewählt
-        let chartType;
-        if (analysisResult.parsed.recommendation?.selectedChart) {
-            chartType = analysisResult.parsed.recommendation.selectedChart;
-            console.log('chartType aus selectedChart:', chartType);
-        } else if (analysisResult.parsed.recommendation?.primaryChart) {
-            chartType = analysisResult.parsed.recommendation.primaryChart;
-            console.log('chartType aus primaryChart (KI-Empfehlung):', chartType);
-        } else {
-            chartType = 'waterfall';
-            console.log('chartType auf waterfall gesetzt (Default)');
-        }
-        console.log('Finaler chartType:', chartType);
-        console.log('=== END DEBUG (charts.html) ===')
+        let chartType = _resolveChartType();
 
         // Setze Seitentitel
         const typeLabels = {
             'waterfall': 'Waterfall Charts',
             'bar': 'Bar Charts',
             'stacked-bar': 'Stacked Bar Charts',
-            'stacked_bar': 'Stacked Bar Charts'  // Alternative Schreibweise
+            'stacked_bar': 'Stacked Bar Charts'
         };
-        // Normalisiere chartType für Titel
         const displayChartType = chartType === 'stacked_bar' ? 'stacked-bar' : chartType;
-        console.log('displayChartType für Titel:', displayChartType);
         document.getElementById('page-title').textContent =
             `${typeLabels[displayChartType] || 'Charts'} - Think-Cell Stil`;
         document.getElementById('page-subtitle').textContent =
@@ -82,8 +81,7 @@ async function initializeCharts() {
         const apiKey = sessionStorage.getItem('apiKey');
         const provider = sessionStorage.getItem('apiProvider') || 'anthropic';
 
-        // Erstelle Daten-Profil (immer, auch ohne API-Key)
-        console.log('Erstelle Daten-Profil...');
+        // Erstelle Daten-Profil
         const profile = DataProfiler.profile(analysisResult);
         console.log('Daten-Profil:', profile);
         aiReasoningData.profile = profile;
@@ -283,6 +281,7 @@ Antworte NUR mit einem validen JSON-Objekt im Format { "variants": [...] }.`;
 
             } catch (error) {
                 // BEI JEDEM FEHLER: Wechsel zu Demo-Modus
+                if (window.loadingInterval) { clearInterval(window.loadingInterval); window.loadingInterval = null; }
                 console.error('KI-Generierung fehlgeschlagen:', error);
                 aiReasoningData.generationMode = 'demo';
                 aiReasoningData.errors = aiReasoningData.errors || [];
@@ -320,6 +319,7 @@ Antworte NUR mit einem validen JSON-Objekt im Format { "variants": [...] }.`;
         }
 
     } catch (error) {
+        if (window.loadingInterval) { clearInterval(window.loadingInterval); window.loadingInterval = null; }
         console.error('Error loading data:', error);
         showEmptyState('Fehler beim Laden der Daten: ' + error.message);
     }
@@ -330,6 +330,7 @@ Antworte NUR mit einem validen JSON-Objekt im Format { "variants": [...] }.`;
 // =====================================================
 
 function renderAllCharts() {
+    if (window.loadingInterval) { clearInterval(window.loadingInterval); window.loadingInterval = null; }
     const wrapper = document.getElementById('charts-wrapper');
     const selectedChartType = analysisResult?.parsed?.recommendation?.selectedChart ||
                       analysisResult?.parsed?.recommendation?.primaryChart || 'waterfall';
@@ -450,8 +451,8 @@ function renderAllCharts() {
             <div class="chart-container ${selectedChartsForExport.has(index) ? 'selected' : ''}" id="chartContainer${index}">
                 <div class="chart-header">
                     <div class="chart-info">
-                        <div class="chart-title">${config.title || `Beispiel ${index + 1}`}</div>
-                        <div class="chart-subtitle">${config.subtitle || ''}</div>
+                        <div class="chart-title">${escapeHtml(config.title) || `Beispiel ${index + 1}`}</div>
+                        <div class="chart-subtitle">${escapeHtml(config.subtitle) || ''}</div>
                     </div>
                     <div class="chart-actions">
                         <button class="btn-download btn-pptx" onclick="downloadPPTX(${index})" title="PowerPoint Export">PPTX</button>

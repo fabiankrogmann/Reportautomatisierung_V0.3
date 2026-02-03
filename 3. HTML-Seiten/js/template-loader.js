@@ -2,6 +2,12 @@
 // GLOBALE VARIABLEN
 // =====================================================
 
+// Zentrale Chart-Dimensionen (von allen Renderern verwendet)
+const CHART_DEFAULTS = {
+    width: 1200,
+    height: 500
+};
+
 let analysisResult = null;
 let companyColors = [];
 let chartConfigs = [];

@@ -16,8 +16,8 @@ function renderWaterfallChart(svgId, config) {
 
     const colors = config.colors || DEFAULT_COLORS.waterfall;
 
-    const width = 1200;  // Breitformat für Charts
-    const height = 500;  // Kompaktere Höhe für Charts
+    const width = CHART_DEFAULTS.width;
+    const height = CHART_DEFAULTS.height;
     const margin = { top: 80, right: 40, bottom: 80, left: 60 };
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;

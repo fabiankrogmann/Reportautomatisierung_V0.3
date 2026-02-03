@@ -198,7 +198,7 @@ const APIClient = {
      */
     getCacheStats() {
         // Geschätzte Ersparnis in USD (bei $3/MTok Input, $0.30/MTok Cache-Read)
-        const estimatedSavings = (this.cacheStats.totalTokensSaved / 1000000) * 2.70; // $3 - $0.30 = $2.70 pro MTok
+        const estimatedSavings = (this.cacheStats.totalTokensSaved / 1000000) * 2.70; // Ersparnis: $3.00/MTok (Input) - $0.30/MTok (Cache-Read) = $2.70/MTok
         return {
             ...this.cacheStats,
             estimatedSavingsUSD: estimatedSavings.toFixed(4)
@@ -209,22 +209,47 @@ const APIClient = {
      * Parst JSON aus einer API-Antwort mit Auto-Repair für unvollständiges JSON
      */
     parseJSON(response) {
-        // Debug: Zeige die ersten 200 Zeichen der Antwort
         console.log('parseJSON: Input (erste 200 Zeichen):', response?.substring(0, 200));
 
         if (!response || typeof response !== 'string') {
             throw new Error('Keine gültige Antwort erhalten');
         }
 
-        // Entferne Markdown-Code-Blöcke und BOM
-        let cleaned = response
-            .replace(/^\uFEFF/, '')                              // BOM entfernen
+        // Schritt 1: Bereinige Markdown/BOM und extrahiere JSON-String
+        const jsonStr = this._extractJsonFromText(response);
+
+        // Schritt 2: Direktes Parsen versuchen
+        try {
+            return JSON.parse(jsonStr);
+        } catch (firstError) {
+            console.warn('parseJSON: Erstes Parsen fehlgeschlagen, versuche Reparatur...', firstError.message);
+
+            // Schritt 3: Offene Strings schließen
+            let repaired = this._repairOpenStrings(jsonStr);
+
+            // Schritt 4: Unvollständige Elemente entfernen + Klammern balancieren
+            repaired = this._balanceBraces(repaired);
+
+            try {
+                return JSON.parse(repaired);
+            } catch (secondError) {
+                // Schritt 5: Aggressives Kürzen als Fallback
+                return this._truncateToValidJson(repaired, jsonStr, secondError);
+            }
+        }
+    },
+
+    /**
+     * Extrahiert JSON-String aus API-Antwort (entfernt Markdown, BOM, Freitext)
+     */
+    _extractJsonFromText(text) {
+        let cleaned = text
+            .replace(/^\uFEFF/, '')
             .replace(/```json\s*/gi, '')
             .replace(/```\s*/g, '')
-            .replace(/^[\s\S]*?(?=\{)/m, '')                     // Alles VOR dem ersten { entfernen
+            .replace(/^[\s\S]*?(?=\{)/m, '')
             .trim();
 
-        // Finde das JSON-Objekt (vom ersten { bis zum Ende)
         const startIndex = cleaned.indexOf('{');
         if (startIndex === -1) {
             console.error('parseJSON: Kein JSON-Objekt gefunden in:', cleaned.substring(0, 500));
@@ -233,156 +258,120 @@ const APIClient = {
 
         let jsonStr = cleaned.substring(startIndex);
 
-        // Spezialfall: Prüfe ob JSON mit ungültigem Zeichen nach { beginnt
-        // Fehler "Expected property name or '}'" bei Position 6 bedeutet oft: { + Whitespace + ungültiges Zeichen
+        // Prüfe ob JSON mit ungültigem Zeichen nach { beginnt
         const afterBrace = jsonStr.substring(1).trim();
         if (afterBrace && !afterBrace.startsWith('"') && !afterBrace.startsWith('}')) {
-            // JSON beginnt nicht mit einem Property-Namen oder schließender Klammer
-            // Versuche, das nächste gültige JSON-Objekt zu finden
             console.warn('parseJSON: Ungültiger JSON-Start erkannt, suche alternatives JSON-Objekt');
             const nextBrace = jsonStr.indexOf('{', 1);
             if (nextBrace !== -1) {
                 jsonStr = jsonStr.substring(nextBrace);
-                console.log('parseJSON: Alternatives JSON-Objekt gefunden bei Position', nextBrace);
             }
         }
 
-        // Versuche zuerst direktes Parsen
-        try {
-            return JSON.parse(jsonStr);
-        } catch (firstError) {
-            console.warn('parseJSON: Erstes Parsen fehlgeschlagen, versuche Reparatur...', firstError.message);
+        return jsonStr;
+    },
 
-            // Schritt 1: Repariere abgeschnittene Strings
-            // Finde offene Strings und schließe sie
-            let repaired = jsonStr;
-            let inString = false;
-            let lastStringStart = -1;
-            let escapeNext = false;
+    /**
+     * Repariert offene (nicht geschlossene) Strings
+     */
+    _repairOpenStrings(jsonStr) {
+        let repaired = jsonStr;
+        let inString = false;
+        let lastStringStart = -1;
+        let escapeNext = false;
 
-            for (let i = 0; i < repaired.length; i++) {
-                const char = repaired[i];
+        for (let i = 0; i < repaired.length; i++) {
+            const char = repaired[i];
+            if (escapeNext) { escapeNext = false; continue; }
+            if (char === '\\' && inString) { escapeNext = true; continue; }
+            if (char === '"') {
+                if (!inString) { inString = true; lastStringStart = i; }
+                else { inString = false; }
+            }
+        }
 
-                if (escapeNext) {
-                    escapeNext = false;
-                    continue;
-                }
+        if (inString && lastStringStart !== -1) {
+            console.warn('parseJSON: Offener String gefunden, schließe ihn');
+            repaired += '"';
+        }
 
-                if (char === '\\' && inString) {
-                    escapeNext = true;
-                    continue;
-                }
+        return repaired;
+    },
 
-                if (char === '"') {
-                    if (!inString) {
-                        inString = true;
-                        lastStringStart = i;
-                    } else {
-                        inString = false;
-                    }
+    /**
+     * Entfernt unvollständige Elemente und balanciert Klammern
+     */
+    _balanceBraces(jsonStr) {
+        // Zähle offene/geschlossene Klammern
+        let openBraces = 0, openBrackets = 0;
+        let inString = false, escapeNext = false;
+
+        for (let i = 0; i < jsonStr.length; i++) {
+            const char = jsonStr[i];
+            if (escapeNext) { escapeNext = false; continue; }
+            if (char === '\\' && inString) { escapeNext = true; continue; }
+            if (char === '"') { inString = !inString; continue; }
+            if (!inString) {
+                if (char === '{') openBraces++;
+                else if (char === '}') openBraces--;
+                else if (char === '[') openBrackets++;
+                else if (char === ']') openBrackets--;
+            }
+        }
+
+        // Entferne unvollständige letzte Elemente
+        let repaired = jsonStr
+            .replace(/,\s*$/, '')
+            .replace(/,\s*"[^"]*":\s*$/, '')
+            .replace(/,\s*"[^"]*"\s*$/, '')
+            .replace(/:\s*"[^"]*$/, ': ""')
+            .replace(/:\s*-?\d+\.?\d*$/, ': 0');
+
+        // Füge fehlende Klammern hinzu
+        for (let i = 0; i < openBrackets; i++) repaired += ']';
+        for (let i = 0; i < openBraces; i++) repaired += '}';
+
+        console.log(`parseJSON: Repariert - ${openBraces} fehlende }, ${openBrackets} fehlende ]`);
+        return repaired;
+    },
+
+    /**
+     * Kürzt JSON aggressiv Zeichen für Zeichen bis ein valides Objekt entsteht
+     */
+    _truncateToValidJson(repaired, originalJson, parseError) {
+        console.warn('parseJSON: Einfache Reparatur fehlgeschlagen, versuche aggressivere Methode');
+
+        for (let cutoff = repaired.length - 1; cutoff > 100; cutoff--) {
+            const attempt = repaired.substring(0, cutoff);
+            let braces = 0, brackets = 0;
+            let inStr = false, esc = false;
+            for (const c of attempt) {
+                if (esc) { esc = false; continue; }
+                if (c === '\\' && inStr) { esc = true; continue; }
+                if (c === '"') { inStr = !inStr; continue; }
+                if (!inStr) {
+                    if (c === '{') braces++;
+                    else if (c === '}') braces--;
+                    else if (c === '[') brackets++;
+                    else if (c === ']') brackets--;
                 }
             }
 
-            // Wenn wir in einem offenen String enden, schließe ihn
-            if (inString && lastStringStart !== -1) {
-                console.warn('parseJSON: Offener String gefunden, schließe ihn');
-                repaired += '"';
-            }
-
-            // Schritt 2: Zähle offene/geschlossene Klammern
-            let openBraces = 0;
-            let openBrackets = 0;
-            inString = false;
-            escapeNext = false;
-
-            for (let i = 0; i < repaired.length; i++) {
-                const char = repaired[i];
-
-                if (escapeNext) {
-                    escapeNext = false;
-                    continue;
-                }
-
-                if (char === '\\' && inString) {
-                    escapeNext = true;
-                    continue;
-                }
-
-                if (char === '"') {
-                    inString = !inString;
-                    continue;
-                }
-
-                if (!inString) {
-                    if (char === '{') openBraces++;
-                    else if (char === '}') openBraces--;
-                    else if (char === '[') openBrackets++;
-                    else if (char === ']') openBrackets--;
-                }
-            }
-
-            // Schritt 3: Entferne unvollständige letzte Elemente
-            // Entferne trailing comma, unvollständige key-value pairs
-            repaired = repaired
-                .replace(/,\s*$/, '')                           // Trailing comma
-                .replace(/,\s*"[^"]*":\s*$/, '')                // Unvollständiges key:value
-                .replace(/,\s*"[^"]*"\s*$/, '')                 // Key ohne Wert
-                .replace(/:\s*"[^"]*$/, ': ""')                 // Abgeschnittener String-Wert
-                .replace(/:\s*-?\d+\.?\d*$/, ': 0');            // Abgeschnittene Zahl
-
-            // Schritt 4: Füge fehlende Klammern hinzu
-            for (let i = 0; i < openBrackets; i++) {
-                repaired += ']';
-            }
-            for (let i = 0; i < openBraces; i++) {
-                repaired += '}';
-            }
-
-            console.log(`parseJSON: Repariert - ${openBraces} fehlende }, ${openBrackets} fehlende ]`);
+            let fixed = attempt.replace(/,\s*$/, '');
+            for (let i = 0; i < brackets; i++) fixed += ']';
+            for (let i = 0; i < braces; i++) fixed += '}';
 
             try {
-                return JSON.parse(repaired);
-            } catch (secondError) {
-                // Schritt 5: Aggressivere Reparatur - suche letztes gültiges Objekt/Array
-                console.warn('parseJSON: Einfache Reparatur fehlgeschlagen, versuche aggressivere Methode');
-
-                // Versuche, das JSON Zeichen für Zeichen zu kürzen bis es parst
-                let truncated = repaired;
-                for (let cutoff = truncated.length - 1; cutoff > 100; cutoff--) {
-                    const attempt = truncated.substring(0, cutoff);
-                    // Zähle Klammern für diesen Versuch
-                    let braces = 0, brackets = 0;
-                    let inStr = false, esc = false;
-                    for (const c of attempt) {
-                        if (esc) { esc = false; continue; }
-                        if (c === '\\' && inStr) { esc = true; continue; }
-                        if (c === '"') { inStr = !inStr; continue; }
-                        if (!inStr) {
-                            if (c === '{') braces++;
-                            else if (c === '}') braces--;
-                            else if (c === '[') brackets++;
-                            else if (c === ']') brackets--;
-                        }
-                    }
-
-                    // Baue den abgeschnittenen JSON zusammen
-                    let fixed = attempt.replace(/,\s*$/, '');
-                    for (let i = 0; i < brackets; i++) fixed += ']';
-                    for (let i = 0; i < braces; i++) fixed += '}';
-
-                    try {
-                        const result = JSON.parse(fixed);
-                        console.log(`parseJSON: Erfolgreich nach Kürzung um ${truncated.length - cutoff} Zeichen`);
-                        return result;
-                    } catch (e) {
-                        // Weiter kürzen
-                    }
-                }
-
-                console.error('parseJSON: Alle Reparaturversuche fehlgeschlagen');
-                console.error('parseJSON: Original (erste 500 Zeichen):', jsonStr.substring(0, 500));
-                throw new Error(`JSON Parse error: ${secondError.message}`);
+                const result = JSON.parse(fixed);
+                console.log(`parseJSON: Erfolgreich nach Kürzung um ${repaired.length - cutoff} Zeichen`);
+                return result;
+            } catch (e) {
+                // Weiter kürzen
             }
         }
+
+        console.error('parseJSON: Alle Reparaturversuche fehlgeschlagen');
+        console.error('parseJSON: Original (erste 500 Zeichen):', originalJson.substring(0, 500));
+        throw new Error(`JSON Parse error: ${parseError.message}`);
     }
 };

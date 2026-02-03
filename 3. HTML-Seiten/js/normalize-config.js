@@ -2,7 +2,7 @@ function generateConfigFingerprint(config, cType) {
     try {
         const titleHash = (config.title || '').toLowerCase().replace(/\s+/g, '');
         const perspective = config._perspectiveName || 'default';
-        if (cType === 'waterfall' || cType === 'waterfall') {
+        if (cType === 'waterfall') {
             const barLabels = config.bars?.slice(0, 3).map(b => (b.label || '').substring(0, 10)).join('|') || '';
             return `WF:${perspective}:${titleHash}:${config.bars?.length || 0}:${barLabels}`;
         }
