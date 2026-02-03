@@ -397,21 +397,21 @@ Dann im Browser: `http://localhost:8000/3.%20HTML-Seiten/upload.html`
 - API-Calls im Network-Tab beobachten
 - **Bei Problemen:** SessionStorage löschen
 
-### Testdateien (50 Stück)
+### Testdateien — Testdaten_3 (50 Stück)
 
-Die Testdateien in `5. Datenbeispiele/` decken alle gängigen Finanzreport-Formate ab:
+Die Testdateien in `5. Datenbeispiele/Testdaten_3/` (Nr. 51-100) decken Multi-Szenario-Formate ab:
 
-| Kategorie | Anzahl |
-|-----------|--------|
-| GuV / P&L | 8 |
-| Bilanz | 6 |
-| Cashflow | 5 |
-| Segmente | 7 |
-| Sales | 6 |
-| Kosten | 6 |
-| Personal | 3 |
-| KPIs/Bridges | 5 |
-| Sonderformate | 4 |
+| Kategorie | Anzahl | Fokus |
+|-----------|--------|-------|
+| GuV / P&L | 12 | IST vs FC vs BUD, Iterationen, SaaS/ARR/MRR |
+| Bilanz | 6 | PY vs CY, Opening/Closing, Konzern |
+| Cashflow | 5 | Direct/Indirect, FCF Bridge, Iterations |
+| Segmente | 5 | by Region, by BU, Multi-Dim |
+| Kosten | 6 | OpEx, CapEx, Cost Center |
+| KPIs | 5 | Dashboard, Financial Ratios, Operational |
+| Personal | 3 | Headcount, Salary, Personnel Cost |
+| Sales/Revenue | 4 | Pipeline, Order Intake |
+| Working Capital / Treasury | 4 | DSO/DPO/DIO, Liquidity |
 
 ## Bekannte Probleme & Lösungen
 

@@ -1038,8 +1038,8 @@
             }
         }
 
-        // Evaluiert einfache Excel-Formeln
-        // Unterstützt: A1+B1, A1-B1, SUM(A1:B5), IF(A1>0,-A1*0.3,0), -A1*0.3
+        // Evaluiert Excel-Formeln
+        // Unterstützt: SUM(range), IF(cond,a,b), Arithmetik (+,-,*,/), Klammern, Zellreferenzen, Zahlen
         function evaluateSimpleFormula(formula, ws) {
             // SUM(range) unterstützen
             const sumMatch = formula.match(/^SUM\(([A-Z]+)(\d+):([A-Z]+)(\d+)\)$/i);
@@ -1083,55 +1083,129 @@
                     default: return null;
                 }
                 const expr = condResult ? trueExpr.trim() : falseExpr.trim();
-                return evaluateExpression(expr, ws);
+                return evaluateArithmetic(expr, ws);
             }
 
-            // Additionen/Subtraktionen von Zellreferenzen: A1+B1-C1+D1
-            const refPattern = /^[+-]?[A-Z]+\d+([+-][A-Z]+\d+)*$/i;
-            if (refPattern.test(formula)) {
-                const terms = formula.match(/[+-]?[A-Z]+\d+/gi);
-                if (!terms) return null;
-                let result = 0;
-                for (const term of terms) {
-                    const sign = term.startsWith('-') ? -1 : 1;
-                    const ref = term.replace(/^[+-]/, '');
-                    const cell = ws[ref.toUpperCase()];
-                    if (!cell || cell.t === 'z' || cell.v === undefined || cell.v === null) return null;
-                    if (cell.t !== 'n') return null;
-                    result += sign * cell.v;
-                }
-                return Math.round(result * 10000) / 10000;
-            }
-
-            return null;
+            // Allgemeine Arithmetik: Zellreferenzen, Zahlen, +, -, *, /, Klammern
+            // z.B. B9/12, (B5+B9)/2, A1+B1-C1, -A1*0.3
+            return evaluateArithmetic(formula, ws);
         }
 
-        // Evaluiert einen einfachen Ausdruck: -REF*0.3, REF, Zahl, REF*REF
-        function evaluateExpression(expr, ws) {
-            // Reine Zahl
-            const num = parseFloat(expr);
-            if (!isNaN(num) && /^-?\d+(\.\d+)?$/.test(expr.trim())) return num;
+        // Arithmetik-Evaluator mit Klammern und Punkt-vor-Strich
+        // Tokenisiert den Ausdruck und wertet ihn mit Operator-Vorrang aus
+        function evaluateArithmetic(expr, ws) {
+            if (!expr || typeof expr !== 'string') return null;
+            const str = expr.trim();
+            if (!str) return null;
 
-            // -REF*Zahl oder REF*Zahl
-            const mulMatch = expr.match(/^(-?)([A-Z]+\d+)\*(-?\d+\.?\d*)$/i);
-            if (mulMatch) {
-                const [, neg, ref, factor] = mulMatch;
-                const cell = ws[ref.toUpperCase()];
-                if (!cell || cell.t !== 'n') return null;
-                const result = (neg === '-' ? -1 : 1) * cell.v * parseFloat(factor);
-                return Math.round(result * 10000) / 10000;
+            // Tokenize: Zahlen, Zellreferenzen, Operatoren, Klammern
+            const tokens = [];
+            let i = 0;
+            while (i < str.length) {
+                if (str[i] === ' ') { i++; continue; }
+
+                // Klammern
+                if (str[i] === '(' || str[i] === ')') {
+                    tokens.push({ type: 'paren', value: str[i] });
+                    i++; continue;
+                }
+
+                // Operatoren
+                if ('+-*/'.includes(str[i])) {
+                    tokens.push({ type: 'op', value: str[i] });
+                    i++; continue;
+                }
+
+                // Zellreferenz (A1, AB123, etc.)
+                const refMatch = str.substring(i).match(/^([A-Z]+)(\d+)/i);
+                if (refMatch) {
+                    const ref = refMatch[0].toUpperCase();
+                    const cell = ws[ref];
+                    if (!cell || cell.t === 'z' || cell.v === undefined || cell.v === null || cell.t !== 'n') return null;
+                    tokens.push({ type: 'num', value: cell.v });
+                    i += refMatch[0].length; continue;
+                }
+
+                // Zahl (Integer oder Dezimal)
+                const numMatch = str.substring(i).match(/^\d+(\.\d+)?/);
+                if (numMatch) {
+                    tokens.push({ type: 'num', value: parseFloat(numMatch[0]) });
+                    i += numMatch[0].length; continue;
+                }
+
+                // Unbekanntes Zeichen → Formel nicht auswertbar
+                return null;
             }
 
-            // Einzelne Zellreferenz: REF oder -REF
-            const refMatch = expr.match(/^(-?)([A-Z]+\d+)$/i);
-            if (refMatch) {
-                const [, neg, ref] = refMatch;
-                const cell = ws[ref.toUpperCase()];
-                if (!cell || cell.t !== 'n') return null;
-                return (neg === '-' ? -1 : 1) * cell.v;
+            if (tokens.length === 0) return null;
+
+            // Unäres Minus/Plus auflösen: am Anfang oder nach '(' oder nach Operator
+            for (let t = 0; t < tokens.length; t++) {
+                if (tokens[t].type === 'op' && (tokens[t].value === '-' || tokens[t].value === '+')) {
+                    const isUnary = t === 0 ||
+                        (tokens[t - 1].type === 'paren' && tokens[t - 1].value === '(') ||
+                        tokens[t - 1].type === 'op';
+                    if (isUnary) {
+                        if (t + 1 < tokens.length && tokens[t + 1].type === 'num') {
+                            tokens[t + 1].value = tokens[t].value === '-' ? -tokens[t + 1].value : tokens[t + 1].value;
+                            tokens.splice(t, 1);
+                            t--;
+                        } else {
+                            return null;
+                        }
+                    }
+                }
             }
 
-            return null;
+            // Rekursiver Descent Parser mit Operator-Vorrang
+            let pos = 0;
+
+            function parseExpr() {
+                let left = parseTerm();
+                if (left === null) return null;
+                while (pos < tokens.length && tokens[pos].type === 'op' && (tokens[pos].value === '+' || tokens[pos].value === '-')) {
+                    const op = tokens[pos].value;
+                    pos++;
+                    const right = parseTerm();
+                    if (right === null) return null;
+                    left = op === '+' ? left + right : left - right;
+                }
+                return left;
+            }
+
+            function parseTerm() {
+                let left = parseFactor();
+                if (left === null) return null;
+                while (pos < tokens.length && tokens[pos].type === 'op' && (tokens[pos].value === '*' || tokens[pos].value === '/')) {
+                    const op = tokens[pos].value;
+                    pos++;
+                    const right = parseFactor();
+                    if (right === null) return null;
+                    if (op === '/' && right === 0) return null;
+                    left = op === '*' ? left * right : left / right;
+                }
+                return left;
+            }
+
+            function parseFactor() {
+                if (pos >= tokens.length) return null;
+                if (tokens[pos].type === 'paren' && tokens[pos].value === '(') {
+                    pos++; // '('
+                    const val = parseExpr();
+                    if (val === null) return null;
+                    if (pos >= tokens.length || tokens[pos].type !== 'paren' || tokens[pos].value !== ')') return null;
+                    pos++; // ')'
+                    return val;
+                }
+                if (tokens[pos].type === 'num') {
+                    return tokens[pos++].value;
+                }
+                return null;
+            }
+
+            const result = parseExpr();
+            if (result === null || pos !== tokens.length) return null;
+            return Math.round(result * 10000) / 10000;
         }
 
         // Show file preview

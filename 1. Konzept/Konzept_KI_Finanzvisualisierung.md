@@ -942,93 +942,93 @@ Die Prompt-Engine ist das Herzstück des Systems. Alle Prompts werden vor der HT
 - Typ-Konsistenz (Waterfall: start/increase/decrease/end)
 - Mathematische Konsistenz (Waterfall: Start + Deltas = End)
 
-### 12.4 Testdateien (50 Stück)
+### 12.4 Testdateien — Testdaten_3 (50 Stück)
 
-Die Testdateien befinden sich in `5. Datenbeispiele/` und decken alle gängigen Finanzreport-Formate ab.
+Die Testdateien befinden sich in `5. Datenbeispiele/Testdaten_3/` und decken alle gängigen Finanzreport-Formate mit Multi-Szenario-Daten ab (PY/IST/FC/BUD, Iterationen, SaaS-Metriken).
 
 **Kategorien:**
 
-| Kategorie | Anzahl | Beispiele |
-|-----------|--------|-----------|
-| GuV / P&L | 8 | Monatssicht, Faktentabelle, YoY |
-| Bilanz | 6 | Jahresvergleich, Aktiva/Passiva |
-| Cashflow | 5 | Direct/Indirect, FCF Bridge |
-| Segmente | 7 | by Region, by BU, by Product |
-| Sales | 6 | by Channel, YTD vs Target |
-| Kosten | 6 | OpEx, CapEx, Cost Center |
-| Personal | 3 | FTE, Salary Bands |
-| KPIs/Bridges | 5 | EBITDA Bridge, Working Capital |
-| Sonderformate | 4 | Long Format, Sparse Data |
+| Kategorie | Anzahl | Fokus |
+|-----------|--------|-------|
+| GuV / P&L | 12 | Multi-Szenario (IST vs FC vs BUD), Iterationen, SaaS/ARR/MRR |
+| Bilanz | 6 | PY vs CY, Opening/Closing, Konzern |
+| Cashflow | 5 | Direct/Indirect, FCF Bridge, Iterations |
+| Segmente | 5 | by Region, by BU, by Product, Multi-Dim |
+| Kosten | 6 | OpEx, CapEx, Cost Center, Manufacturing |
+| KPIs | 5 | Dashboard, Financial Ratios, Operational |
+| Personal | 3 | Headcount, Personnel Cost, Salary |
+| Sales/Revenue | 4 | Pipeline, Order Intake, Revenue |
+| Working Capital / Treasury | 4 | DSO/DPO/DIO, Liquidity, Treasury |
 
 **Vollständige Liste:**
 
 | # | Datei | Kategorie |
 |---|-------|-----------|
-| 01 | GuV_Monatssicht_IST_FC_BUD.xlsx | GuV |
-| 02 | GuV_Faktentabelle_SEL_CUM.csv | GuV |
-| 03 | PL_Quartalssicht_YoY.csv | GuV |
-| 04 | IFRS_PL_FC_Iterationen.xlsx | GuV |
-| 05 | GuV_SEL_CUM_Abweichungen.xlsx | GuV |
-| 06 | PL_Rolling_Forecast.csv | GuV |
-| 07 | GuV_Konzern_vs_Einzelgesellschaft.xlsx | GuV |
-| 08 | PL_3Year_Comparison.csv | GuV |
-| 09 | Bilanz_Jahresvergleich.xlsx | Bilanz |
-| 10 | Balance_Sheet_Quarterly.csv | Bilanz |
-| 11 | Bilanz_Aktiva_Passiva_Detail.xlsx | Bilanz |
-| 12 | Balance_Sheet_IST_vs_PY.csv | Bilanz |
-| 13 | Bilanz_Kurzfristig_Langfristig.xlsx | Bilanz |
-| 14 | Balance_Sheet_Faktentabelle.csv | Bilanz |
-| 15 | Cashflow_Statement_Annual.xlsx | Cashflow |
-| 16 | Cashflow_Indirect_Method.csv | Cashflow |
-| 17 | Cashflow_Direct_Method.xlsx | Cashflow |
-| 18 | Cashflow_Quarterly_Trend.csv | Cashflow |
-| 19 | Free_Cashflow_Bridge.xlsx | Cashflow |
-| 20 | Segment_Revenue_by_Region.xlsx | Segmente |
-| 21 | Segment_EBIT_by_BU.csv | Segmente |
-| 22 | Segment_Margin_by_Product.xlsx | Segmente |
-| 23 | Segment_Revenue_by_Country.csv | Segmente |
-| 24 | Segment_Cost_Allocation.xlsx | Segmente |
-| 25 | Segment_Profitability_Matrix.csv | Segmente |
-| 26 | Segment_YoY_Growth_Rates.xlsx | Segmente |
-| 27 | Sales_Monthly_by_Channel.csv | Sales |
-| 28 | Sales_YTD_vs_Target.xlsx | Sales |
-| 29 | Revenue_by_Customer_Top20.csv | Sales |
-| 30 | Sales_Pipeline_Stages.xlsx | Sales |
-| 31 | Revenue_New_vs_Recurring.csv | Sales |
-| 32 | Sales_by_Product_Category.xlsx | Sales |
-| 33 | OpEx_Breakdown_Monthly.xlsx | Kosten |
-| 34 | Cost_Center_Actual_vs_Budget.csv | Kosten |
-| 35 | CapEx_Projektübersicht.xlsx | Kosten |
-| 36 | Cost_by_Category_Trend.csv | Kosten |
-| 37 | Fixed_vs_Variable_Costs.xlsx | Kosten |
-| 38 | Overhead_Allocation.csv | Kosten |
-| 39 | Headcount_FTE_Monthly.csv | Personal |
-| 40 | Personnel_Cost_by_Dept.xlsx | Personal |
-| 41 | Salary_Bands_Analysis.csv | Personal |
-| 42 | EBITDA_Bridge_PY_to_CY.xlsx | KPIs |
-| 43 | Working_Capital_Trend.csv | KPIs |
-| 44 | KPI_Dashboard_Monthly.xlsx | KPIs |
-| 45 | Budget_Variance_Analysis.csv | KPIs |
-| 46 | Revenue_Bridge_Waterfall.xlsx | KPIs |
-| 47 | Financials_Long_Format.csv | Sonderformate |
-| 48 | Financials_Wide_Pivoted.xlsx | Sonderformate |
-| 49 | Sparse_Data_with_Gaps.csv | Sonderformate |
-| 50 | Multi_Currency_Report.xlsx | Sonderformate |
+| 51 | PL_PY_IST_vs_FC_vs_BUD_Monthly.csv | GuV |
+| 52 | GuV_FC1_vs_FC2_vs_BUD_Quarterly.csv | GuV |
+| 53 | IFRS_PL_FC1_IT1_IT2_IT3.csv | GuV |
+| 54 | PL_PY_IST_vs_CY_IST_YoY.csv | GuV |
+| 55 | GuV_BUD_vs_Target_vs_Stretch.csv | GuV |
+| 56 | PL_Rolling_FC_Q1_Q2_Q3_Q4.csv | GuV |
+| 57 | GuV_PY_IST_FC1_FC2_BUD_Halbjahr.csv | GuV |
+| 58 | PL_Actual_LY_PY_CY_Trend.csv | GuV |
+| 59 | GuV_BUD_vs_FC_MidYear_Update.csv | GuV |
+| 60 | PL_Multi_Iteration_Tracking.csv | GuV |
+| 61 | GuV_SaaS_ARR_MRR_Scenarios.csv | GuV |
+| 62 | PL_Retail_PY_IST_vs_FC_vs_BUD.csv | GuV |
+| 63 | Bilanz_PY_vs_CY_IST_Quartale.csv | Bilanz |
+| 64 | Balance_Sheet_BUD_FC1_FC2.csv | Bilanz |
+| 65 | Bilanz_Opening_vs_Closing_vs_FC.csv | Bilanz |
+| 66 | BS_Working_Capital_3Scenarios.csv | Bilanz |
+| 67 | Bilanz_Konzern_PY_IST_FC_BUD.csv | Bilanz |
+| 68 | Balance_Sheet_IT1_IT2_IT3.csv | Bilanz |
+| 69 | Cashflow_PY_IST_vs_CY_IST_Annual.csv | Cashflow |
+| 70 | CF_BUD_vs_FC1_vs_FC2_Quarterly.csv | Cashflow |
+| 71 | Cashflow_Direct_Indirect_3FC.csv | Cashflow |
+| 72 | FCF_Bridge_PY_to_CY_to_NY.csv | Cashflow |
+| 73 | Cashflow_Iterations_Monthly.csv | Cashflow |
+| 74 | Segment_Revenue_PY_FC_BUD_Region.csv | Segmente |
+| 75 | Segment_EBIT_BUD_FC1_FC2_BU.csv | Segmente |
+| 76 | Segment_Margin_FC_Iterations.csv | Segmente |
+| 77 | Segment_PY_CY_IST_by_Product.csv | Segmente |
+| 78 | Segment_Multi_Dim_Scenarios.csv | Segmente |
+| 79 | OpEx_PY_IST_vs_FC_vs_BUD_Monthly.csv | Kosten |
+| 80 | CapEx_Project_BUD_FC1_FC2.csv | Kosten |
+| 81 | Cost_Center_IT1_IT2_IT3.csv | Kosten |
+| 82 | Fixed_Variable_PY_CY_IST.csv | Kosten |
+| 83 | OpEx_by_Department_4Scenarios.csv | Kosten |
+| 84 | Manufacturing_Cost_FC_Versions.csv | Kosten |
+| 85 | KPI_Dashboard_PY_IST_vs_CY_IST.csv | KPIs |
+| 86 | KPI_BUD_vs_FC_vs_Actual_Halbjahr.csv | KPIs |
+| 87 | Financial_Ratios_3Year_Trend.csv | KPIs |
+| 88 | KPI_Target_vs_Forecast_vs_Stretch.csv | KPIs |
+| 89 | Operational_KPIs_FC_Iterations.csv | KPIs |
+| 90 | Headcount_PY_IST_vs_FC_vs_BUD.csv | Personal |
+| 91 | Personnel_Cost_IT1_IT2_IT3.csv | Personal |
+| 92 | Salary_Budget_vs_FC_vs_Actual.csv | Personal |
+| 93 | Sales_PY_CY_IST_by_Channel.csv | Sales |
+| 94 | Revenue_BUD_FC1_FC2_Target.csv | Sales |
+| 95 | Pipeline_FC_Quarterly_Versions.csv | Sales |
+| 96 | Order_Intake_PY_IST_FC_BUD.csv | Sales |
+| 97 | Working_Capital_BUD_vs_FC_Monthly.csv | Working Capital |
+| 98 | Liquidity_PY_IST_vs_CY_IST_vs_FC.csv | Working Capital |
+| 99 | DSO_DPO_DIO_Scenarios.csv | Working Capital |
+| 100 | Treasury_FC1_FC2_FC3_Weekly.csv | Treasury |
 
 ### 12.5 End-to-End Validierung
 
 **Repräsentative Auswahl für E2E-Tests (10 Dateien):**
 
-1. 01_GuV_Monatssicht_IST_FC_BUD.xlsx (Standard P&L)
-2. 09_Bilanz_Jahresvergleich.xlsx (Bilanz)
-3. 15_Cashflow_Statement_Annual.xlsx (Cashflow)
-4. 20_Segment_Revenue_by_Region.xlsx (Segmente)
-5. 29_Revenue_by_Customer_Top20.csv (Ranking)
-6. 33_OpEx_Breakdown_Monthly.xlsx (Kosten)
-7. 42_EBITDA_Bridge_PY_to_CY.xlsx (Bridge)
-8. 44_KPI_Dashboard_Monthly.xlsx (KPIs)
-9. 47_Financials_Long_Format.csv (Long-Format)
-10. 50_Multi_Currency_Report.xlsx (Multi-Währung)
+1. 51_PL_PY_IST_vs_FC_vs_BUD_Monthly.csv (Standard P&L Multi-Szenario)
+2. 61_GuV_SaaS_ARR_MRR_Scenarios.csv (SaaS-Metriken)
+3. 63_Bilanz_PY_vs_CY_IST_Quartale.csv (Bilanz)
+4. 69_Cashflow_PY_IST_vs_CY_IST_Annual.csv (Cashflow)
+5. 74_Segment_Revenue_PY_FC_BUD_Region.csv (Segmente)
+6. 79_OpEx_PY_IST_vs_FC_vs_BUD_Monthly.csv (Kosten)
+7. 85_KPI_Dashboard_PY_IST_vs_CY_IST.csv (KPIs)
+8. 90_Headcount_PY_IST_vs_FC_vs_BUD.csv (Personal)
+9. 96_Order_Intake_PY_IST_FC_BUD.csv (Sales)
+10. 99_DSO_DPO_DIO_Scenarios.csv (Working Capital)
 
 **Für jede Datei:**
 - Alle 3 Chart-Typen testen
