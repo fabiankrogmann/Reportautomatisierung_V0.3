@@ -76,7 +76,7 @@ function renderBarChart(svgId, config) {
     const barGap = 6;     // Fester Abstand zwischen Balken einer Gruppe
 
     const maxValue = Math.max(...config.categories.flatMap(c => c.values));
-    const scale = chartHeight / (maxValue * 1.3);
+    const scale = maxValue > 0 ? chartHeight / (maxValue * 1.3) : 1;
 
     let svgContent = '';
 

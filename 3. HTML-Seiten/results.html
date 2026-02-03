@@ -885,6 +885,28 @@
             const recommendation = parsed.recommendation || {};
             const configs = parsed.configs || {};
 
+            // Debug: Zeige was PROMPT-1 tatsächlich liefert
+            console.log('=== RESULTS DEBUG ===');
+            console.log('analysis.scenarios:', analysis.scenarios);
+            console.log('analysis.unit:', analysis.unit);
+            console.log('analysis.detectedUnit:', analysis.detectedUnit);
+            console.log('analysis keys:', Object.keys(analysis));
+
+            // Wertarten: Fallback auf Value-Keys aus normalized-Daten
+            if (!analysis.scenarios || analysis.scenarios.length === 0) {
+                const normalized = parsed.extractedData?.normalized || [];
+                const valueKeys = new Set();
+                normalized.forEach(item => {
+                    if (item.values && typeof item.values === 'object') {
+                        Object.keys(item.values).forEach(k => valueKeys.add(k));
+                    }
+                });
+                if (valueKeys.size > 0) {
+                    analysis.scenarios = [...valueKeys];
+                    console.log('Wertarten aus normalized-Daten extrahiert:', analysis.scenarios);
+                }
+            }
+
             // Berechne Datenqualität basierend auf konkreten Kriterien
             const qualityResult = calculateDataQuality(analysis, parsed.metadata);
             const quality = qualityResult.level;
@@ -934,10 +956,9 @@
             const timeRangeLabel = getTimeRangeLabel(timeRange);
             const yearValue = getYearValue(timeRange);
 
-            // Einheit: Platzhalter filtern
-            const unitValue = analysis.detectedUnit && !isPlaceholder(analysis.detectedUnit)
-                ? analysis.detectedUnit
-                : '';
+            // Einheit: PROMPT-1 liefert "unit", Demo-Daten nutzen "detectedUnit"
+            const rawUnit = analysis.unit || analysis.detectedUnit || '';
+            const unitValue = rawUnit && !isPlaceholder(rawUnit) ? rawUnit : '';
 
             return `
                 <div class="section">
@@ -960,7 +981,7 @@
                         </div>
                         <div class="data-item">
                             <div class="data-label">Wertarten</div>
-                            <div class="data-value">${escapeHtml(analysis.valueTypes?.join(', ') || '-')}</div>
+                            <div class="data-value">${escapeHtml(analysis.scenarios?.join(', ') || '-')}</div>
                         </div>
                         <div class="data-item">
                             <div class="data-label">Zeitraum</div>
@@ -1013,7 +1034,7 @@
             }
 
             // 2. Wertarten erkannt? (0-2 Punkte)
-            const valueTypes = analysis.valueTypes || [];
+            const valueTypes = analysis.scenarios || [];
             if (valueTypes.length >= 2) {
                 score += 2;
                 details.push(`${valueTypes.length} Wertarten`);
@@ -1172,7 +1193,7 @@
             const analysis = analysisResult.parsed.analysis;
             switch (field) {
                 case 'unit':
-                    const unit = analysis.detectedUnit;
+                    const unit = analysis.unit || analysis.detectedUnit || '';
                     return (unit && !isPlaceholder(unit)) ? unit : '';
                 case 'timerange':
                     return getTimeRangeLabel(analysis.timeRange || {});

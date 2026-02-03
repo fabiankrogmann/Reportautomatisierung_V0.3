@@ -1,20 +1,19 @@
-IFRS Profit & Loss - Tech Solutions AG,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5,Unnamed: 6,Unnamed: 7
+IFRS Profit & Loss - Tech Solutions AG,,,,,,,
 FY 2025 | EUR thousands | Forecast 1 Iteration Tracking,,,,,,,
-,,,,,,,
 Position,IST 2024,FC1 Initial,FC1 Iter_1,FC1 Iter_2,FC1 Final,Delta Init vs Final,Delta %
-Revenue,95000,102000,100500,101200,101800,,
-Cost of Sales,-57000,-60180,-59295,-59708,-60068,,
-Gross Profit,,,,,,,
-Research & Development,-9500,-10200,-10050,-10120,-10180,,
-Sales & Marketing,-11400,-12240,-12060,-12144,-12216,,
-General & Administrative,-7600,-8160,-8040,-8096,-8144,,
-Other Operating Income,1900,2040,2010,2024,2036,,
-Other Operating Expense,-950,-1020,-1005,-1012,-1018,,
-EBITDA,,,,,,,
-Depreciation & Amortization,-4750,-5100,-5025,-5060,-5090,,
-EBIT,,,,,,,
-Interest Income,475,510,503,506,509,,
-Interest Expense,-1425,-1530,-1508,-1518,-1527,,
-EBT,,,,,,,
-Income Tax,,,,,,,
-Net Income,,,,,,,
+Revenue,95000,102000,100500,101200,101800,-200,0
+Cost of Sales,-57000,-60180,-59295,-59708,-60068,112,0
+Gross Profit,38000,41820,41205,41492,41732,-88,0
+Research & Development,-9500,-10200,-10050,-10120,-10180,20,0
+Sales & Marketing,-11400,-12240,-12060,-12144,-12216,24,0
+General & Administrative,-7600,-8160,-8040,-8096,-8144,16,0
+Other Operating Income,1900,2040,2010,2024,2036,-4,0
+Other Operating Expense,-950,-1020,-1005,-1012,-1018,2,0
+EBITDA,10450,12240,12060,12144,12210,-30,0
+Depreciation & Amortization,-4750,-5100,-5025,-5060,-5090,10,0
+EBIT,5700,7140,7035,7084,7120,-20,0
+Interest Income,475,510,503,506,509,-1,0
+Interest Expense,-1425,-1530,-1508,-1518,-1527,3,0
+EBT,4750,6120,6030,6072,6102,-18,0
+Income Tax,-1330,-1713.6,-1688.4,-1700.16,-1708.56,5.04,0
+Net Income,3420,4406.4,4341.6,4371.84,4393.44,-12.96,0

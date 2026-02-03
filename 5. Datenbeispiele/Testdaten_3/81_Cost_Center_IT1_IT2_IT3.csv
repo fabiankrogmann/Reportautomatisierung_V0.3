@@ -1,16 +1,15 @@
-Kostenstellenplanung - Automotive Zulieferer GmbH,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5,Unnamed: 6
+Kostenstellenplanung - Automotive Zulieferer GmbH,,,,,,
 FY 2025 | TEUR | Budget Iterations,,,,,,
-,,,,,,
 Kostenstelle,BUD Initial,BUD IT1,BUD IT2,BUD Final,Δ Final vs Init,Δ %
-Produktion,12500,12750,12625,12688,,
-Qualitätssicherung,2800,2856,2828,2842,,
-Logistik,3500,3570,3535,3553,,
-Forschung & Entwicklung,4200,4284,4242,4263,,
-Vertrieb,2100,2142,2121,2132,,
-Marketing,1500,1530,1515,1523,,
-IT,1800,1836,1818,1827,,
-Personal/HR,950,969,960,964,,
-Finanzen,850,867,859,863,,
-Geschäftsleitung,1200,1224,1212,1218,,
-Facility Management,600,612,606,609,,
-Total,,,,,,
+Produktion,12500,12750,12625,12688,188,0.02
+Qualitätssicherung,2800,2856,2828,2842,42,0.01
+Logistik,3500,3570,3535,3553,53,0.02
+Forschung & Entwicklung,4200,4284,4242,4263,63,0.01
+Vertrieb,2100,2142,2121,2132,32,0.02
+Marketing,1500,1530,1515,1523,23,0.02
+IT,1800,1836,1818,1827,27,0.01
+Personal/HR,950,969,960,964,14,0.01
+Finanzen,850,867,859,863,13,0.02
+Geschäftsleitung,1200,1224,1212,1218,18,0.01
+Facility Management,600,612,606,609,9,0.01
+Total,32000,32640,32321,32482,482,0.02

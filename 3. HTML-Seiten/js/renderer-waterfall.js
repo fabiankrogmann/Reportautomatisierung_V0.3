@@ -84,9 +84,11 @@ function renderWaterfallChart(svgId, config) {
 
     const maxValue = Math.max(...allValues) * 1.2;
     const minValue = Math.min(0, ...allValues);
+    const valueRange = maxValue - minValue;
 
     function yScale(value) {
-        return margin.top + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+        if (valueRange === 0) return margin.top + chartHeight / 2;
+        return margin.top + chartHeight - ((value - minValue) / valueRange) * chartHeight;
     }
 
     const baselineY = yScale(0);

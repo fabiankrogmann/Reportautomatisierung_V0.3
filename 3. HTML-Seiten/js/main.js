@@ -471,7 +471,8 @@ function renderAllCharts() {
         const svgElement = document.getElementById(`chart${index}`);
         if (!svgElement) return;
 
-        const chartType = selectedChartType.replace('_', '-');
+        // Typ pro Config erkennen (nicht global, da Configs unterschiedliche Typen haben können)
+        const chartType = detectChartType(config);
         switch (chartType) {
             case 'waterfall':
                 renderWaterfallChart(`chart${index}`, config);
@@ -485,7 +486,7 @@ function renderAllCharts() {
             default:
                 renderWaterfallChart(`chart${index}`, config);
         }
-        console.log(`Chart ${index}: JS-Rendering (${config._generatedBy || 'deterministic'})`);
+        console.log(`Chart ${index}: ${chartType} JS-Rendering (${config._generatedBy || 'deterministic'})`);
     });
 }
 

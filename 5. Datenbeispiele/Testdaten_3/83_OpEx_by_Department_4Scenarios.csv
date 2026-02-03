@@ -1,22 +1,21 @@
-Departmental Operating Expenses - Financial Services Ltd,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5,Unnamed: 6
+Departmental Operating Expenses - Financial Services Ltd,,,,,,
 FY 2025 | GBP thousands | 4 Scenario Comparison,,,,,,
-,,,,,,
 Department,Budget,FC1,FC2,Target,FC2 vs BUD,FC2 vs Target
-Front Office,8500,8245,8373,8075,,
-Trading,4200,4074,4137,3990,,
-Research,2800,2716,2758,2660,,
-Client Services,1500,1455,1478,1425,,
-Middle Office,4500,4365,4433,4275,,
-Risk Management,2200,2134,2167,2090,,
-Compliance,1500,1455,1478,1425,,
-Operations,800,776,788,760,,
-Back Office,3800,3686,3743,3610,,
-Settlement,1800,1746,1773,1710,,
-Accounting,1200,1164,1182,1140,,
-Reporting,800,776,788,760,,
-Support Functions,5200,5044,5122,4940,,
-IT,2800,2716,2758,2660,,
-HR,1200,1164,1182,1140,,
-Legal,800,776,788,760,,
-Facilities,400,388,394,380,,
-Total,,,,,,
+Front Office,8500,8245,8373,8075,-127,298
+Trading,4200,4074,4137,3990,-63,147
+Research,2800,2716,2758,2660,-42,98
+Client Services,1500,1455,1478,1425,-22,53
+Middle Office,4500,4365,4433,4275,-67,158
+Risk Management,2200,2134,2167,2090,-33,77
+Compliance,1500,1455,1478,1425,-22,53
+Operations,800,776,788,760,-12,28
+Back Office,3800,3686,3743,3610,-57,133
+Settlement,1800,1746,1773,1710,-27,63
+Accounting,1200,1164,1182,1140,-18,42
+Reporting,800,776,788,760,-12,28
+Support Functions,5200,5044,5122,4940,-78,182
+IT,2800,2716,2758,2660,-42,98
+HR,1200,1164,1182,1140,-18,42
+Legal,800,776,788,760,-12,28
+Facilities,400,388,394,380,-6,14
+Total,22000,21340,21671,20900,-329,771

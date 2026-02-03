@@ -1,21 +1,18 @@
-SaaS P&L - CloudTech Inc.,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5
+SaaS P&L - CloudTech Inc.,,,,,
 FY 2025 | USD thousands | ARR/MRR Scenario Comparison,,,,,
-,,,,,
 Metric,PY Actual,Conservative FC,Base FC,Aggressive FC,Board Target
 Opening ARR,24000,28800,28800,28800,28800
 New Business ARR,4800,5280,5760,6336,6912
 Expansion ARR,2400,2592,2880,3168,3456
 Churn ARR,-2400,-2592,-2304,-2016,-1728
-Closing ARR,,,,,
-,,,,,
-Monthly Recurring Revenue,,,,,
-Subscription Revenue,,,,,
+Closing ARR,28800,34080,35136,36288,37440
+Monthly Recurring Revenue,2400,2840,2928,3024,3120
+Subscription Revenue,26400,31440,31968,32544,33120
 Professional Services,1200,1320,1440,1584,1728
-Total Revenue,,,,,
-,,,,,
+Total Revenue,27600,32760,33408,34128,34848
 Cost of Revenue,-9600,-10176,-10656,-11232,-11808
-Gross Profit,,,,,
+Gross Profit,18000,22584,22752,22896,23040
 Sales & Marketing,-7200,-7632,-7992,-8424,-8856
 R&D,-4800,-5088,-5328,-5616,-5904
 G&A,-2400,-2544,-2664,-2808,-2952
-EBITDA,,,,,
+EBITDA,3600,7320,6768,6048,5328

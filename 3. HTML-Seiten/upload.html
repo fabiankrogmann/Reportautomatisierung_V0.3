@@ -991,7 +991,11 @@
                 reader.onload = (e) => {
                     try {
                         const data = new Uint8Array(e.target.result);
-                        const wb = XLSX.read(data, { type: 'array' });
+                        const wb = XLSX.read(data, { type: 'array', cellFormula: true, sheetStubs: true });
+                        // Formel-Zellen berechnen (SheetJS kann keine Formeln evaluieren)
+                        wb.SheetNames.forEach(name => {
+                            resolveFormulas(wb.Sheets[name]);
+                        });
                         resolve(wb);
                     } catch (err) {
                         reject(err);
@@ -999,6 +1003,135 @@
                 };
                 reader.readAsArrayBuffer(file);
             });
+        }
+
+        // Berechnet einfache Excel-Formeln (Addition/Subtraktion von Zellreferenzen)
+        // Nötig weil manche .xlsx-Dateien ohne gecachte Werte gespeichert werden
+        function resolveFormulas(ws) {
+            if (!ws || !ws['!ref']) return;
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            let resolved = 0;
+            // Mehrere Durchläufe für verkettete Formeln (z.B. EBIT = EBITDA + Abschreibungen, wobei EBITDA selbst Formel ist)
+            for (let pass = 0; pass < 5; pass++) {
+                let changedInPass = 0;
+                for (let r = range.s.r; r <= range.e.r; r++) {
+                    for (let c = range.s.c; c <= range.e.c; c++) {
+                        const addr = XLSX.utils.encode_cell({ r, c });
+                        const cell = ws[addr];
+                        if (!cell || !cell.f) continue;
+                        // Nur Stub-Zellen oder Zellen mit v=0 die wahrscheinlich unberechnet sind
+                        if (cell.t !== 'z' && cell.v !== 0 && cell.v !== undefined && cell.v !== null) continue;
+                        const result = evaluateSimpleFormula(cell.f, ws);
+                        if (result !== null) {
+                            cell.t = 'n';
+                            cell.v = result;
+                            cell.w = String(result);
+                            resolved++;
+                            changedInPass++;
+                        }
+                    }
+                }
+                if (changedInPass === 0) break;
+            }
+            if (resolved > 0) {
+                console.log(`resolveFormulas: ${resolved} Formel-Zellen berechnet`);
+            }
+        }
+
+        // Evaluiert einfache Excel-Formeln
+        // Unterstützt: A1+B1, A1-B1, SUM(A1:B5), IF(A1>0,-A1*0.3,0), -A1*0.3
+        function evaluateSimpleFormula(formula, ws) {
+            // SUM(range) unterstützen
+            const sumMatch = formula.match(/^SUM\(([A-Z]+)(\d+):([A-Z]+)(\d+)\)$/i);
+            if (sumMatch) {
+                const [, startCol, startRow, endCol, endRow] = sumMatch;
+                const sc = XLSX.utils.decode_col(startCol);
+                const ec = XLSX.utils.decode_col(endCol);
+                const sr = parseInt(startRow) - 1;
+                const er = parseInt(endRow) - 1;
+                let sum = 0;
+                let anyValue = false;
+                for (let r = sr; r <= er; r++) {
+                    for (let c = sc; c <= ec; c++) {
+                        const cell = ws[XLSX.utils.encode_cell({ r, c })];
+                        if (cell && cell.t === 'n' && cell.v !== undefined) {
+                            sum += cell.v;
+                            anyValue = true;
+                        }
+                    }
+                }
+                return anyValue ? sum : null;
+            }
+
+            // IF(condition, trueVal, falseVal) unterstützen
+            // Format: IF(REF>0,-REF*0.3,0) oder IF(REF<0,REF*0.25,0)
+            const ifMatch = formula.match(/^IF\(([A-Z]+\d+)\s*([><=!]+)\s*([^,]+),\s*([^,]+),\s*([^)]+)\)$/i);
+            if (ifMatch) {
+                const [, condRef, operator, condVal, trueExpr, falseExpr] = ifMatch;
+                const condCell = ws[condRef.toUpperCase()];
+                if (!condCell || condCell.t !== 'n') return null;
+                const condNumVal = parseFloat(condVal);
+                if (isNaN(condNumVal)) return null;
+                let condResult;
+                switch (operator) {
+                    case '>': condResult = condCell.v > condNumVal; break;
+                    case '<': condResult = condCell.v < condNumVal; break;
+                    case '>=': condResult = condCell.v >= condNumVal; break;
+                    case '<=': condResult = condCell.v <= condNumVal; break;
+                    case '=': case '==': condResult = condCell.v === condNumVal; break;
+                    case '<>': case '!=': condResult = condCell.v !== condNumVal; break;
+                    default: return null;
+                }
+                const expr = condResult ? trueExpr.trim() : falseExpr.trim();
+                return evaluateExpression(expr, ws);
+            }
+
+            // Additionen/Subtraktionen von Zellreferenzen: A1+B1-C1+D1
+            const refPattern = /^[+-]?[A-Z]+\d+([+-][A-Z]+\d+)*$/i;
+            if (refPattern.test(formula)) {
+                const terms = formula.match(/[+-]?[A-Z]+\d+/gi);
+                if (!terms) return null;
+                let result = 0;
+                for (const term of terms) {
+                    const sign = term.startsWith('-') ? -1 : 1;
+                    const ref = term.replace(/^[+-]/, '');
+                    const cell = ws[ref.toUpperCase()];
+                    if (!cell || cell.t === 'z' || cell.v === undefined || cell.v === null) return null;
+                    if (cell.t !== 'n') return null;
+                    result += sign * cell.v;
+                }
+                return Math.round(result * 10000) / 10000;
+            }
+
+            return null;
+        }
+
+        // Evaluiert einen einfachen Ausdruck: -REF*0.3, REF, Zahl, REF*REF
+        function evaluateExpression(expr, ws) {
+            // Reine Zahl
+            const num = parseFloat(expr);
+            if (!isNaN(num) && /^-?\d+(\.\d+)?$/.test(expr.trim())) return num;
+
+            // -REF*Zahl oder REF*Zahl
+            const mulMatch = expr.match(/^(-?)([A-Z]+\d+)\*(-?\d+\.?\d*)$/i);
+            if (mulMatch) {
+                const [, neg, ref, factor] = mulMatch;
+                const cell = ws[ref.toUpperCase()];
+                if (!cell || cell.t !== 'n') return null;
+                const result = (neg === '-' ? -1 : 1) * cell.v * parseFloat(factor);
+                return Math.round(result * 10000) / 10000;
+            }
+
+            // Einzelne Zellreferenz: REF oder -REF
+            const refMatch = expr.match(/^(-?)([A-Z]+\d+)$/i);
+            if (refMatch) {
+                const [, neg, ref] = refMatch;
+                const cell = ws[ref.toUpperCase()];
+                if (!cell || cell.t !== 'n') return null;
+                return (neg === '-' ? -1 : 1) * cell.v;
+            }
+
+            return null;
         }
 
         // Show file preview
@@ -1268,11 +1401,12 @@
                 result: JSON.stringify({
                     analysis: {
                         dataType: "income_statement",
-                        detectedFormat: "matrix",
+                        dataFormat: "matrix-simple",
                         detectedUnit: "TEUR",
                         scaleFactor: 1,
-                        totalRows: 12,
-                        totalColumns: 4,
+                        rowCount: 12,
+                        columnCount: 4,
+                        scenarios: ["IST", "Budget"],
                         periods: ["Ist Dez", "Budget Dez", "Ist GJ", "Budget GJ"]
                     },
                     recommendation: {
@@ -1352,6 +1486,7 @@
                 // Store in sessionStorage (singular key!)
                 sessionStorage.setItem('analysisResult', JSON.stringify(analysisResult));
                 sessionStorage.setItem('fileName', selectedFile.name);
+                sessionStorage.removeItem('isDemo');
 
                 // Store API settings for potential future use
                 sessionStorage.setItem('apiProvider', selectedProvider);
@@ -1449,15 +1584,17 @@
         async function analyzeData(content) {
             const apiKey = document.getElementById('apiKey').value.trim();
 
-            let result;
+            const startTime = performance.now();
+            let apiResult;
             if (selectedProvider === 'anthropic') {
-                result = await callClaudeAPI(apiKey, content);
+                apiResult = await callClaudeAPI(apiKey, content);
             } else {
-                result = await callOpenAIAPI(apiKey, content);
+                apiResult = await callOpenAIAPI(apiKey, content);
             }
+            const duration = (performance.now() - startTime) / 1000;
 
             // Clean up result (remove potential markdown)
-            let cleanResult = result.trim();
+            let cleanResult = apiResult.text.trim();
             if (cleanResult.startsWith('```json')) {
                 cleanResult = cleanResult.replace(/^```json\s*/, '').replace(/\s*```$/, '');
             } else if (cleanResult.startsWith('```')) {
@@ -1471,6 +1608,16 @@
                 console.error('Invalid JSON from API:', cleanResult);
                 throw new Error('API-Antwort konnte nicht geparst werden');
             }
+
+            // PROMPT-1 Token-Stats in sessionStorage speichern
+            const prompt1Stats = {
+                label: 'PROMPT-1 (Analyse)',
+                duration: duration,
+                usage: apiResult.usage || {},
+                provider: selectedProvider
+            };
+            sessionStorage.setItem('prompt1Stats', JSON.stringify(prompt1Stats));
+            console.log('PROMPT-1 Stats gespeichert:', prompt1Stats);
 
             return cleanResult;
         }
@@ -1505,7 +1652,7 @@ ${content}`
             }
 
             const data = await response.json();
-            return data.content[0].text;
+            return { text: data.content[0].text, usage: data.usage || {} };
         }
 
         // Call OpenAI API
@@ -1536,7 +1683,12 @@ ${content}`
             }
 
             const data = await response.json();
-            return data.choices[0].message.content;
+            // OpenAI usage-Format auf Anthropic-Format normalisieren
+            const usage = data.usage ? {
+                input_tokens: data.usage.prompt_tokens || 0,
+                output_tokens: data.usage.completion_tokens || 0
+            } : {};
+            return { text: data.choices[0].message.content, usage: usage };
         }
 
         // Error Handling

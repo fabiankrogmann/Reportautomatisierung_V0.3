@@ -1,17 +1,15 @@
-Bilanz Opening / Closing / Forecast - Handel GmbH,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5
+Bilanz Opening / Closing / Forecast - Handel GmbH,,,,,
 FY 2025 | TEUR,,,,,
-,,,,,
 Position,Opening 01.01.,Closing 31.12. IST,Closing 31.12. FC,Movement IST,Movement FC
-Anlagevermögen,28000,30100,29800,,
-Vorräte,15000,16200,15900,,
-Forderungen LuL,22000,24500,24000,,
-Sonstige Forderungen,3000,3200,3100,,
-Liquide Mittel,8000,9500,9200,,
-Summe Aktiva,,,,,
-,,,,,
-Eigenkapital,35000,38200,37800,,
-Rückstellungen,6000,6500,6400,,
-Verbindl. ggü. KI,18000,19500,19200,,
-Verbindl. LuL,12000,13800,13500,,
-Sonstige Verbindl.,5000,5500,5100,,
-Summe Passiva,,,,,
+Anlagevermögen,28000,30100,29800,2100,1800
+Vorräte,15000,16200,15900,1200,900
+Forderungen LuL,22000,24500,24000,2500,2000
+Sonstige Forderungen,3000,3200,3100,200,100
+Liquide Mittel,8000,9500,9200,1500,1200
+Summe Aktiva,76000,83500,82000,7500,6000
+Eigenkapital,35000,38200,37800,3200,2800
+Rückstellungen,6000,6500,6400,500,400
+Verbindl. ggü. KI,18000,19500,19200,1500,1200
+Verbindl. LuL,12000,13800,13500,1800,1500
+Sonstige Verbindl.,5000,5500,5100,500,100
+Summe Passiva,76000,83500,82000,7500,6000

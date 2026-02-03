@@ -1,13 +1,12 @@
-Salary Budget Analysis - Consulting Firm,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5,Unnamed: 6,Unnamed: 7,Unnamed: 8,Unnamed: 9,Unnamed: 10
+Salary Budget Analysis - Consulting Firm,,,,,,,,,,
 FY 2025 | EUR thousands | By Grade Level,,,,,,,,,,
-,,,,,,,,,,
 Grade Level,Headcount BUD,Headcount FC,Headcount Act,Avg Salary BUD,Avg Salary FC,Avg Salary Act,Total Cost BUD,Total Cost FC,Total Cost Act,Variance
-Partner,12,11,11,280,285,290,,,,
-Director,28,27,26,180,183,185,,,,
-Senior Manager,45,44,43,125,127,128,,,,
-Manager,68,66,65,95,96,97,,,,
-Senior Consultant,92,90,88,72,73,74,,,,
-Consultant,85,83,82,55,56,57,,,,
-Analyst,55,54,53,42,43,44,,,,
-Support Staff,35,34,34,38,39,39,,,,
-Total,,,,,,,,,,
+Partner,12,11,11,280,285,290,3360,3135,3190,-170
+Director,28,27,26,180,183,185,5040,4941,4810,-230
+Senior Manager,45,44,43,125,127,128,5625,5588,5504,-121
+Manager,68,66,65,95,96,97,6460,6336,6305,-155
+Senior Consultant,92,90,88,72,73,74,6624,6570,6512,-112
+Consultant,85,83,82,55,56,57,4675,4648,4674,-1
+Analyst,55,54,53,42,43,44,2310,2322,2332,22
+Support Staff,35,34,34,38,39,39,1330,1326,1326,-4
+Total,420,409,402,,,,35424,34866,34653,-771

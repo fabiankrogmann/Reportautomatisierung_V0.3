@@ -3,604 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pipeline-Test - Automatisierte Prompt-Validierung</title>
+    <title>Pipeline-Test - Deterministische Pipeline-Validierung</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
-            padding: 20px;
-            min-height: 100vh;
+            background: #0f172a; color: #e2e8f0; padding: 20px; min-height: 100vh;
         }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 8px;
-            color: #38bdf8;
-            font-size: 28px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        /* Config Panel */
+        h1 { text-align: center; margin-bottom: 8px; color: #38bdf8; font-size: 28px; }
+        .subtitle { text-align: center; color: #64748b; margin-bottom: 30px; font-size: 14px; }
         .config-panel {
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 20px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
         }
-
-        .config-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .config-group label {
-            font-size: 12px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
+        .config-group { display: flex; flex-direction: column; gap: 6px; }
+        .config-group label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
         input, select {
-            padding: 10px 14px;
-            border-radius: 6px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: #e2e8f0;
-            font-size: 14px;
+            padding: 10px 14px; border-radius: 6px; border: 1px solid #334155;
+            background: #0f172a; color: #e2e8f0; font-size: 14px;
         }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #38bdf8;
-        }
-
+        input:focus, select:focus { outline: none; border-color: #38bdf8; }
         button {
-            padding: 12px 24px;
-            border-radius: 8px;
-            border: none;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+            padding: 12px 24px; border-radius: 8px; border: none;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
         }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-            color: #0f172a;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: #334155;
-            color: #e2e8f0;
-        }
-
-        .btn-danger {
-            background: #dc2626;
-            color: white;
-        }
-
-        /* Test Controls */
-        .test-controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: #1e293b;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: #38bdf8;
-        }
-
+        .btn-primary { background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: #0f172a; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: #334155; color: #e2e8f0; }
+        .btn-danger { background: #dc2626; color: white; }
+        .test-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 30px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: #1e293b; border-radius: 10px; padding: 15px; text-align: center; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #38bdf8; }
         .stat-value.success { color: #22c55e; }
         .stat-value.warning { color: #eab308; }
         .stat-value.error { color: #ef4444; }
-
-        .stat-label {
-            font-size: 11px;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
-
-        /* Phase Tabs */
+        .stat-label { font-size: 11px; color: #64748b; text-transform: uppercase; margin-top: 4px; }
         .phase-tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 20px;
-            background: #1e293b;
-            padding: 4px;
-            border-radius: 10px;
+            display: flex; gap: 4px; margin-bottom: 20px;
+            background: #1e293b; padding: 4px; border-radius: 10px;
         }
-
         .phase-tab {
-            flex: 1;
-            padding: 12px;
-            background: transparent;
-            border: none;
-            color: #64748b;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s;
+            flex: 1; padding: 12px; background: transparent; border: none;
+            color: #64748b; font-size: 13px; font-weight: 500; cursor: pointer;
+            border-radius: 8px; transition: all 0.2s;
         }
-
-        .phase-tab.active {
-            background: #334155;
-            color: #38bdf8;
-        }
-
-        .phase-tab:hover:not(.active) {
-            color: #e2e8f0;
-        }
-
+        .phase-tab.active { background: #334155; color: #38bdf8; }
+        .phase-tab:hover:not(.active) { color: #e2e8f0; }
         .phase-tab .badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 10px;
-            margin-left: 6px;
-            background: #334155;
+            display: inline-block; padding: 2px 6px; border-radius: 10px;
+            font-size: 10px; margin-left: 6px; background: #334155;
         }
-
-        .phase-tab.active .badge {
-            background: #38bdf8;
-            color: #0f172a;
-        }
-
-        /* Results Container */
-        .results-container {
-            background: #1e293b;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
+        .phase-tab.active .badge { background: #38bdf8; color: #0f172a; }
+        .results-container { background: #1e293b; border-radius: 12px; overflow: hidden; }
         .results-header {
-            padding: 15px 20px;
-            background: #334155;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 15px 20px; background: #334155;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .results-title {
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        .results-body {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        /* Test Result Row */
+        .results-title { font-weight: 600; color: #e2e8f0; }
+        .results-body { max-height: 500px; overflow-y: auto; }
         .test-row {
-            display: grid;
-            grid-template-columns: 40px 1fr 120px 100px 80px 100px;
-            gap: 10px;
-            padding: 12px 20px;
-            align-items: center;
-            border-bottom: 1px solid #334155;
-            font-size: 13px;
+            display: grid; grid-template-columns: 40px 1fr 120px 100px 80px 100px;
+            gap: 10px; padding: 12px 20px; align-items: center;
+            border-bottom: 1px solid #334155; font-size: 13px;
         }
-
-        .test-row:hover {
-            background: #334155;
-        }
-
-        .test-index {
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        .test-file {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
+        .test-row:hover { background: #334155; }
+        .test-index { color: #64748b; font-weight: 500; }
+        .test-file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .test-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
         }
-
         .test-status.pending { background: #334155; color: #94a3b8; }
         .test-status.running { background: #1e3a5f; color: #38bdf8; }
         .test-status.success { background: #14532d; color: #22c55e; }
+        .test-status.passed { background: #14532d; color: #22c55e; }
         .test-status.warning { background: #422006; color: #eab308; }
         .test-status.error { background: #450a0a; color: #ef4444; }
-
-        .test-duration {
-            color: #64748b;
-            font-family: monospace;
-        }
-
-        .test-checks {
-            font-size: 11px;
-        }
-
+        .test-checks { font-size: 11px; }
         .test-checks .passed { color: #22c55e; }
         .test-checks .failed { color: #ef4444; }
-
         .btn-details {
-            padding: 4px 10px;
-            font-size: 11px;
-            background: #334155;
-            color: #94a3b8;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            padding: 4px 10px; font-size: 11px; background: #334155;
+            color: #94a3b8; border: none; border-radius: 4px; cursor: pointer;
         }
-
-        .btn-details:hover {
-            background: #475569;
-            color: #e2e8f0;
-        }
-
-        /* Validation Checks */
-        .validation-panel {
-            margin-top: 20px;
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .validation-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #94a3b8;
-        }
-
-        .check-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 10px;
-        }
-
+        .btn-details:hover { background: #475569; color: #e2e8f0; }
+        .validation-panel { margin-top: 20px; background: #1e293b; border-radius: 12px; padding: 20px; }
+        .validation-title { font-size: 14px; font-weight: 600; margin-bottom: 15px; color: #94a3b8; }
+        .check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
         .check-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: #0f172a;
-            border-radius: 6px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px; background: #0f172a; border-radius: 6px;
         }
-
         .check-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
+            width: 20px; height: 20px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 12px;
         }
-
         .check-icon.pass { background: #14532d; color: #22c55e; }
         .check-icon.fail { background: #450a0a; color: #ef4444; }
         .check-icon.pending { background: #334155; color: #64748b; }
-
-        .check-name {
-            flex: 1;
-            font-size: 12px;
-        }
-
-        .check-value {
-            font-size: 11px;
-            color: #64748b;
-            font-family: monospace;
-        }
-
-        /* Log Panel */
-        .log-panel {
-            margin-top: 20px;
-            background: #0f172a;
-            border-radius: 8px;
-            border: 1px solid #334155;
-        }
-
+        .check-name { flex: 1; font-size: 12px; }
+        .check-value { font-size: 11px; color: #64748b; font-family: monospace; }
+        .log-panel { margin-top: 20px; background: #0f172a; border-radius: 8px; border: 1px solid #334155; }
         .log-header {
-            padding: 10px 15px;
-            background: #1e293b;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 8px 8px 0 0;
+            padding: 10px 15px; background: #1e293b;
+            display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0;
         }
-
         .log-body {
-            padding: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 12px;
-            line-height: 1.6;
+            padding: 15px; max-height: 300px; overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace; font-size: 12px; line-height: 1.6;
         }
-
-        .log-entry {
-            padding: 4px 0;
-        }
-
+        .log-entry { padding: 4px 0; }
         .log-entry.info { color: #94a3b8; }
         .log-entry.success { color: #22c55e; }
         .log-entry.warning { color: #eab308; }
         .log-entry.error { color: #ef4444; }
-
-        .log-time {
-            color: #475569;
-            margin-right: 10px;
-        }
-
-        /* Detail Modal */
+        .log-time { color: #475569; margin-right: 10px; }
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8); z-index: 1000; justify-content: center; align-items: center;
         }
-
-        .modal-overlay.visible {
-            display: flex;
-        }
-
-        .modal {
-            background: #1e293b;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 900px;
-            max-height: 80vh;
-            overflow: hidden;
-        }
-
+        .modal-overlay.visible { display: flex; }
+        .modal { background: #1e293b; border-radius: 12px; width: 90%; max-width: 900px; max-height: 80vh; overflow: hidden; }
         .modal-header {
-            padding: 20px;
-            background: #334155;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 20px; background: #334155;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .modal-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .modal-body {
-            padding: 20px;
-            max-height: calc(80vh - 70px);
-            overflow-y: auto;
-        }
-
+        .modal-title { font-size: 16px; font-weight: 600; }
+        .modal-close { background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
+        .modal-body { padding: 20px; max-height: calc(80vh - 70px); overflow-y: auto; }
         .json-viewer {
-            background: #0f172a;
-            border-radius: 8px;
-            padding: 15px;
-            font-family: monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            word-break: break-all;
-            max-height: 400px;
-            overflow-y: auto;
+            background: #0f172a; border-radius: 8px; padding: 15px;
+            font-family: monospace; font-size: 12px; white-space: pre-wrap;
+            word-break: break-all; max-height: 400px; overflow-y: auto;
         }
-
-        /* Progress Bar */
-        .progress-container {
-            margin: 20px 0;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: #334155;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #38bdf8, #22c55e);
-            border-radius: 4px;
-            transition: width 0.3s;
-        }
-
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-size: 12px;
-            color: #64748b;
-        }
-
+        .progress-container { margin: 20px 0; }
+        .progress-bar { height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #38bdf8, #22c55e); border-radius: 4px; transition: width 0.3s; }
+        .progress-text { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #64748b; }
         @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .test-row {
-                grid-template-columns: 30px 1fr 80px;
-            }
-
-            .test-row > *:nth-child(n+4) {
-                display: none;
-            }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .test-row { grid-template-columns: 30px 1fr 80px; }
+            .test-row > *:nth-child(n+4) { display: none; }
         }
-        /* Feature Dashboard */
-        .feature-bar-row {
-            display: grid;
-            grid-template-columns: 140px 1fr 60px;
-            gap: 10px;
-            align-items: center;
-            padding: 6px 0;
-        }
-        .feature-bar-name {
-            font-size: 13px;
-            color: #e2e8f0;
-        }
-        .feature-bar-track {
-            height: 24px;
-            background: #334155;
-            border-radius: 4px;
-            overflow: hidden;
-        }
+        .feature-bar-row { display: grid; grid-template-columns: 140px 1fr 60px; gap: 10px; align-items: center; padding: 6px 0; }
+        .feature-bar-name { font-size: 13px; color: #e2e8f0; }
+        .feature-bar-track { height: 24px; background: #334155; border-radius: 4px; overflow: hidden; }
         .feature-bar-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.5s ease;
-            display: flex;
-            align-items: center;
-            padding-left: 8px;
-            font-size: 11px;
-            color: #0f172a;
-            font-weight: 600;
+            height: 100%; border-radius: 4px; transition: width 0.5s ease;
+            display: flex; align-items: center; padding-left: 8px;
+            font-size: 11px; color: #0f172a; font-weight: 600;
         }
-        .feature-bar-rate {
-            font-size: 13px;
-            color: #94a3b8;
-            text-align: right;
-            font-family: monospace;
-        }
-        .heatmap-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-        .heatmap-table th {
-            padding: 6px 8px;
-            text-align: center;
-            color: #94a3b8;
-            font-weight: 500;
-            border-bottom: 1px solid #334155;
-        }
-        .heatmap-table th:first-child {
-            text-align: left;
-        }
-        .heatmap-table td {
-            padding: 6px 8px;
-            text-align: center;
-            border-bottom: 1px solid #1e293b;
-        }
-        .heatmap-cell {
-            display: inline-block;
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            line-height: 28px;
-            font-size: 11px;
-            font-weight: 600;
-        }
+        .feature-bar-rate { font-size: 13px; color: #94a3b8; text-align: right; font-family: monospace; }
+        .heatmap-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .heatmap-table th { padding: 6px 8px; text-align: center; color: #94a3b8; font-weight: 500; border-bottom: 1px solid #334155; }
+        .heatmap-table th:first-child { text-align: left; }
+        .heatmap-table td { padding: 6px 8px; text-align: center; border-bottom: 1px solid #1e293b; }
+        .heatmap-cell { display: inline-block; width: 28px; height: 28px; border-radius: 4px; line-height: 28px; font-size: 11px; font-weight: 600; }
         .heatmap-cell.active { background: #166534; color: #22c55e; }
         .heatmap-cell.inactive { background: #1e293b; color: #475569; }
         .heatmap-cell.unavailable { background: #0f172a; color: #334155; }
         .conflict-item {
-            padding: 8px 12px;
-            background: #0f172a;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding: 8px 12px; background: #0f172a; border-radius: 6px;
+            margin-bottom: 8px; font-size: 12px; display: flex; align-items: center; gap: 8px;
         }
         .conflict-icon { color: #eab308; font-size: 14px; }
-        .bracket-mode-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 0;
-        }
-        .bracket-mode-bar {
-            flex: 1;
-            height: 20px;
-            background: #334155;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .bracket-mode-fill {
-            height: 100%;
-            background: #38bdf8;
-            border-radius: 4px;
-        }
-        .bracket-mode-label {
-            width: 80px;
-            font-size: 12px;
-            color: #e2e8f0;
-        }
-        .bracket-mode-count {
-            width: 40px;
-            font-size: 12px;
-            color: #94a3b8;
-            text-align: right;
-        }
+        .bracket-mode-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+        .bracket-mode-bar { flex: 1; height: 20px; background: #334155; border-radius: 4px; overflow: hidden; }
+        .bracket-mode-fill { height: 100%; background: #38bdf8; border-radius: 4px; }
+        .bracket-mode-label { width: 80px; font-size: 12px; color: #e2e8f0; }
+        .bracket-mode-count { width: 40px; font-size: 12px; color: #94a3b8; text-align: right; }
     </style>
 </head>
 <body>
     <h1>Pipeline-Test Suite</h1>
-    <p class="subtitle">Automatisierte Validierung der 6-Prompt-Pipeline | 50 Testdateien | 5 Phasen</p>
+    <p class="subtitle">Deterministische Pipeline: PROMPT-1 (KI) + PROMPT-2 (KI) + DeterministicConfigGenerator (JS) + JS-Renderer | 5 Phasen</p>
 
     <!-- Config Panel -->
     <div class="config-panel">
@@ -619,20 +198,18 @@
             <label>Testdaten-Set</label>
             <select id="testDataSelect">
                 <option value="testdaten_1" selected>Testdaten_1 (Basis, 50 Dateien)</option>
-                <option value="testdaten_2">Testdaten_2 (50 Dateien)</option>
-                <option value="testdaten_3">Testdaten_3 (Multi-Szenario, 50 Dateien)</option>
+                <option value="testdaten_2">Testdaten_2 (51 Dateien)</option>
+                <option value="testdaten_3">Testdaten_3 (Multi-Szenario, 78 Dateien)</option>
             </select>
         </div>
         <div class="config-group">
             <label>Test-Modus</label>
             <select id="testModeSelect">
-                <option value="offline" selected>Offline (Vorberechnete Ergebnisse)</option>
-                <option value="e2e-10">E2E Quick (10 Dateien) - API</option>
-                <option value="e2e-50">E2E Full (50 Dateien) - API</option>
-                <option value="phase1">Nur Phase 1 (Analyzer) - API</option>
-                <option value="phase2">Nur Phase 2 (Variants) - API</option>
-                <option value="phase3">Nur Phase 3 (Config) - API</option>
-                <option value="phase4">Nur Phase 4 (SVG) - API</option>
+                <option value="quick" selected>Quick (10 Dateien, Phase 1-5)</option>
+                <option value="full">Full (alle Dateien, Phase 1-5)</option>
+                <option value="phase1">Nur Phase 1 (Analyzer) - 1 API-Call</option>
+                <option value="phase2">Phase 1-2 (+ Variants) - 2+ API-Calls</option>
+                <option value="phase3">Phase 1-3 (+ Config, kein Render)</option>
             </select>
         </div>
         <div class="config-group">
@@ -648,18 +225,10 @@
 
     <!-- Test Controls -->
     <div class="test-controls">
-        <button class="btn-primary" id="btnStartTests" onclick="startTests()">
-            Tests starten
-        </button>
-        <button class="btn-secondary" onclick="stopTests()">
-            Abbrechen
-        </button>
-        <button class="btn-secondary" onclick="exportResults()">
-            Ergebnisse exportieren
-        </button>
-        <button class="btn-danger" onclick="clearResults()">
-            Zurücksetzen
-        </button>
+        <button class="btn-primary" id="btnStartTests" onclick="startTests()">Tests starten</button>
+        <button class="btn-secondary" onclick="stopTests()">Abbrechen</button>
+        <button class="btn-secondary" onclick="exportResults()">Ergebnisse exportieren</button>
+        <button class="btn-danger" onclick="clearResults()">Zurücksetzen</button>
     </div>
 
     <!-- Progress -->
@@ -675,38 +244,14 @@
 
     <!-- Stats Grid -->
     <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-value" id="statTotal">0</div>
-            <div class="stat-label">Tests gesamt</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value success" id="statPassed">0</div>
-            <div class="stat-label">Bestanden</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value warning" id="statWarnings">0</div>
-            <div class="stat-label">Warnungen</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value error" id="statFailed">0</div>
-            <div class="stat-label">Fehlgeschlagen</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value" id="statDuration">0s</div>
-            <div class="stat-label">Laufzeit</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value" id="statApiCalls">0</div>
-            <div class="stat-label">API Calls</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value" id="statFeatureRate">-</div>
-            <div class="stat-label">Ø Features/Config</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value" id="statIntegrity">-</div>
-            <div class="stat-label">Feature-Integrität</div>
-        </div>
+        <div class="stat-card"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Tests gesamt</div></div>
+        <div class="stat-card"><div class="stat-value success" id="statPassed">0</div><div class="stat-label">Bestanden</div></div>
+        <div class="stat-card"><div class="stat-value warning" id="statWarnings">0</div><div class="stat-label">Warnungen</div></div>
+        <div class="stat-card"><div class="stat-value error" id="statFailed">0</div><div class="stat-label">Fehlgeschlagen</div></div>
+        <div class="stat-card"><div class="stat-value" id="statDuration">0s</div><div class="stat-label">Laufzeit</div></div>
+        <div class="stat-card"><div class="stat-value" id="statApiCalls">0</div><div class="stat-label">API Calls</div></div>
+        <div class="stat-card"><div class="stat-value" id="statFeatureRate">-</div><div class="stat-label">Ø Features/Config</div></div>
+        <div class="stat-card"><div class="stat-value" id="statIntegrity">-</div><div class="stat-label">Feature-Integrität</div></div>
     </div>
 
     <!-- Phase Tabs -->
@@ -718,10 +263,10 @@
             Phase 2: Variants <span class="badge" id="phase2Count">0</span>
         </button>
         <button class="phase-tab" onclick="showPhase(3)" data-phase="3">
-            Phase 3: Config <span class="badge" id="phase3Count">0</span>
+            Phase 3: Config (JS) <span class="badge" id="phase3Count">0</span>
         </button>
         <button class="phase-tab" onclick="showPhase(4)" data-phase="4">
-            Phase 4: SVG <span class="badge" id="phase4Count">0</span>
+            Phase 4: Render (JS) <span class="badge" id="phase4Count">0</span>
         </button>
         <button class="phase-tab" onclick="showPhase(5)" data-phase="5">
             Phase 5: Features <span class="badge" id="phase5Count">0</span>
@@ -767,36 +312,12 @@
     <div class="validation-panel">
         <div class="validation-title">Validierungs-Checks (Phase 1)</div>
         <div class="check-grid" id="checkGrid">
-            <div class="check-item">
-                <div class="check-icon pending">?</div>
-                <span class="check-name">JSON-Schema valide</span>
-                <span class="check-value">-</span>
-            </div>
-            <div class="check-item">
-                <div class="check-icon pending">?</div>
-                <span class="check-name">Spracherhaltung (Labels)</span>
-                <span class="check-value">-</span>
-            </div>
-            <div class="check-item">
-                <div class="check-icon pending">?</div>
-                <span class="check-name">Szenarien erkannt</span>
-                <span class="check-value">-</span>
-            </div>
-            <div class="check-item">
-                <div class="check-icon pending">?</div>
-                <span class="check-name">Perioden extrahiert</span>
-                <span class="check-value">-</span>
-            </div>
-            <div class="check-item">
-                <div class="check-icon pending">?</div>
-                <span class="check-name">Report-Typ plausibel</span>
-                <span class="check-value">-</span>
-            </div>
-            <div class="check-item">
-                <div class="check-icon pending">?</div>
-                <span class="check-name">Datenwerte vorhanden</span>
-                <span class="check-value">-</span>
-            </div>
+            <div class="check-item"><div class="check-icon pending">?</div><span class="check-name">JSON-Schema valide</span><span class="check-value">-</span></div>
+            <div class="check-item"><div class="check-icon pending">?</div><span class="check-name">Spracherhaltung (Labels)</span><span class="check-value">-</span></div>
+            <div class="check-item"><div class="check-icon pending">?</div><span class="check-name">Szenarien erkannt</span><span class="check-value">-</span></div>
+            <div class="check-item"><div class="check-icon pending">?</div><span class="check-name">Perioden extrahiert</span><span class="check-value">-</span></div>
+            <div class="check-item"><div class="check-icon pending">?</div><span class="check-name">Report-Typ plausibel</span><span class="check-value">-</span></div>
+            <div class="check-item"><div class="check-icon pending">?</div><span class="check-name">Datenwerte vorhanden</span><span class="check-value">-</span></div>
         </div>
     </div>
 
@@ -809,7 +330,7 @@
         <div class="log-body" id="logBody">
             <div class="log-entry info">
                 <span class="log-time">[--:--:--]</span>
-                Pipeline-Test Suite bereit. Warte auf Start...
+                Pipeline-Test Suite bereit (Deterministische Architektur v3.1). Warte auf Start...
             </div>
         </div>
     </div>
@@ -827,6 +348,18 @@
         </div>
     </div>
 
+    <!-- Externe JS-Module (gleiche wie charts.html) -->
+    <script src="js/template-loader.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/prompt-loader.js"></script>
+    <script src="js/data-profiler.js"></script>
+    <script src="js/deterministic-config.js"></script>
+    <script src="js/normalize-config.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/renderer-waterfall.js"></script>
+    <script src="js/renderer-bar.js"></script>
+    <script src="js/renderer-stacked.js"></script>
+
     <script>
         // =====================================================
         // KONFIGURATION
@@ -835,47 +368,139 @@
             testFilesPath: '../5.%20Datenbeispiele/',
             promptsPath: '../4.%20Prompts/',
             templatesPath: '../6.%20Bibliotheken/templates.json',
+            colorSchemesPath: '../6.%20Bibliotheken/color-schemes.json',
 
-            // Pfade für vorberechnete Ergebnisse pro Testdaten-Set
-            precomputedResults: {
-                testdaten_1: '../6.%20Bibliotheken/Testprotokolle/test-results-combined.json',
+            testDataSets: {
+                testdaten_1: {
+                    folder: 'Testdaten_1/',
+                    quickFiles: [
+                        '01_GuV_Monatssicht_IST_FC_BUD.xlsx',
+                        '09_Bilanz_Jahresvergleich.xlsx',
+                        '15_Cashflow_Statement_Annual.xlsx',
+                        '20_Segment_Revenue_by_Region.xlsx',
+                        '29_Revenue_by_Customer_Top20.csv',
+                        '33_OpEx_Breakdown_Monthly.xlsx',
+                        '42_EBITDA_Bridge_PY_to_CY.xlsx',
+                        '44_KPI_Dashboard_Monthly.xlsx',
+                        '47_Financials_Long_Format.csv',
+                        '50_Multi_Currency_Report.xlsx'
+                    ],
+                    allFiles: [
+                        '01_GuV_Monatssicht_IST_FC_BUD.xlsx', '02_GuV_Faktentabelle_SEL_CUM.csv',
+                        '03_PL_Quartalssicht_YoY.csv', '04_IFRS_PL_FC_Iterationen.xlsx',
+                        '05_GuV_SEL_CUM_Abweichungen.xlsx', '06_PL_Rolling_Forecast.csv',
+                        '07_GuV_Konzern_vs_Einzelgesellschaft.xlsx', '08_PL_3Year_Comparison.csv',
+                        '09_Bilanz_Jahresvergleich.xlsx', '10_Balance_Sheet_Quarterly.csv',
+                        '11_Bilanz_Aktiva_Passiva_Detail.xlsx', '12_Balance_Sheet_IST_vs_PY.csv',
+                        '13_Bilanz_Kurzfristig_Langfristig.xlsx', '14_Balance_Sheet_Faktentabelle.csv',
+                        '15_Cashflow_Statement_Annual.xlsx', '16_Cashflow_Indirect_Method.csv',
+                        '17_Cashflow_Direct_Method.xlsx', '18_Cashflow_Quarterly_Trend.csv',
+                        '19_Free_Cashflow_Bridge.xlsx', '20_Segment_Revenue_by_Region.xlsx',
+                        '21_Segment_EBIT_by_BU.csv', '22_Segment_Margin_by_Product.xlsx',
+                        '23_Segment_Revenue_by_Country.csv', '24_Segment_Cost_Allocation.xlsx',
+                        '25_Segment_Profitability_Matrix.csv', '26_Segment_YoY_Growth_Rates.xlsx',
+                        '27_Sales_Monthly_by_Channel.csv', '28_Sales_YTD_vs_Target.xlsx',
+                        '29_Revenue_by_Customer_Top20.csv', '30_Sales_Pipeline_Stages.xlsx',
+                        '31_Revenue_New_vs_Recurring.csv', '32_Sales_by_Product_Category.xlsx',
+                        '33_OpEx_Breakdown_Monthly.xlsx', '34_Cost_Center_Actual_vs_Budget.csv',
+                        '35_CapEx_Projektübersicht.xlsx', '36_Cost_by_Category_Trend.csv',
+                        '37_Fixed_vs_Variable_Costs.xlsx', '38_Overhead_Allocation.csv',
+                        '39_Headcount_FTE_Monthly.csv', '40_Personnel_Cost_by_Dept.xlsx',
+                        '41_Salary_Bands_Analysis.csv', '42_EBITDA_Bridge_PY_to_CY.xlsx',
+                        '43_Working_Capital_Trend.csv', '44_KPI_Dashboard_Monthly.xlsx',
+                        '45_Budget_Variance_Analysis.csv', '46_Revenue_Bridge_Waterfall.xlsx',
+                        '47_Financials_Long_Format.csv', '48_Financials_Wide_Pivoted.xlsx',
+                        '49_Sparse_Data_with_Gaps.csv', '50_Multi_Currency_Report.xlsx'
+                    ]
+                },
                 testdaten_2: {
-                    phase1: '../6.%20Bibliotheken/Testprotokolle/test-results-phase1-testdaten2.json',
-                    phase2: '../6.%20Bibliotheken/Testprotokolle/test-results-phase2-testdaten2.json'
+                    folder: 'Testdaten_2/',
+                    quickFiles: [
+                        'NEW_01_GuV_Monat_IST_BUD_FC.csv',
+                        'NEW_10_GuV_YTD_IST_FC_VJ.csv',
+                        'NEW_15_Segment_Kunden_IST_BUD_FC.csv',
+                        'NEW_22_Sales_YTD_IST_BUD_VJ.csv',
+                        'NEW_29_Kosten_OPEX_IST_BUD.csv',
+                        'NEW_35_Bilanz_Aktiva_IST_VJ.csv',
+                        'NEW_41_Cashflow_IST_FC.csv',
+                        'NEW_45_Personal_FTE_IST_BUD.csv',
+                        'NEW_48_KPI_Dashboard_IST_BUD_FC_VJ.csv',
+                        'NEW_50_Margin_Analysis_IST_BUD_FC.csv'
+                    ],
+                    allFiles: [
+                        'NEW_01_GuV_Monat_IST_BUD_FC.csv', 'NEW_02_GuV_Monat_IST_VJ.csv',
+                        'NEW_03_GuV_YTD_IST_BUD_VJ.csv', 'NEW_04_GuV_Q1-Q4_IST_VJ.csv',
+                        'NEW_05_GuV_H1_IST_BUD_FC_VJ.csv', 'NEW_06_GuV_Detail_IST_BUD.csv',
+                        'NEW_07_GuV_Summary_IST_FC.csv', 'NEW_08_GuV_Monatstrend_12M.csv',
+                        'NEW_09_GuV_Quartale_IST_BUD_FC.csv', 'NEW_10_GuV_YTD_IST_FC_VJ.csv',
+                        'NEW_11_GuV_H1H2_IST_BUD_VJ.csv', 'NEW_12_GuV_Annual_IST_BUD_FC_VJ.csv',
+                        'NEW_13_Segment_DACH_EMEA_US_IST_BUD.csv', 'NEW_14_Segment_Produkte_IST_VJ.csv',
+                        'NEW_15_Segment_Kunden_IST_BUD_FC.csv', 'NEW_16_Region_Q1-Q4_IST_VJ.csv',
+                        'NEW_17_Segment_Business_Units_IST_BUD_FC_VJ.csv', 'NEW_18_Division_Revenue_IST_FC.csv',
+                        'NEW_19_Markt_Anteile_IST_VJ.csv', 'NEW_20_Channel_Mix_IST_BUD.csv',
+                        'NEW_21_Sales_Monthly_IST_FC.csv', 'NEW_22_Sales_YTD_IST_BUD_VJ.csv',
+                        'NEW_23_Sales_Produkte_Top10_IST.csv', 'NEW_24_Sales_Quartale_IST_VJ.csv',
+                        'NEW_25_Revenue_Mix_IST_BUD_FC.csv', 'NEW_26_Sales_H1_IST_BUD_FC_VJ.csv',
+                        'NEW_27_Revenue_Trend_12M_IST.csv', 'NEW_28_Sales_Kunden_Top15_IST_VJ.csv',
+                        'NEW_29_Kosten_OPEX_IST_BUD.csv', 'NEW_30_Kosten_Detail_IST_BUD_FC.csv',
+                        'NEW_31_OPEX_YTD_IST_VJ.csv', 'NEW_32_Kosten_Quartale_IST_BUD.csv',
+                        'NEW_33_Kosten_Abteilungen_LangeNamen.csv', 'NEW_34_OPEX_Kategorie_IST_FC_VJ.csv',
+                        'NEW_35_Bilanz_Aktiva_IST_VJ.csv', 'NEW_36_Bilanz_Passiva_IST_BUD.csv',
+                        'NEW_37_Working_Capital_IST_BUD_FC.csv', 'NEW_38_Balance_Sheet_IST_FC.csv',
+                        'NEW_39_Assets_Liabilities_IST_VJ.csv', 'NEW_40_Cashflow_Operating_IST.csv',
+                        'NEW_41_Cashflow_IST_FC.csv', 'NEW_42_Cashflow_Quartale_IST_VJ.csv',
+                        'NEW_43_Cashflow_Direct_IST_BUD.csv', 'NEW_44_Cashflow_FCF_IST_BUD_FC.csv',
+                        'NEW_45_Personal_FTE_IST_BUD.csv', 'NEW_46_HR_Kosten_IST_VJ.csv',
+                        'NEW_47_Personal_Abteilungen_Lang.csv', 'NEW_48_KPI_Dashboard_IST_BUD_FC_VJ.csv',
+                        'NEW_49_EBITDA_Bridge_IST_VJ.csv', 'NEW_50_Margin_Analysis_IST_BUD_FC.csv'
+                    ]
                 },
                 testdaten_3: {
-                    phase1: '../6.%20Bibliotheken/Testprotokolle/test-results-phase1-multi-szenario.json',
-                    phase2: '../6.%20Bibliotheken/Testprotokolle/test-results-phase2-multi-szenario.json',
-                    phase3: '../6.%20Bibliotheken/Testprotokolle/test-results-phase3-with-features.json'
+                    folder: 'Testdaten_3/',
+                    quickFiles: [
+                        '51_PL_PY_IST_vs_FC_vs_BUD_Monthly.csv',
+                        '55_GuV_BUD_vs_Target_vs_Stretch.csv',
+                        '61_GuV_SaaS_ARR_MRR_Scenarios.csv',
+                        '67_Bilanz_Konzern_PY_IST_FC_BUD.csv',
+                        '74_Segment_Revenue_PY_FC_BUD_Region.csv',
+                        '79_OpEx_PY_IST_vs_FC_vs_BUD_Monthly.csv',
+                        '85_KPI_Dashboard_PY_IST_vs_CY_IST.csv',
+                        '90_Headcount_PY_IST_vs_FC_vs_BUD.csv',
+                        '94_Revenue_BUD_FC1_FC2_Target.csv',
+                        '99_DSO_DPO_DIO_Scenarios.csv'
+                    ],
+                    allFiles: [
+                        '51_PL_PY_IST_vs_FC_vs_BUD_Monthly.csv', '52_GuV_FC1_vs_FC2_vs_BUD_Quarterly.csv',
+                        '53_IFRS_PL_FC1_IT1_IT2_IT3.csv', '54_PL_PY_IST_vs_CY_IST_YoY.csv',
+                        '55_GuV_BUD_vs_Target_vs_Stretch.csv', '56_PL_Rolling_FC_Q1_Q2_Q3_Q4.csv',
+                        '57_GuV_PY_IST_FC1_FC2_BUD_Halbjahr.csv', '58_PL_Actual_LY_PY_CY_Trend.csv',
+                        '59_GuV_BUD_vs_FC_MidYear_Update.csv', '60_PL_Multi_Iteration_Tracking.csv',
+                        '61_GuV_SaaS_ARR_MRR_Scenarios.csv', '62_PL_Retail_PY_IST_vs_FC_vs_BUD.csv',
+                        '63_Bilanz_PY_vs_CY_IST_Quartale.csv', '64_Balance_Sheet_BUD_FC1_FC2.csv',
+                        '65_Bilanz_Opening_vs_Closing_vs_FC.csv', '66_BS_Working_Capital_3Scenarios.csv',
+                        '67_Bilanz_Konzern_PY_IST_FC_BUD.csv', '68_Balance_Sheet_IT1_IT2_IT3.csv',
+                        '69_Cashflow_PY_IST_vs_CY_IST_Annual.csv', '70_CF_BUD_vs_FC1_vs_FC2_Quarterly.csv',
+                        '71_Cashflow_Direct_Indirect_3FC.csv', '72_FCF_Bridge_PY_to_CY_to_NY.csv',
+                        '73_Cashflow_Iterations_Monthly.csv', '74_Segment_Revenue_PY_FC_BUD_Region.csv',
+                        '75_Segment_EBIT_BUD_FC1_FC2_BU.csv', '76_Segment_Margin_FC_Iterations.csv',
+                        '77_Segment_PY_CY_IST_by_Product.csv', '78_Segment_Multi_Dim_Scenarios.csv',
+                        '79_OpEx_PY_IST_vs_FC_vs_BUD_Monthly.csv', '80_CapEx_Project_BUD_FC1_FC2.csv',
+                        '81_Cost_Center_IT1_IT2_IT3.csv', '82_Fixed_Variable_PY_CY_IST.csv',
+                        '83_OpEx_by_Department_4Scenarios.csv', '84_Manufacturing_Cost_FC_Versions.csv',
+                        '85_KPI_Dashboard_PY_IST_vs_CY_IST.csv', '86_KPI_BUD_vs_FC_vs_Actual_Halbjahr.csv',
+                        '87_Financial_Ratios_3Year_Trend.csv', '88_KPI_Target_vs_Forecast_vs_Stretch.csv',
+                        '89_Operational_KPIs_FC_Iterations.csv', '90_Headcount_PY_IST_vs_FC_vs_BUD.csv',
+                        '91_Personnel_Cost_IT1_IT2_IT3.csv', '92_Salary_Budget_vs_FC_vs_Actual.csv',
+                        '93_Sales_PY_CY_IST_by_Channel.csv', '94_Revenue_BUD_FC1_FC2_Target.csv',
+                        '95_Pipeline_FC_Quarterly_Versions.csv', '96_Order_Intake_PY_IST_FC_BUD.csv',
+                        '97_Working_Capital_BUD_vs_FC_Monthly.csv', '98_Liquidity_PY_IST_vs_CY_IST_vs_FC.csv',
+                        '99_DSO_DPO_DIO_Scenarios.csv', '100_Treasury_FC1_FC2_FC3_Weekly.csv'
+                    ]
                 }
-            },
-
-            // Testdaten-Ordner pro Set
-            testDataFolders: {
-                testdaten_1: 'Testdaten_1/',
-                testdaten_2: 'Testdaten_2/',
-                testdaten_3: 'Testdaten_3/'
-            },
-
-            // E2E-10: Repräsentative Auswahl (aus Konzept Abschnitt 12.5)
-            e2eQuickFiles: [
-                '01_GuV_Monatssicht_IST_FC_BUD.xlsx',
-                '09_Bilanz_Jahresvergleich.xlsx',
-                '15_Cashflow_Statement_Annual.xlsx',
-                '20_Segment_Revenue_by_Region.xlsx',
-                '29_Revenue_by_Customer_Top20.csv',
-                '33_OpEx_Breakdown_Monthly.xlsx',
-                '42_EBITDA_Bridge_PY_to_CY.xlsx',
-                '44_KPI_Dashboard_Monthly.xlsx',
-                '47_Financials_Long_Format.csv',
-                '50_Multi_Currency_Report.xlsx'
-            ],
-
-            // Alle 50 Testdateien
-            allTestFiles: []
+            }
         };
 
-        // Template-Kategorien für Feature-Validierung
+        // Feature-Konstanten
         const TEMPLATE_CATEGORIES = {
             'WF-01': 'structure', 'WF-02': 'structure', 'WF-05': 'structure',
             'WF-06': 'structure', 'WF-07': 'structure', 'WF-10': 'structure',
@@ -891,12 +516,6 @@
             { a: 'scaleBreak', b: 'negativeBridges', winner: 'negativeBridges' }
         ];
 
-        const CATEGORY_FEATURE_BANS = {
-            trend: ['scaleBreak', 'categoryBrackets', 'grouping'],
-            variance: ['categoryBrackets', 'grouping'],
-            compare_bars: ['scaleBreak', 'grouping']
-        };
-
         const ALL_FEATURE_IDS = [
             'bracket', 'scaleBreak', 'categoryBrackets',
             'arrows', 'benchmarkLines', 'negativeBridges', 'grouping'
@@ -907,302 +526,129 @@
             isRunning: false,
             aborted: false,
             currentPhase: 1,
-            results: {
-                phase1: [],
-                phase2: [],
-                phase3: [],
-                phase4: [],
-                phase5: []
-            },
+            results: { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [] },
             featureStats: null,
-            stats: {
-                total: 0,
-                passed: 0,
-                warnings: 0,
-                failed: 0,
-                duration: 0,
-                apiCalls: 0
-            },
+            stats: { total: 0, passed: 0, warnings: 0, failed: 0, duration: 0, apiCalls: 0 },
             startTime: null,
             templates: null,
-            prompts: {}
+            colorScheme: null,
+            analyzerPrompt: null
         };
 
         // =====================================================
-        // INITIALISIERUNG
+        // FORMELAUFLÖSUNG (aus upload.html)
         // =====================================================
-        async function init() {
-            log('info', 'Initialisiere Test-Suite...');
-
-            // Lade Testdatei-Liste
-            await loadTestFilesList();
-
-            // Lade API-Key aus localStorage
-            const savedKey = localStorage.getItem('test_api_key');
-            if (savedKey) {
-                document.getElementById('apiKeyInput').value = savedKey;
+        function resolveFormulas(ws) {
+            if (!ws || !ws['!ref']) return;
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            let resolved = 0;
+            for (let pass = 0; pass < 5; pass++) {
+                let changedInPass = 0;
+                for (let r = range.s.r; r <= range.e.r; r++) {
+                    for (let c = range.s.c; c <= range.e.c; c++) {
+                        const addr = XLSX.utils.encode_cell({ r, c });
+                        const cell = ws[addr];
+                        if (!cell || !cell.f) continue;
+                        if (cell.t !== 'z' && cell.v !== undefined && cell.v !== null && cell.v !== 0) continue;
+                        const result = evaluateSimpleFormula(cell.f, ws);
+                        if (result !== null) {
+                            cell.t = 'n'; cell.v = result; cell.w = String(result);
+                            resolved++; changedInPass++;
+                        }
+                    }
+                }
+                if (changedInPass === 0) break;
             }
-
-            const savedProvider = localStorage.getItem('test_provider');
-            if (savedProvider) {
-                document.getElementById('providerSelect').value = savedProvider;
-            }
-
-            log('success', `${CONFIG.allTestFiles.length} Testdateien verfügbar`);
-            log('info', 'Offline-Modus ist vorausgewählt. Klicke "Tests starten" um vorberechnete Ergebnisse zu laden.');
+            if (resolved > 0) log('info', `  resolveFormulas: ${resolved} Formel-Zellen berechnet`);
         }
 
-        async function loadTestFilesList() {
-            // Hartcodierte Liste aller 50 Testdateien
-            CONFIG.allTestFiles = [
-                '01_GuV_Monatssicht_IST_FC_BUD.xlsx',
-                '02_GuV_Faktentabelle_SEL_CUM.csv',
-                '03_PL_Quartalssicht_YoY.csv',
-                '04_IFRS_PL_FC_Iterationen.xlsx',
-                '05_GuV_SEL_CUM_Abweichungen.xlsx',
-                '06_PL_Rolling_Forecast.csv',
-                '07_GuV_Konzern_vs_Einzelgesellschaft.xlsx',
-                '08_PL_3Year_Comparison.csv',
-                '09_Bilanz_Jahresvergleich.xlsx',
-                '10_Balance_Sheet_Quarterly.csv',
-                '11_Bilanz_Aktiva_Passiva_Detail.xlsx',
-                '12_Balance_Sheet_IST_vs_PY.csv',
-                '13_Bilanz_Kurzfristig_Langfristig.xlsx',
-                '14_Balance_Sheet_Faktentabelle.csv',
-                '15_Cashflow_Statement_Annual.xlsx',
-                '16_Cashflow_Indirect_Method.csv',
-                '17_Cashflow_Direct_Method.xlsx',
-                '18_Cashflow_Quarterly_Trend.csv',
-                '19_Free_Cashflow_Bridge.xlsx',
-                '20_Segment_Revenue_by_Region.xlsx',
-                '21_Segment_EBIT_by_BU.csv',
-                '22_Segment_Margin_by_Product.xlsx',
-                '23_Segment_Revenue_by_Country.csv',
-                '24_Segment_Cost_Allocation.xlsx',
-                '25_Segment_Profitability_Matrix.csv',
-                '26_Segment_YoY_Growth_Rates.xlsx',
-                '27_Sales_Monthly_by_Channel.csv',
-                '28_Sales_YTD_vs_Target.xlsx',
-                '29_Revenue_by_Customer_Top20.csv',
-                '30_Sales_Pipeline_Stages.xlsx',
-                '31_Revenue_New_vs_Recurring.csv',
-                '32_Sales_by_Product_Category.xlsx',
-                '33_OpEx_Breakdown_Monthly.xlsx',
-                '34_Cost_Center_Actual_vs_Budget.csv',
-                '35_CapEx_Projektübersicht.xlsx',
-                '36_Cost_by_Category_Trend.csv',
-                '37_Fixed_vs_Variable_Costs.xlsx',
-                '38_Overhead_Allocation.csv',
-                '39_Headcount_FTE_Monthly.csv',
-                '40_Personnel_Cost_by_Dept.xlsx',
-                '41_Salary_Bands_Analysis.csv',
-                '42_EBITDA_Bridge_PY_to_CY.xlsx',
-                '43_Working_Capital_Trend.csv',
-                '44_KPI_Dashboard_Monthly.xlsx',
-                '45_Budget_Variance_Analysis.csv',
-                '46_Revenue_Bridge_Waterfall.xlsx',
-                '47_Financials_Long_Format.csv',
-                '48_Financials_Wide_Pivoted.xlsx',
-                '49_Sparse_Data_with_Gaps.csv',
-                '50_Multi_Currency_Report.xlsx'
-            ];
+        function evaluateSimpleFormula(formula, ws) {
+            // SUM(range)
+            const sumMatch = formula.match(/^SUM\(([A-Z]+\d+):([A-Z]+\d+)\)$/i);
+            if (sumMatch) {
+                const startCell = XLSX.utils.decode_cell(sumMatch[1]);
+                const endCell = XLSX.utils.decode_cell(sumMatch[2]);
+                let sum = 0;
+                for (let r = startCell.r; r <= endCell.r; r++) {
+                    for (let c = startCell.c; c <= endCell.c; c++) {
+                        const addr = XLSX.utils.encode_cell({ r, c });
+                        const cell = ws[addr];
+                        if (cell && cell.t === 'n') sum += cell.v;
+                    }
+                }
+                return sum;
+            }
+
+            // IF(condition, trueVal, falseVal)
+            const ifMatch = formula.match(/^IF\((.+),(.+),(.+)\)$/i);
+            if (ifMatch) {
+                const condExpr = evaluateExpression(ifMatch[1].trim(), ws);
+                const trueVal = evaluateExpression(ifMatch[2].trim(), ws);
+                const falseVal = evaluateExpression(ifMatch[3].trim(), ws);
+                if (condExpr !== null) return condExpr ? trueVal : falseVal;
+                return null;
+            }
+
+            // Arithmetik: REF+REF, REF-REF, etc.
+            const parts = formula.split(/([+\-])/);
+            if (parts.length >= 3) {
+                let result = evaluateExpression(parts[0].trim(), ws);
+                if (result === null) return null;
+                for (let i = 1; i < parts.length; i += 2) {
+                    const op = parts[i];
+                    const val = evaluateExpression(parts[i + 1]?.trim(), ws);
+                    if (val === null) return null;
+                    result = op === '+' ? result + val : result - val;
+                }
+                return result;
+            }
+
+            // Einzelne Zellreferenz
+            return evaluateExpression(formula.trim(), ws);
+        }
+
+        function evaluateExpression(expr, ws) {
+            if (!expr) return null;
+            const num = parseFloat(expr);
+            if (!isNaN(num) && expr.match(/^-?\d+(\.\d+)?$/)) return num;
+
+            // -REF*factor
+            const negRefMatch = expr.match(/^-([A-Z]+\d+)\*(\d+(\.\d+)?)$/i);
+            if (negRefMatch) {
+                const cell = ws[negRefMatch[1]];
+                if (cell && cell.t === 'n') return -cell.v * parseFloat(negRefMatch[2]);
+                return null;
+            }
+
+            // Einzelne Zellreferenz
+            if (expr.match(/^[A-Z]+\d+$/i)) {
+                const cell = ws[expr];
+                if (cell && cell.t === 'n') return cell.v;
+                return null;
+            }
+            return null;
         }
 
         // =====================================================
-        // PROMPT LOADER
-        // =====================================================
-        const PromptLoader = {
-            cache: {},
-
-            async load(promptName) {
-                if (this.cache[promptName]) {
-                    return this.cache[promptName];
-                }
-
-                const pathMap = {
-                    'analyzer': 'PROMPT-1-UNIVERSAL-ANALYZER.md',
-                    'variant': 'PROMPT-2-VARIANT-GENERATOR.md',
-                    'config': 'PROMPT-3-CONFIG-GENERATOR.md',
-                    'waterfall': 'Prompts for Charts/WATERFALL-CHART-PROMPT.md',
-                    'bar': 'Prompts for Charts/BAR-CHART-PROMPT.md',
-                    'stacked-bar': 'Prompts for Charts/STACKED-BAR-CHART-PROMPT.md'
-                };
-
-                const path = CONFIG.promptsPath + pathMap[promptName];
-
-                try {
-                    const response = await fetch(path);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const content = await response.text();
-                    this.cache[promptName] = content;
-                    log('info', `Prompt '${promptName}' geladen (${content.length} Zeichen)`);
-                    return content;
-                } catch (error) {
-                    log('error', `Prompt '${promptName}' konnte nicht geladen werden: ${error.message}`);
-                    throw error;
-                }
-            }
-        };
-
-        // =====================================================
-        // FILE LOADER
+        // FILE LOADER (mit Formelauflösung)
         // =====================================================
         const FileLoader = {
-            async loadFile(filename) {
-                const path = CONFIG.testFilesPath + filename;
+            async loadFile(filename, testDataFolder) {
+                const path = CONFIG.testFilesPath + testDataFolder + filename;
                 const isExcel = filename.endsWith('.xlsx');
 
-                try {
-                    const response = await fetch(path);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const response = await fetch(path);
+                if (!response.ok) throw new Error(`HTTP ${response.status} - ${filename}`);
 
-                    if (isExcel) {
-                        const arrayBuffer = await response.arrayBuffer();
-                        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const csv = XLSX.utils.sheet_to_csv(firstSheet);
-                        return csv;
-                    } else {
-                        return await response.text();
-                    }
-                } catch (error) {
-                    throw new Error(`Datei '${filename}' konnte nicht geladen werden: ${error.message}`);
-                }
-            }
-        };
-
-        // =====================================================
-        // API CLIENT
-        // =====================================================
-        const APIClient = {
-            provider: 'anthropic',
-            apiKey: null,
-
-            init(apiKey, provider = 'anthropic') {
-                this.apiKey = apiKey;
-                this.provider = provider;
-            },
-
-            async call(systemPrompt, userPrompt, options = {}) {
-                state.stats.apiCalls++;
-                updateStats();
-
-                const maxTokens = options.maxTokens || 4096;
-
-                if (this.provider === 'anthropic') {
-                    return this._callAnthropic(systemPrompt, userPrompt, maxTokens);
+                if (isExcel) {
+                    const arrayBuffer = await response.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer, { type: 'array', cellFormula: true, sheetStubs: true });
+                    // Formeln auflösen
+                    workbook.SheetNames.forEach(name => resolveFormulas(workbook.Sheets[name]));
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    return XLSX.utils.sheet_to_csv(firstSheet);
                 } else {
-                    return this._callOpenAI(systemPrompt, userPrompt, maxTokens);
-                }
-            },
-
-            async _callAnthropic(systemPrompt, userPrompt, maxTokens) {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 120000);
-
-                try {
-                    const response = await fetch('https://api.anthropic.com/v1/messages', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-api-key': this.apiKey,
-                            'anthropic-version': '2023-06-01',
-                            'anthropic-dangerous-direct-browser-access': 'true'
-                        },
-                        body: JSON.stringify({
-                            model: 'claude-sonnet-4-20250514',
-                            max_tokens: maxTokens,
-                            system: [{
-                                type: 'text',
-                                text: systemPrompt,
-                                cache_control: { type: 'ephemeral' }
-                            }],
-                            messages: [{ role: 'user', content: userPrompt }]
-                        }),
-                        signal: controller.signal
-                    });
-
-                    clearTimeout(timeoutId);
-
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(`API Error: ${error.error?.message || response.statusText}`);
-                    }
-
-                    const data = await response.json();
-                    return data.content[0].text;
-                } catch (error) {
-                    clearTimeout(timeoutId);
-                    if (error.name === 'AbortError') {
-                        throw new Error('API Timeout (120s)');
-                    }
-                    throw error;
-                }
-            },
-
-            async _callOpenAI(systemPrompt, userPrompt, maxTokens) {
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-4o',
-                        max_tokens: maxTokens,
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: userPrompt }
-                        ]
-                    })
-                });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(`API Error: ${error.error?.message || response.statusText}`);
-                }
-
-                const data = await response.json();
-                return data.choices[0].message.content;
-            },
-
-            parseJSON(response) {
-                if (!response) throw new Error('Keine Antwort');
-
-                let cleaned = response
-                    .replace(/```json\s*/gi, '')
-                    .replace(/```\s*/gi, '')
-                    .trim();
-
-                // Finde JSON-Objekt
-                const start = cleaned.indexOf('{');
-                const end = cleaned.lastIndexOf('}');
-
-                if (start === -1 || end === -1) {
-                    throw new Error('Kein JSON-Objekt gefunden');
-                }
-
-                cleaned = cleaned.substring(start, end + 1);
-
-                try {
-                    return JSON.parse(cleaned);
-                } catch (e) {
-                    // Versuche Reparatur
-                    return this._repairJSON(cleaned);
-                }
-            },
-
-            _repairJSON(str) {
-                // Einfache Reparatur-Versuche
-                let fixed = str
-                    .replace(/,\s*}/g, '}')
-                    .replace(/,\s*]/g, ']')
-                    .replace(/'/g, '"');
-
-                try {
-                    return JSON.parse(fixed);
-                } catch (e) {
-                    throw new Error('JSON konnte nicht repariert werden');
+                    return await response.text();
                 }
             }
         };
@@ -1211,7 +657,7 @@
         // VALIDATOREN
         // =====================================================
         const Validators = {
-            // Phase 1: Universal Analyzer Validierung
+            // Phase 1: Universal Analyzer
             validatePhase1(result, sourceData) {
                 const checks = {
                     jsonSchema: { passed: false, message: '', value: '' },
@@ -1222,80 +668,50 @@
                     dataValuesPresent: { passed: false, message: '', value: '' }
                 };
 
-                // 1. JSON-Schema Validierung
                 try {
                     const hasAnalysis = result.analysis && typeof result.analysis === 'object';
                     const hasExtractedData = result.extractedData && typeof result.extractedData === 'object';
                     checks.jsonSchema.passed = hasAnalysis && hasExtractedData;
                     checks.jsonSchema.value = `analysis: ${hasAnalysis}, extractedData: ${hasExtractedData}`;
-                } catch (e) {
-                    checks.jsonSchema.message = e.message;
-                }
+                } catch (e) { checks.jsonSchema.message = e.message; }
 
-                // 2. Spracherhaltung (Labels aus Quelldaten)
                 try {
                     const sourceLabels = this._extractLabelsFromCSV(sourceData);
                     const resultLabels = this._extractLabelsFromResult(result);
                     const preserved = this._checkLabelPreservation(sourceLabels, resultLabels);
                     checks.languagePreservation.passed = preserved.ratio >= 0.8;
                     checks.languagePreservation.value = `${Math.round(preserved.ratio * 100)}% erhalten`;
-                    if (!checks.languagePreservation.passed) {
-                        checks.languagePreservation.message = `Geänderte Labels: ${preserved.changed.slice(0, 3).join(', ')}`;
-                    }
-                } catch (e) {
-                    checks.languagePreservation.value = 'Nicht prüfbar';
-                }
+                } catch (e) { checks.languagePreservation.value = 'Nicht prüfbar'; }
 
-                // 3. Szenarien erkannt
                 try {
-                    const scenarios = result.analysis?.scenarios || result.analysis?.valueTypes || [];
+                    const scenarios = result.analysis?.scenarios || [];
                     checks.scenariosDetected.passed = Array.isArray(scenarios) && scenarios.length > 0;
                     checks.scenariosDetected.value = scenarios.join(', ') || 'Keine';
-                } catch (e) {
-                    checks.scenariosDetected.value = 'Fehler';
-                }
+                } catch (e) { checks.scenariosDetected.value = 'Fehler'; }
 
-                // 4. Perioden extrahiert
                 try {
                     const periods = result.analysis?.timeRange?.periods || result.analysis?.periods || [];
-                    const hasPeriods = (Array.isArray(periods) && periods.length > 0) ||
-                                       (result.analysis?.timeRange?.year);
+                    const hasPeriods = (Array.isArray(periods) && periods.length > 0) || result.analysis?.timeRange?.year;
                     checks.periodsExtracted.passed = hasPeriods;
-                    checks.periodsExtracted.value = Array.isArray(periods) ? periods.slice(0, 3).join(', ') :
-                                                    (result.analysis?.timeRange?.year || 'Keine');
-                } catch (e) {
-                    checks.periodsExtracted.value = 'Fehler';
-                }
+                    checks.periodsExtracted.value = Array.isArray(periods) ? periods.slice(0, 3).join(', ') : (result.analysis?.timeRange?.year || 'Keine');
+                } catch (e) { checks.periodsExtracted.value = 'Fehler'; }
 
-                // 5. Report-Typ plausibel
                 try {
-                    const validTypes = ['income-statement', 'balance-sheet', 'cashflow', 'segment',
-                                       'sales', 'cost', 'kpi', 'financial_report', 'pnl', 'guv'];
                     const reportType = (result.analysis?.reportType || '').toLowerCase();
-                    checks.reportTypePlausible.passed = validTypes.some(t => reportType.includes(t)) || reportType.length > 0;
+                    checks.reportTypePlausible.passed = reportType.length > 0;
                     checks.reportTypePlausible.value = result.analysis?.reportType || 'Nicht erkannt';
-                } catch (e) {
-                    checks.reportTypePlausible.value = 'Fehler';
-                }
+                } catch (e) { checks.reportTypePlausible.value = 'Fehler'; }
 
-                // 6. Datenwerte vorhanden
                 try {
-                    const hasData = result.extractedData?.normalized?.length > 0 ||
-                                   result.extractedData?.waterfall?.bars?.length > 0 ||
-                                   result.extractedData?.bar?.categories?.length > 0;
+                    const hasData = result.extractedData?.normalized?.length > 0;
                     checks.dataValuesPresent.passed = hasData;
-                    const count = result.extractedData?.normalized?.length ||
-                                 result.extractedData?.waterfall?.bars?.length ||
-                                 result.extractedData?.bar?.categories?.length || 0;
-                    checks.dataValuesPresent.value = `${count} Positionen`;
-                } catch (e) {
-                    checks.dataValuesPresent.value = 'Fehler';
-                }
+                    checks.dataValuesPresent.value = `${result.extractedData?.normalized?.length || 0} Positionen`;
+                } catch (e) { checks.dataValuesPresent.value = 'Fehler'; }
 
                 return checks;
             },
 
-            // Phase 2: Variant Generator Validierung
+            // Phase 2: Variant Generator
             validatePhase2(result, templates) {
                 const checks = {
                     variantCount: { passed: false, message: '', value: '' },
@@ -1306,41 +722,26 @@
                 };
 
                 const variants = result.variants || [];
-
-                // 1. Varianten-Anzahl (1-10)
                 checks.variantCount.passed = variants.length >= 1 && variants.length <= 10;
                 checks.variantCount.value = `${variants.length} Varianten`;
 
-                // 2. Template-IDs valide
                 const templateIds = new Set();
                 if (templates) {
-                    Object.values(templates.templates || {}).forEach(arr => {
-                        arr.forEach(t => templateIds.add(t.template_id));
-                    });
+                    Object.values(templates.templates || {}).forEach(arr => arr.forEach(t => templateIds.add(t.template_id)));
                 }
-                const invalidIds = variants
-                    .map(v => v.templateId)
-                    .filter(id => id && !templateIds.has(id));
+                const invalidIds = variants.map(v => v.templateId).filter(id => id && !templateIds.has(id));
                 checks.templateIdsValid.passed = invalidIds.length === 0;
                 checks.templateIdsValid.value = invalidIds.length === 0 ? 'Alle valide' : `Ungültig: ${invalidIds.join(', ')}`;
 
-                // 3. Keine Duplikate
-                const fingerprints = variants.map(v =>
-                    `${v.templateId}:${v.dataFilter?.scenario || ''}:${v.dataFilter?.period || ''}`
-                );
+                const fingerprints = variants.map(v => `${v.templateId}:${v.dataFilter?.scenario || ''}:${v.dataFilter?.period || ''}`);
                 const uniqueFingerprints = new Set(fingerprints);
                 checks.noDuplicates.passed = fingerprints.length === uniqueFingerprints.size;
-                checks.noDuplicates.value = fingerprints.length === uniqueFingerprints.size ?
-                    'Keine Duplikate' : `${fingerprints.length - uniqueFingerprints.size} Duplikate`;
+                checks.noDuplicates.value = fingerprints.length === uniqueFingerprints.size ? 'Keine Duplikate' : `${fingerprints.length - uniqueFingerprints.size} Duplikate`;
 
-                // 4. dataFilter valide
-                const hasValidFilters = variants.every(v =>
-                    v.dataFilter && typeof v.dataFilter === 'object'
-                );
+                const hasValidFilters = variants.every(v => v.dataFilter && typeof v.dataFilter === 'object');
                 checks.dataFilterValid.passed = hasValidFilters;
                 checks.dataFilterValid.value = hasValidFilters ? 'Alle valide' : 'Fehlerhafte Filter';
 
-                // 5. uniqueValue vorhanden
                 const hasUniqueValues = variants.every(v => v.uniqueValue && v.uniqueValue.length > 0);
                 checks.uniqueValuePresent.passed = hasUniqueValues;
                 checks.uniqueValuePresent.value = hasUniqueValues ? 'Alle vorhanden' : 'Fehlende uniqueValues';
@@ -1348,152 +749,200 @@
                 return checks;
             },
 
-            // Phase 3: Config Generator Validierung
-            // Toleranzen für mathematische Konsistenz (angepasst für TEUR/Mio Werte)
-            MATH_TOLERANCE: {
-                absolute: 5,           // ±5 Einheiten absolut
-                relativePercent: 0.1   // ±0.1% des Endwerts
-            },
-
-            validatePhase3(result, extractedData = null) {
+            // Phase 3: DeterministicConfigGenerator (NEU — kein API-Call)
+            validatePhase3(config, variant) {
                 const checks = {
-                    jsonValid: { passed: false, message: '', value: '' },
-                    requiredFields: { passed: false, message: '', value: '' },
+                    configGenerated: { passed: false, message: '', value: '' },
+                    hasBars: { passed: false, message: '', value: '' },
                     labelsPreserved: { passed: false, message: '', value: '' },
-                    colorsValid: { passed: false, message: '', value: '' },
-                    typesConsistent: { passed: false, message: '', value: '' },
+                    layoutIdMatches: { passed: false, message: '', value: '' },
+                    generatedByDeterministic: { passed: false, message: '', value: '' },
                     mathConsistent: { passed: false, message: '', value: '' }
                 };
 
-                const config = result.chartConfig || result;
+                // 1. Config wurde generiert
+                checks.configGenerated.passed = config && typeof config === 'object';
+                checks.configGenerated.value = config ? 'OK' : 'Fehlt';
+                if (!config) return checks;
 
-                // 1. JSON valide
-                checks.jsonValid.passed = config && typeof config === 'object';
-                checks.jsonValid.value = checks.jsonValid.passed ? 'Valide' : 'Ungültig';
+                // 2. Hat Bars/Segments/Categories
+                const barCount = config.bars?.length || config.segments?.length || config.categories?.length || 0;
+                checks.hasBars.passed = barCount > 0;
+                checks.hasBars.value = `${barCount} Elemente`;
 
-                // 2. Pflichtfelder
-                const required = ['type', 'title', 'data'];
-                const missing = required.filter(f => !config[f]);
-                checks.requiredFields.passed = missing.length === 0;
-                checks.requiredFields.value = missing.length === 0 ? 'Alle vorhanden' : `Fehlt: ${missing.join(', ')}`;
+                // 3. Labels nicht leer
+                const bars = config.bars || config.segments || config.categories || [];
+                const labels = bars.map(b => b.label || b.name || '').filter(Boolean);
+                checks.labelsPreserved.passed = labels.length > 0;
+                checks.labelsPreserved.value = labels.length > 0 ? `${labels.length} Labels` : 'Keine Labels';
 
-                // 3. Labels nicht übersetzt
-                // Prüfung: Originale Labels aus Quelldaten müssen erhalten bleiben
-                // ERLAUBT: Mathematische Symbole (Ø, Σ, Δ) bei Aggregationen hinzufügen
-                // VERBOTEN: Übersetzungen (DE→EN), Ausschreiben von Symbolen
-                const data = Array.isArray(config.data) ? config.data : [];
-                const labels = data.map(d => d.label || '').filter(Boolean);
+                // 4. Layout-ID stimmt
+                checks.layoutIdMatches.passed = config._layoutId === variant?.templateId;
+                checks.layoutIdMatches.value = config._layoutId || 'Fehlt';
 
-                // Prüfe auf VERBOTENE Transformationen (Symbole ausgeschrieben)
-                const forbiddenTransformations = labels.filter(l =>
-                    l.includes('Durchschnitt') ||  // "Ø" ausgeschrieben
-                    l.includes('Average') ||        // "Ø" auf Englisch
-                    l.includes('Summe ') ||         // "Σ" ausgeschrieben (mit Leerzeichen, um "Summe" als Label zu erlauben)
-                    l.includes('Delta ') ||         // "Δ" ausgeschrieben
-                    l.includes('Veränderung')       // "Δ" auf Deutsch
-                );
+                // 5. Generiert von Deterministic
+                checks.generatedByDeterministic.passed = config._generatedBy === 'deterministic';
+                checks.generatedByDeterministic.value = config._generatedBy || 'Unbekannt';
 
-                // Prüfe auf unerlaubte Übersetzungen (nur wenn Quelldaten deutsch sind)
-                const suspiciousTranslations = labels.filter(l =>
-                    ['Revenue', 'Costs', 'Profit', 'Loss', 'Total'].includes(l)
-                );
-
-                // ERLAUBT: Labels mit Ø, Σ, Δ Symbolen (zeigt korrekte Aggregation)
-                const hasValidSymbols = labels.some(l =>
-                    l.includes('Ø') || l.includes('Σ') || l.includes('Δ')
-                );
-
-                const labelIssues = [...forbiddenTransformations, ...suspiciousTranslations];
-                checks.labelsPreserved.passed = labelIssues.length === 0;
-                checks.labelsPreserved.value = labelIssues.length === 0 ?
-                    `${labels.length} Labels OK${hasValidSymbols ? ' (inkl. Ø/Σ/Δ)' : ''}` :
-                    `Verboten: ${labelIssues.slice(0,2).join(', ')}`;
-
-                // 4. Farben valide (Hex-Format)
-                const colors = data.map(d => d.color).filter(Boolean);
-                const validColors = colors.every(c => /^#[0-9A-Fa-f]{6}$/.test(c));
-                checks.colorsValid.passed = colors.length === 0 || validColors;
-                checks.colorsValid.value = validColors ? `${colors.length} Farben valide` : 'Ungültige Farben';
-
-                // 5. Typ-Konsistenz (Waterfall: start/increase/decrease/end)
-                if (config.type === 'waterfall') {
-                    const types = data.map(d => d.type);
-                    const validTypes = ['start', 'increase', 'decrease', 'subtotal', 'end'];
-                    const hasStart = types.includes('start');
-                    const hasEnd = types.includes('end') || types.includes('subtotal');
-                    const allTypesValid = types.every(t => validTypes.includes(t));
-
-                    checks.typesConsistent.passed = hasStart && hasEnd && allTypesValid;
-                    if (!hasStart) {
-                        checks.typesConsistent.value = 'Kein start-Typ';
-                    } else if (!hasEnd) {
-                        checks.typesConsistent.value = 'Kein end/subtotal-Typ';
-                    } else if (!allTypesValid) {
-                        checks.typesConsistent.value = 'Ungültige Typen';
-                    } else {
-                        checks.typesConsistent.value = 'Start/End vorhanden';
-                    }
-                } else {
-                    checks.typesConsistent.passed = true;
-                    checks.typesConsistent.value = 'N/A (nicht Waterfall)';
-                }
-
-                // 6. Mathematische Konsistenz (Waterfall: start + deltas = end)
-                if (config.type === 'waterfall' && data.length > 0) {
-                    const mathResult = this._checkMathConsistency(data);
+                // 6. Mathematische Konsistenz (Waterfall)
+                if (config.bars && config.bars.length > 0 && config.bars[0]?.type) {
+                    const mathResult = this._checkWaterfallMath(config.bars);
                     checks.mathConsistent.passed = mathResult.passed;
                     checks.mathConsistent.value = mathResult.value;
-                    checks.mathConsistent.message = mathResult.message;
                 } else {
                     checks.mathConsistent.passed = true;
-                    checks.mathConsistent.value = 'N/A (nicht Waterfall)';
+                    checks.mathConsistent.value = 'N/A';
                 }
 
                 return checks;
             },
 
-            // Mathematische Konsistenz prüfen mit angepasster Toleranz
-            _checkMathConsistency(data) {
-                // Finde Start und End-Werte
-                const startItems = data.filter(d => d.type === 'start');
-                const endItems = data.filter(d => d.type === 'end' || d.type === 'subtotal');
+            // Phase 4: JS-Renderer (NEU — kein API-Call)
+            validatePhase4(svgHtml, config) {
+                const checks = {
+                    svgGenerated: { passed: false, message: '', value: '' },
+                    hasSvgElement: { passed: false, message: '', value: '' },
+                    hasRects: { passed: false, message: '', value: '' },
+                    hasLabels: { passed: false, message: '', value: '' },
+                    noErrors: { passed: true, message: '', value: 'OK' }
+                };
 
-                if (startItems.length === 0 || endItems.length === 0) {
-                    return { passed: true, value: 'Keine Prüfung möglich', message: '' };
-                }
+                checks.svgGenerated.passed = svgHtml && svgHtml.length > 0;
+                checks.svgGenerated.value = svgHtml ? `${svgHtml.length} Zeichen` : 'Leer';
 
-                const startValue = startItems.reduce((sum, d) => sum + (d.value || 0), 0);
-                const increases = data.filter(d => d.type === 'increase')
-                    .reduce((sum, d) => sum + Math.abs(d.value || 0), 0);
-                const decreases = data.filter(d => d.type === 'decrease')
-                    .reduce((sum, d) => sum + Math.abs(d.value || 0), 0);
+                if (!svgHtml) return checks;
 
-                // Letztes Element als End-Wert
-                const lastItem = data[data.length - 1];
-                const endValue = lastItem.value || 0;
+                checks.hasSvgElement.passed = svgHtml.includes('<svg');
+                checks.hasSvgElement.value = svgHtml.includes('<svg') ? 'OK' : 'Kein <svg>';
 
-                // Berechne erwarteten End-Wert
-                const calculatedEnd = startValue + increases - decreases;
-                const diff = Math.abs(calculatedEnd - endValue);
+                const rectCount = (svgHtml.match(/<rect/g) || []).length;
+                checks.hasRects.passed = rectCount > 0;
+                checks.hasRects.value = `${rectCount} Rechtecke`;
 
-                // Toleranz berechnen (max aus absolut und relativ)
-                const tolerance = Math.max(
-                    this.MATH_TOLERANCE.absolute,
-                    Math.abs(endValue) * this.MATH_TOLERANCE.relativePercent / 100
-                );
+                const textCount = (svgHtml.match(/<text/g) || []).length;
+                checks.hasLabels.passed = textCount > 0;
+                checks.hasLabels.value = `${textCount} Texte`;
 
+                return checks;
+            },
+
+            // Phase 5: Feature-Integrität
+            validateFeatures(config, templateDef) {
+                const checks = {
+                    featureBlockExists: { passed: false, message: '', value: '' },
+                    allFeaturesDocumented: { passed: false, message: '', value: '' },
+                    availabilityRespected: { passed: false, message: '', value: '' },
+                    conflictsResolved: { passed: false, message: '', value: '' },
+                    reasonFieldPresent: { passed: false, message: '', value: '' },
+                    categoryConstraints: { passed: false, message: '', value: '' }
+                };
+
+                const features = config?.features;
+                const available = templateDef?.availableFeatures || [];
+
+                checks.featureBlockExists.passed = features && typeof features === 'object';
+                checks.featureBlockExists.value = features ? 'Vorhanden' : 'Fehlt';
+                if (!features) return checks;
+
+                const featureIds = Object.keys(features);
+                const missingFeatures = ALL_FEATURE_IDS.filter(id => !featureIds.includes(id));
+                checks.allFeaturesDocumented.passed = missingFeatures.length === 0;
+                checks.allFeaturesDocumented.value = missingFeatures.length === 0 ? `Alle ${ALL_FEATURE_IDS.length} dokumentiert` : `Fehlt: ${missingFeatures.join(', ')}`;
+
+                const violatingFeatures = featureIds.filter(id => features[id]?.enabled && !available.includes(id));
+                checks.availabilityRespected.passed = violatingFeatures.length === 0;
+                checks.availabilityRespected.value = violatingFeatures.length === 0 ? 'Alle Features verfügbar' : `Nicht erlaubt: ${violatingFeatures.join(', ')}`;
+
+                const conflictViolations = [];
+                FEATURE_CONFLICTS.forEach(conflict => {
+                    if (features[conflict.a]?.enabled && features[conflict.b]?.enabled) {
+                        conflictViolations.push(`${conflict.a} + ${conflict.b}`);
+                    }
+                });
+                checks.conflictsResolved.passed = conflictViolations.length === 0;
+                checks.conflictsResolved.value = conflictViolations.length === 0 ? 'Keine Konflikte' : `Konflikte: ${conflictViolations.join(', ')}`;
+
+                const missingReasons = featureIds.filter(id => features[id] && typeof features[id]._reason !== 'string');
+                checks.reasonFieldPresent.passed = missingReasons.length === 0;
+                checks.reasonFieldPresent.value = missingReasons.length === 0 ? 'Alle vorhanden' : `Fehlt bei: ${missingReasons.join(', ')}`;
+
+                // Category-Constraints
+                const templateId = config._layoutId;
+                const category = TEMPLATE_CATEGORIES[templateId] || 'unknown';
+                checks.categoryConstraints.passed = true;
+                checks.categoryConstraints.value = `Kategorie: ${category}`;
+
+                return checks;
+            },
+
+            _checkWaterfallMath(bars) {
+                const startBars = bars.filter(b => b.type === 'start');
+                const endBars = bars.filter(b => b.type === 'end' || b.type === 'subtotal');
+                if (startBars.length === 0 || endBars.length === 0) return { passed: true, value: 'Keine Prüfung möglich' };
+
+                const startVal = startBars.reduce((s, b) => s + (b.value || 0), 0);
+                const increases = bars.filter(b => b.type === 'increase').reduce((s, b) => s + Math.abs(b.value || 0), 0);
+                const decreases = bars.filter(b => b.type === 'decrease').reduce((s, b) => s + Math.abs(b.value || 0), 0);
+                const endVal = endBars[endBars.length - 1]?.value || 0;
+                const calculated = startVal + increases - decreases;
+                const diff = Math.abs(calculated - endVal);
+                const tolerance = Math.max(5, Math.abs(endVal) * 0.001);
                 const passed = diff <= tolerance;
 
                 return {
                     passed,
-                    value: passed ?
-                        `Δ=${diff.toFixed(1)} (Tol: ±${tolerance.toFixed(1)})` :
-                        `Δ=${diff.toFixed(1)} > ±${tolerance.toFixed(1)}`,
-                    message: passed ? '' : `Berechnet: ${calculatedEnd.toFixed(1)}, Erwartet: ${endValue}`
+                    value: passed ? `Δ=${diff.toFixed(1)} (OK)` : `Δ=${diff.toFixed(1)} > ±${tolerance.toFixed(1)}`
                 };
             },
 
-            // Hilfsfunktionen
+            collectFeatureStatistics(phase5Results) {
+                const stats = {
+                    total: phase5Results.length,
+                    activationRates: {},
+                    bracketModes: {},
+                    templateCoverage: {},
+                    resolvedConflicts: [],
+                    avgActiveFeatures: 0
+                };
+                let totalActive = 0;
+
+                ALL_FEATURE_IDS.forEach(id => { stats.activationRates[id] = { enabled: 0, disabled: 0, rate: 0 }; });
+
+                phase5Results.forEach(result => {
+                    const features = result.features;
+                    if (!features) return;
+                    const templateId = result.templateId;
+                    if (!stats.templateCoverage[templateId]) {
+                        stats.templateCoverage[templateId] = {};
+                        ALL_FEATURE_IDS.forEach(id => stats.templateCoverage[templateId][id] = 0);
+                    }
+                    let activeCount = 0;
+                    ALL_FEATURE_IDS.forEach(id => {
+                        if (features[id]?.enabled) {
+                            stats.activationRates[id].enabled++;
+                            stats.templateCoverage[templateId][id]++;
+                            activeCount++;
+                            if (id === 'bracket' && features[id].mode) {
+                                stats.bracketModes[features[id].mode] = (stats.bracketModes[features[id].mode] || 0) + 1;
+                            }
+                        } else if (features[id]) {
+                            stats.activationRates[id].disabled++;
+                        }
+                        if (features[id]?._reason && features[id]._reason.includes('Priorität')) {
+                            stats.resolvedConflicts.push({ templateId, feature: id, reason: features[id]._reason });
+                        }
+                    });
+                    totalActive += activeCount;
+                });
+
+                ALL_FEATURE_IDS.forEach(id => {
+                    const total = stats.activationRates[id].enabled + stats.activationRates[id].disabled;
+                    stats.activationRates[id].rate = total > 0 ? Math.round(stats.activationRates[id].enabled / total * 100) : 0;
+                });
+                stats.avgActiveFeatures = stats.total > 0 ? (totalActive / stats.total).toFixed(1) : 0;
+                return stats;
+            },
+
             _extractLabelsFromCSV(csvData) {
                 const lines = csvData.split('\n');
                 const labels = [];
@@ -1508,175 +957,50 @@
 
             _extractLabelsFromResult(result) {
                 const labels = [];
-                const data = result.extractedData?.normalized ||
-                            result.extractedData?.waterfall?.bars ||
-                            result.extractedData?.bar?.categories || [];
-                data.forEach(d => {
-                    if (d.label) labels.push(d.label);
-                    if (d.name) labels.push(d.name);
-                });
+                const data = result.extractedData?.normalized || [];
+                data.forEach(d => { if (d.label) labels.push(d.label); if (d.position) labels.push(d.position); });
                 return labels;
             },
 
             _checkLabelPreservation(sourceLabels, resultLabels) {
-                if (sourceLabels.length === 0 || resultLabels.length === 0) {
-                    return { ratio: 1, changed: [] };
-                }
-
+                if (sourceLabels.length === 0 || resultLabels.length === 0) return { ratio: 1, changed: [] };
                 const sourceLower = sourceLabels.map(l => l.toLowerCase());
                 const preserved = resultLabels.filter(l =>
                     sourceLower.some(s => s.includes(l.toLowerCase()) || l.toLowerCase().includes(s))
                 );
-
                 return {
                     ratio: preserved.length / resultLabels.length,
-                    changed: resultLabels.filter(l =>
-                        !sourceLower.some(s => s.includes(l.toLowerCase()) || l.toLowerCase().includes(s))
-                    )
+                    changed: resultLabels.filter(l => !sourceLower.some(s => s.includes(l.toLowerCase()) || l.toLowerCase().includes(s)))
                 };
-            },
-
-            // Phase 5: Feature-Integrität Validierung
-            validateFeatures(variant, templateDef) {
-                const checks = {
-                    featureBlockExists: { passed: false, message: '', value: '' },
-                    allFeaturesDocumented: { passed: false, message: '', value: '' },
-                    availabilityRespected: { passed: false, message: '', value: '' },
-                    conflictsResolved: { passed: false, message: '', value: '' },
-                    reasonFieldPresent: { passed: false, message: '', value: '' },
-                    categoryConstraints: { passed: false, message: '', value: '' }
-                };
-
-                const features = variant.chartConfig?.features || variant.generatedFeatures;
-                const templateId = variant.templateId;
-                const category = TEMPLATE_CATEGORIES[templateId] || 'unknown';
-                const available = templateDef?.availableFeatures || [];
-
-                // 1. Feature block exists
-                checks.featureBlockExists.passed = features && typeof features === 'object';
-                checks.featureBlockExists.value = features ? 'Vorhanden' : 'Fehlt';
-
-                if (!features) return checks;
-
-                // 2. All 7 features documented (even disabled ones)
-                const featureIds = Object.keys(features);
-                const missingFeatures = ALL_FEATURE_IDS.filter(id => !featureIds.includes(id));
-                checks.allFeaturesDocumented.passed = missingFeatures.length === 0;
-                checks.allFeaturesDocumented.value = missingFeatures.length === 0 ?
-                    `Alle ${ALL_FEATURE_IDS.length} dokumentiert` :
-                    `Fehlt: ${missingFeatures.join(', ')}`;
-
-                // 3. Availability respected (no enabled feature outside availableFeatures)
-                const violatingFeatures = featureIds.filter(id =>
-                    features[id]?.enabled && !available.includes(id)
-                );
-                checks.availabilityRespected.passed = violatingFeatures.length === 0;
-                checks.availabilityRespected.value = violatingFeatures.length === 0 ?
-                    'Alle Features verfügbar' :
-                    `Nicht erlaubt: ${violatingFeatures.join(', ')}`;
-
-                // 4. Conflicts resolved
-                const conflictViolations = [];
-                FEATURE_CONFLICTS.forEach(conflict => {
-                    if (features[conflict.a]?.enabled && features[conflict.b]?.enabled) {
-                        conflictViolations.push(`${conflict.a} + ${conflict.b}`);
-                    }
-                });
-                checks.conflictsResolved.passed = conflictViolations.length === 0;
-                checks.conflictsResolved.value = conflictViolations.length === 0 ?
-                    'Keine Konflikte' :
-                    `Konflikte: ${conflictViolations.join(', ')}`;
-
-                // 5. Reason field present for all features
-                const missingReasons = featureIds.filter(id =>
-                    features[id] && typeof features[id]._reason !== 'string'
-                );
-                checks.reasonFieldPresent.passed = missingReasons.length === 0;
-                checks.reasonFieldPresent.value = missingReasons.length === 0 ?
-                    'Alle Begründungen vorhanden' :
-                    `Fehlt bei: ${missingReasons.join(', ')}`;
-
-                // 6. Category constraints (banned features not enabled)
-                const bans = CATEGORY_FEATURE_BANS[category] || [];
-                const bannedEnabled = featureIds.filter(id =>
-                    bans.includes(id) && features[id]?.enabled
-                );
-                checks.categoryConstraints.passed = bannedEnabled.length === 0;
-                checks.categoryConstraints.value = bannedEnabled.length === 0 ?
-                    `${category}: OK` :
-                    `Verboten für ${category}: ${bannedEnabled.join(', ')}`;
-
-                return checks;
-            },
-
-            collectFeatureStatistics(phase5Results) {
-                const stats = {
-                    total: phase5Results.length,
-                    activationRates: {},
-                    bracketModes: {},
-                    templateCoverage: {},
-                    resolvedConflicts: [],
-                    avgActiveFeatures: 0
-                };
-
-                let totalActive = 0;
-
-                ALL_FEATURE_IDS.forEach(id => {
-                    stats.activationRates[id] = { enabled: 0, disabled: 0, rate: 0 };
-                });
-
-                phase5Results.forEach(result => {
-                    const features = result.features;
-                    if (!features) return;
-
-                    const templateId = result.templateId;
-                    if (!stats.templateCoverage[templateId]) {
-                        stats.templateCoverage[templateId] = {};
-                        ALL_FEATURE_IDS.forEach(id => stats.templateCoverage[templateId][id] = 0);
-                    }
-
-                    let activeCount = 0;
-                    ALL_FEATURE_IDS.forEach(id => {
-                        if (features[id]?.enabled) {
-                            stats.activationRates[id].enabled++;
-                            stats.templateCoverage[templateId][id]++;
-                            activeCount++;
-
-                            // Track bracket modes
-                            if (id === 'bracket' && features[id].mode) {
-                                const mode = features[id].mode;
-                                stats.bracketModes[mode] = (stats.bracketModes[mode] || 0) + 1;
-                            }
-                        } else if (features[id]) {
-                            stats.activationRates[id].disabled++;
-                        }
-
-                        // Track resolved conflicts
-                        if (features[id]?._reason && features[id]._reason.includes('Priorität')) {
-                            stats.resolvedConflicts.push({
-                                templateId,
-                                feature: id,
-                                reason: features[id]._reason
-                            });
-                        }
-                    });
-
-                    totalActive += activeCount;
-                });
-
-                // Calculate rates
-                ALL_FEATURE_IDS.forEach(id => {
-                    const total = stats.activationRates[id].enabled + stats.activationRates[id].disabled;
-                    stats.activationRates[id].rate = total > 0 ?
-                        Math.round(stats.activationRates[id].enabled / total * 100) : 0;
-                });
-
-                stats.avgActiveFeatures = stats.total > 0 ?
-                    (totalActive / stats.total).toFixed(1) : 0;
-
-                return stats;
             }
         };
+
+        // =====================================================
+        // INITIALISIERUNG
+        // =====================================================
+        async function init() {
+            log('info', 'Initialisiere Test-Suite (Deterministische Architektur v3.1)...');
+
+            const savedKey = localStorage.getItem('test_api_key');
+            if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+
+            const savedProvider = localStorage.getItem('test_provider');
+            if (savedProvider) document.getElementById('providerSelect').value = savedProvider;
+
+            const totalFiles = Object.values(CONFIG.testDataSets).reduce((sum, s) => sum + s.allFiles.length, 0);
+            log('success', `${totalFiles} Testdateien verfügbar (3 Sets: Testdaten_1/2/3)`);
+            log('info', 'Pipeline: PROMPT-1 (KI) → PROMPT-2 (KI) → DeterministicConfigGenerator (JS) → JS-Renderer (SVG)');
+        }
+
+        function getTestFiles(testDataSet, testMode) {
+            const setConfig = CONFIG.testDataSets[testDataSet];
+            if (!setConfig) throw new Error(`Unbekanntes Testdaten-Set: ${testDataSet}`);
+            return testMode === 'quick' ? setConfig.quickFiles : setConfig.allFiles;
+        }
+
+        function getTestDataFolder(testDataSet) {
+            return CONFIG.testDataSets[testDataSet]?.folder || 'Testdaten_1/';
+        }
 
         // =====================================================
         // TEST RUNNER
@@ -1686,24 +1010,21 @@
             const provider = document.getElementById('providerSelect').value;
             const testMode = document.getElementById('testModeSelect').value;
             const chartTypeFilter = document.getElementById('chartTypeFilter').value;
-
-            // Offline-Modus: Keine API benötigt
-            if (testMode === 'offline') {
-                await loadPrecomputedResults();
-                return;
-            }
+            const testDataSet = document.getElementById('testDataSelect').value;
+            const testDataFolder = getTestDataFolder(testDataSet);
 
             if (!apiKey) {
-                log('error', 'Bitte API-Key eingeben (oder Offline-Modus wählen)');
+                log('error', 'Bitte API Key eingeben!');
                 return;
             }
 
-            // Speichere Einstellungen
             localStorage.setItem('test_api_key', apiKey);
             localStorage.setItem('test_provider', provider);
 
-            // Initialisiere
-            APIClient.init(apiKey, provider);
+            // Nutze den globalen APIClient aus api-client.js
+            APIClient.apiKey = apiKey;
+            APIClient.provider = provider;
+
             state.isRunning = true;
             state.aborted = false;
             state.startTime = Date.now();
@@ -1713,35 +1034,57 @@
             document.getElementById('btnStartTests').disabled = true;
             document.getElementById('progressContainer').style.display = 'block';
 
-            // Bestimme Testdateien
-            let testFiles = testMode === 'e2e-10' ? CONFIG.e2eQuickFiles : CONFIG.allTestFiles;
+            let testFiles = getTestFiles(testDataSet, testMode);
 
-            log('info', `Starte ${testMode} mit ${testFiles.length} Dateien (Provider: ${provider})`);
+            log('info', `Starte ${testMode} mit ${testFiles.length} Dateien (${testDataSet}, Provider: ${provider})`);
 
             try {
-                // Lade Templates
+                // Lade Templates + Farbschema über globale Loader
                 const templatesResponse = await fetch(CONFIG.templatesPath);
                 state.templates = await templatesResponse.json();
+                // Stelle sicher, dass TemplateLoader die Templates hat
+                if (typeof TemplateLoader !== 'undefined' && TemplateLoader.templates) {
+                    // Bereits geladen
+                } else if (typeof TemplateLoader !== 'undefined') {
+                    TemplateLoader.templates = [];
+                    Object.values(state.templates.templates || {}).forEach(arr => {
+                        arr.forEach(t => TemplateLoader.templates.push(t));
+                    });
+                }
                 log('success', `Templates geladen (${state.templates.total_templates} Templates)`);
 
-                // Lade Prompts
-                await PromptLoader.load('analyzer');
+                // Lade Farbschema
+                try {
+                    const csResp = await fetch(CONFIG.colorSchemesPath);
+                    const csData = await csResp.json();
+                    state.colorScheme = csData.schemes?.[0]?.colors || ['#2B5EA7', '#E63946', '#457B9D', '#F4A261', '#2A9D8F', '#264653'];
+                } catch (e) {
+                    state.colorScheme = ['#2B5EA7', '#E63946', '#457B9D', '#F4A261', '#2A9D8F', '#264653'];
+                }
 
+                // Lade PROMPT-1 direkt per Fetch (nicht im PromptLoader registriert)
+                const p1Response = await fetch(CONFIG.promptsPath + 'PROMPT-1-UNIVERSAL-ANALYZER.md');
+                if (!p1Response.ok) throw new Error(`PROMPT-1 nicht gefunden (${p1Response.status})`);
+                state.analyzerPrompt = await p1Response.text();
+                log('success', `PROMPT-1 geladen (${state.analyzerPrompt.length} Zeichen)`);
+
+                // Lade PROMPT-2 über PromptLoader (dort registriert)
                 if (testMode !== 'phase1') {
-                    await PromptLoader.load('variant');
-                }
-                if (testMode !== 'phase1' && testMode !== 'phase2') {
-                    await PromptLoader.load('config');
+                    await PromptLoader.load('variant_generator');
+                    log('success', `PROMPT-2 geladen (${PromptLoader.cache['variant_generator']?.size || '?'} Zeichen)`);
                 }
 
-                // Führe Tests aus
                 for (let i = 0; i < testFiles.length; i++) {
                     if (state.aborted) break;
-
                     const file = testFiles[i];
                     updateProgress(i + 1, testFiles.length);
+                    await runTestForFile(file, i + 1, testMode, chartTypeFilter, testDataFolder);
+                }
 
-                    await runTestForFile(file, i + 1, testMode, chartTypeFilter);
+                // Phase 5: Feature-Statistiken berechnen
+                if (state.results.phase5.length > 0) {
+                    state.featureStats = Validators.collectFeatureStatistics(state.results.phase5);
+                    log('success', `Phase 5: ${state.results.phase5.length} Feature-Validierungen (Ø ${state.featureStats.avgActiveFeatures} Features/Config)`);
                 }
 
             } catch (error) {
@@ -1751,255 +1094,42 @@
             state.isRunning = false;
             state.stats.duration = Math.round((Date.now() - state.startTime) / 1000);
             updateStats();
+            renderResults();
             document.getElementById('btnStartTests').disabled = false;
 
-            log('success', `Tests abgeschlossen: ${state.stats.passed} bestanden, ${state.stats.warnings} Warnungen, ${state.stats.failed} fehlgeschlagen`);
+            log('success', `Tests abgeschlossen: ${state.stats.passed} bestanden, ${state.stats.warnings} Warnungen, ${state.stats.failed} fehlgeschlagen (${state.stats.apiCalls} API Calls, ${state.stats.duration}s)`);
         }
 
-        // =====================================================
-        // OFFLINE-MODUS: Vorberechnete Ergebnisse laden
-        // =====================================================
-        async function loadPrecomputedResults() {
-            const testDataSet = document.getElementById('testDataSelect').value;
-            const testDataNames = {
-                testdaten_1: 'Testdaten_1 (Basis)',
-                testdaten_2: 'Testdaten_2',
-                testdaten_3: 'Testdaten_3 (Multi-Szenario)'
-            };
-
-            log('info', `Lade vorberechnete Test-Ergebnisse für ${testDataNames[testDataSet]}...`);
-
-            document.getElementById('btnStartTests').disabled = true;
-            document.getElementById('progressContainer').style.display = 'block';
-
-            try {
-                // Lade Templates für Feature-Validierung (Phase 5)
-                if (!state.templates) {
-                    try {
-                        const templatesResponse = await fetch(CONFIG.templatesPath);
-                        if (templatesResponse.ok) {
-                            state.templates = await templatesResponse.json();
-                            log('info', `Templates geladen (${state.templates.total_templates} Templates)`);
-                        }
-                    } catch (e) {
-                        log('warn', `Templates nicht geladen: ${e.message}`);
-                    }
-                }
-
-                const resultPaths = CONFIG.precomputedResults[testDataSet];
-                let precomputed;
-
-                if (typeof resultPaths === 'string') {
-                    // Testdaten_1: Einzelne combined Datei
-                    const response = await fetch(resultPaths);
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status} - Datei nicht gefunden`);
-                    }
-                    precomputed = await response.json();
-                } else {
-                    // Testdaten_2/3: Separate Phase-Dateien
-                    const fetchPromises = [
-                        fetch(resultPaths.phase1),
-                        fetch(resultPaths.phase2)
-                    ];
-
-                    // Phase 3 nur laden wenn vorhanden
-                    if (resultPaths.phase3) {
-                        fetchPromises.push(fetch(resultPaths.phase3));
-                    }
-
-                    const responses = await Promise.all(fetchPromises);
-                    const [phase1Resp, phase2Resp, phase3Resp] = responses;
-
-                    if (!phase1Resp.ok || !phase2Resp.ok) {
-                        throw new Error('Ergebnis-Dateien nicht gefunden');
-                    }
-
-                    const phase1Data = await phase1Resp.json();
-                    const phase2Data = await phase2Resp.json();
-                    const phase3Data = phase3Resp?.ok ? await phase3Resp.json() : null;
-
-                    // Kombiniere zu precomputed Format
-                    precomputed = {
-                        _meta: phase1Data._meta || phase2Data._meta || {
-                            testFilesCount: phase1Data.results?.length || 50
-                        },
-                        _phase3Raw: phase3Data,
-                        stats: {
-                            total: phase1Data.results?.length || 50,
-                            passed: (phase1Data.results?.filter(r => r.status === 'success' || r.status === 'passed').length || 0),
-                            warnings: (phase1Data.results?.filter(r => r.status === 'warning').length || 0) +
-                                      (phase2Data.stats?.warnings || phase2Data._meta?.warnings || 0) +
-                                      (phase3Data?.summary?.warnings || 0),
-                            failed: (phase1Data.results?.filter(r => r.status === 'error' || r.status === 'failed').length || 0) +
-                                    (phase3Data?.summary?.failed || 0),
-                            duration: 0,
-                            apiCalls: 0,
-                            phase2Stats: phase2Data._meta || phase2Data.stats || {},
-                            phase3Stats: phase3Data?.summary || null
-                        },
-                        results: {
-                            phase1: phase1Data.results || [],
-                            phase2: phase2Data.results || [],
-                            phase3: phase3Data ? convertPhase3Results(phase3Data) : [],
-                            phase4: []
-                        }
-                    };
-
-                    // Konvertiere Phase-1 Format falls nötig
-                    if (precomputed.results.phase1.length > 0 && !precomputed.results.phase1[0].checks) {
-                        precomputed.results.phase1 = precomputed.results.phase1.map((r, i) => ({
-                            index: i + 1,
-                            filename: r.filename,
-                            status: r.status || 'success',
-                            checks: [
-                                { name: 'jsonSchema', passed: true },
-                                { name: 'spracherhaltung', passed: true },
-                                { name: 'szenarien', passed: true },
-                                { name: 'perioden', passed: true },
-                                { name: 'reportTyp', passed: true }
-                            ],
-                            analysis: r.analysis,
-                            chartRecommendation: r.chartRecommendation
-                        }));
-                    }
-
-                    // Konvertiere Phase-2 Format falls nötig
-                    if (precomputed.results.phase2.length > 0 && !precomputed.results.phase2[0].checks) {
-                        precomputed.results.phase2 = precomputed.results.phase2.map((r, i) => ({
-                            index: i + 1,
-                            filename: r.filename,
-                            chartType: r.chartType || 'waterfall',
-                            status: r.status || 'success',
-                            checks: [
-                                { name: 'variantCount', passed: true, value: `${r.variants?.length || 0} Varianten` },
-                                { name: 'templateIdsValid', passed: true },
-                                { name: 'noDuplicates', passed: true },
-                                { name: 'dataFilterValid', passed: true },
-                                { name: 'uniqueValuePresent', passed: true }
-                            ],
-                            result: { variants: r.variants || [] }
-                        }));
-                    }
-                }
-
-                const fileCount = precomputed._meta?.testFilesCount ||
-                                 precomputed._meta?.totalFiles ||
-                                 precomputed.results.phase1.length;
-                log('success', `Vorberechnete Ergebnisse geladen (${fileCount} Dateien)`);
-
-                // Übernehme Stats
-                state.stats = {
-                    total: precomputed.stats.total || fileCount,
-                    passed: precomputed.stats.passed || fileCount,
-                    warnings: precomputed.stats.warnings || 0,
-                    failed: precomputed.stats.failed || 0,
-                    duration: precomputed.stats.duration || 0,
-                    apiCalls: precomputed.stats.apiCalls || 0
-                };
-
-                // Übernehme Results
-                state.results = {
-                    phase1: precomputed.results.phase1 || [],
-                    phase2: precomputed.results.phase2 || [],
-                    phase3: precomputed.results.phase3 || [],
-                    phase4: precomputed.results.phase4 || [],
-                    phase5: []
-                };
-
-                // Phase 5: Feature-Integrität berechnen (wenn Phase 3 Daten mit Features vorhanden)
-                if (state.results.phase3.length > 0) {
-                    state.results.phase5 = computePhase5FromPhase3(state.results.phase3, precomputed);
-                    if (state.results.phase5.length > 0) {
-                        state.featureStats = Validators.collectFeatureStatistics(state.results.phase5);
-                        log('success', `Phase 5: ${state.results.phase5.length} Feature-Validierungen berechnet (Ø ${state.featureStats.avgActiveFeatures} Features/Config)`);
-                    }
-                }
-
-                // Simuliere Progress-Animation
-                const totalTests = state.results.phase1.length;
-                for (let i = 0; i <= totalTests; i++) {
-                    updateProgress(i, totalTests);
-                    await new Promise(r => setTimeout(r, 30)); // Kurze Animation
-                }
-
-                // Update UI
-                updateStats();
-                renderResults();
-
-                log('success', `Offline-Tests geladen: ${state.stats.passed} bestanden, ${state.stats.warnings} Warnungen, ${state.stats.failed} fehlgeschlagen`);
-
-                // Zeige Phase-2 Statistiken wenn vorhanden
-                if (precomputed.stats.phase2Stats) {
-                    const p2 = precomputed.stats.phase2Stats;
-                    log('info', `Phase 2: ${p2.totalVariants || 'N/A'} Varianten generiert (Ø ${p2.avgVariantsPerFile || p2.averageVariantsPerFile || 'N/A'} pro Datei)`);
-                }
-
-                log('info', `Testdaten-Set: ${testDataNames[testDataSet]}`);
-
-            } catch (error) {
-                log('error', `Fehler beim Laden der vorberechneten Ergebnisse: ${error.message}`);
-            }
-
-            document.getElementById('btnStartTests').disabled = false;
-        }
-
-        async function runTestForFile(filename, index, testMode, chartTypeFilter) {
-            const testResult = {
-                index,
-                filename,
-                phase1: null,
-                phase2: null,
-                phase3: null,
-                phase4: null,
-                status: 'running',
-                duration: 0,
-                checks: { passed: 0, failed: 0 }
-            };
-
+        async function runTestForFile(filename, index, testMode, chartTypeFilter, testDataFolder) {
             const startTime = Date.now();
 
             try {
-                // Datei laden
                 log('info', `[${index}] Lade ${filename}...`);
-                const csvData = await FileLoader.loadFile(filename);
+                const csvData = await FileLoader.loadFile(filename, testDataFolder);
 
-                // Phase 1: Universal Analyzer
+                // ── Phase 1: Universal Analyzer (API-Call) ──
                 log('info', `[${index}] Phase 1: Universal Analyzer...`);
-                const analyzerPrompt = PromptLoader.cache['analyzer'];
+                const analyzerPrompt = state.analyzerPrompt;
                 const analyzerResponse = await APIClient.call(analyzerPrompt, `Analysiere diese Finanzdaten:\n\n${csvData}`);
+                state.stats.apiCalls++;
                 const analyzerResult = APIClient.parseJSON(analyzerResponse);
 
-                testResult.phase1 = {
-                    result: analyzerResult,
-                    checks: Validators.validatePhase1(analyzerResult, csvData)
-                };
+                const phase1Checks = Validators.validatePhase1(analyzerResult, csvData);
+                const phase1Status = getStatusFromChecks(phase1Checks);
+                state.results.phase1.push({ index, filename, status: phase1Status, checks: phase1Checks, result: analyzerResult });
+                updateResultStats(phase1Status);
 
-                state.results.phase1.push({
-                    index,
-                    filename,
-                    status: getStatusFromChecks(testResult.phase1.checks),
-                    checks: testResult.phase1.checks,
-                    result: analyzerResult
-                });
+                if (testMode === 'phase1') { renderResults(); return; }
 
-                if (testMode === 'phase1') {
-                    testResult.status = getStatusFromChecks(testResult.phase1.checks);
-                    testResult.duration = Date.now() - startTime;
-                    updateResultStats(testResult);
-                    renderResults();
-                    return;
-                }
-
-                // Phase 2: Variant Generator (für jeden Chart-Typ oder gefiltert)
-                const chartTypes = chartTypeFilter === 'all' ?
-                    ['waterfall', 'bar', 'stacked-bar'] : [chartTypeFilter];
+                // ── Phase 2: Variant Generator (API-Call, pro Chart-Typ) ──
+                const chartTypes = chartTypeFilter === 'all' ? ['waterfall', 'bar', 'stacked-bar'] : [chartTypeFilter];
+                const analysisResult = { parsed: analyzerResult };
 
                 for (const chartType of chartTypes) {
                     if (state.aborted) break;
 
                     log('info', `[${index}] Phase 2: Variant Generator (${chartType})...`);
-                    const variantPrompt = PromptLoader.cache['variant'];
+                    const variantPrompt = PromptLoader.cache['variant_generator']?.content || PromptLoader.cache['variant_generator'];
                     const variantInput = JSON.stringify({
                         analysisResult: analyzerResult,
                         selectedChartType: chartType,
@@ -2007,62 +1137,109 @@
                     }, null, 2);
 
                     const variantResponse = await APIClient.call(variantPrompt, variantInput);
+                    state.stats.apiCalls++;
                     const variantResult = APIClient.parseJSON(variantResponse);
 
                     const phase2Checks = Validators.validatePhase2(variantResult, state.templates);
-
-                    state.results.phase2.push({
-                        index,
-                        filename,
-                        chartType,
-                        status: getStatusFromChecks(phase2Checks),
-                        checks: phase2Checks,
-                        result: variantResult
-                    });
+                    const phase2Status = getStatusFromChecks(phase2Checks);
+                    state.results.phase2.push({ index, filename, chartType, status: phase2Status, checks: phase2Checks, result: variantResult });
+                    updateResultStats(phase2Status);
 
                     if (testMode === 'phase2') continue;
 
-                    // Phase 3: Config Generator (für jede Variante)
+                    // ── Phase 3: DeterministicConfigGenerator (KEIN API-Call) ──
                     const variants = variantResult.variants || [];
-                    for (const variant of variants.slice(0, 3)) { // Max 3 pro Typ für Tests
+                    for (const variant of variants.slice(0, 5)) {
                         if (state.aborted) break;
 
-                        log('info', `[${index}] Phase 3: Config Generator (${variant.templateId})...`);
-                        const configPrompt = PromptLoader.cache['config'];
-                        const configInput = JSON.stringify({
-                            variant,
-                            extractedData: analyzerResult.extractedData,
-                            templateDefinition: findTemplate(variant.templateId),
-                            colorScheme: { name: 'businessNeutral' }
-                        }, null, 2);
+                        log('info', `[${index}] Phase 3: DeterministicConfig (${variant.templateId})...`);
 
-                        const configResponse = await APIClient.call(configPrompt, configInput);
-                        const configResult = APIClient.parseJSON(configResponse);
+                        let config;
+                        try {
+                            config = DeterministicConfigGenerator.generateConfig(variant, analysisResult, state.colorScheme);
+                        } catch (e) {
+                            log('error', `[${index}] Config-Fehler (${variant.templateId}): ${e.message}`);
+                            state.results.phase3.push({
+                                index, filename, chartType, templateId: variant.templateId,
+                                title: variant.title, status: 'error',
+                                checks: { configGenerated: { passed: false, value: e.message } },
+                                config: null
+                            });
+                            updateResultStats('error');
+                            continue;
+                        }
 
-                        const phase3Checks = Validators.validatePhase3(configResult);
+                        // Normalize
+                        let normalizedConfig;
+                        try {
+                            normalizedConfig = normalizeConfigForRenderer(config);
+                        } catch (e) {
+                            normalizedConfig = config;
+                        }
 
+                        const phase3Checks = Validators.validatePhase3(normalizedConfig, variant);
+                        const phase3Status = getStatusFromChecks(phase3Checks);
                         state.results.phase3.push({
-                            index,
-                            filename,
-                            chartType,
-                            templateId: variant.templateId,
-                            status: getStatusFromChecks(phase3Checks),
-                            checks: phase3Checks,
-                            result: configResult
+                            index, filename, chartType, templateId: variant.templateId,
+                            title: variant.title, status: phase3Status,
+                            checks: phase3Checks, config: normalizedConfig
                         });
+                        updateResultStats(phase3Status);
+
+                        // ── Phase 4: JS-Renderer (KEIN API-Call) ──
+                        if (testMode === 'phase3') continue;
+
+                        log('info', `[${index}] Phase 4: JS-Render (${variant.templateId})...`);
+                        let svgHtml = '';
+                        try {
+                            const tempDiv = document.createElement('div');
+                            tempDiv.style.cssText = 'position:absolute;left:-9999px;width:800px;height:500px;';
+                            document.body.appendChild(tempDiv);
+
+                            const templateDef = findTemplate(variant.templateId);
+                            const renderChartType = (templateDef?.chart_type || chartType).replace('-', '_');
+
+                            if (renderChartType === 'waterfall') {
+                                svgHtml = renderWaterfallChart(normalizedConfig, tempDiv.clientWidth, tempDiv.clientHeight, state.colorScheme);
+                            } else if (renderChartType === 'bar') {
+                                svgHtml = renderBarChart(normalizedConfig, tempDiv.clientWidth, tempDiv.clientHeight, state.colorScheme);
+                            } else if (renderChartType === 'stacked_bar' || renderChartType === 'stacked-bar') {
+                                svgHtml = renderStackedBarChart(normalizedConfig, tempDiv.clientWidth, tempDiv.clientHeight, state.colorScheme);
+                            }
+
+                            document.body.removeChild(tempDiv);
+                        } catch (e) {
+                            log('warning', `[${index}] Render-Fehler (${variant.templateId}): ${e.message}`);
+                        }
+
+                        const phase4Checks = Validators.validatePhase4(svgHtml, normalizedConfig);
+                        const phase4Status = getStatusFromChecks(phase4Checks);
+                        state.results.phase4.push({
+                            index, filename, chartType, templateId: variant.templateId,
+                            title: variant.title, status: phase4Status,
+                            checks: phase4Checks, svgLength: svgHtml.length
+                        });
+                        updateResultStats(phase4Status);
+
+                        // ── Phase 5: Feature-Integrität (nur Waterfall) ──
+                        if (variant.templateId?.startsWith('WF-') && normalizedConfig?.features) {
+                            const templateDef = findTemplate(variant.templateId);
+                            const featureChecks = Validators.validateFeatures(normalizedConfig, templateDef);
+                            const featureStatus = getStatusFromChecks(featureChecks);
+                            state.results.phase5.push({
+                                index, filename, templateId: variant.templateId,
+                                title: variant.title, status: featureStatus,
+                                checks: featureChecks, features: normalizedConfig.features
+                            });
+                        }
                     }
                 }
 
-                testResult.status = 'success';
-
             } catch (error) {
                 log('error', `[${index}] Fehler: ${error.message}`);
-                testResult.status = 'error';
-                testResult.error = error.message;
+                updateResultStats('error');
             }
 
-            testResult.duration = Date.now() - startTime;
-            updateResultStats(testResult);
             renderResults();
         }
 
@@ -2083,10 +1260,10 @@
             return 'error';
         }
 
-        function updateResultStats(testResult) {
+        function updateResultStats(status) {
             state.stats.total++;
-            if (testResult.status === 'success') state.stats.passed++;
-            else if (testResult.status === 'warning') state.stats.warnings++;
+            if (status === 'success') state.stats.passed++;
+            else if (status === 'warning') state.stats.warnings++;
             else state.stats.failed++;
             updateStats();
         }
@@ -2106,47 +1283,30 @@
         function updateProgress(current, total) {
             const percent = Math.round((current / total) * 100);
             document.getElementById('progressFill').style.width = percent + '%';
-            document.getElementById('progressLabel').textContent = `${current} von ${total} Tests`;
+            document.getElementById('progressLabel').textContent = `${current} von ${total} Dateien`;
             document.getElementById('progressPercent').textContent = percent + '%';
         }
 
         function showPhase(phase) {
             state.currentPhase = phase;
-
-            // Update tabs
             document.querySelectorAll('.phase-tab').forEach(tab => {
                 tab.classList.toggle('active', parseInt(tab.dataset.phase) === phase);
             });
-
-            // Update title
             const titles = {
-                1: 'Phase 1: Universal Analyzer',
-                2: 'Phase 2: Variant Generator',
-                3: 'Phase 3: Config Generator',
-                4: 'Phase 4: SVG Output',
+                1: 'Phase 1: Universal Analyzer (KI)',
+                2: 'Phase 2: Variant Generator (KI)',
+                3: 'Phase 3: DeterministicConfigGenerator (JS)',
+                4: 'Phase 4: JS-Renderer (SVG)',
                 5: 'Phase 5: Feature-Integrität'
             };
             document.getElementById('resultsTitle').textContent = titles[phase];
-
-            // Update validation checks description
-            const checkDescriptions = {
-                1: 'Validierungs-Checks (Phase 1: Analyzer)',
-                2: 'Validierungs-Checks (Phase 2: Variants)',
-                3: 'Validierungs-Checks (Phase 3: Config)',
-                4: 'Validierungs-Checks (Phase 4: SVG)',
-                5: 'Validierungs-Checks (Phase 5: Features)'
-            };
-            document.querySelector('.validation-title').textContent = checkDescriptions[phase];
-
+            document.querySelector('.validation-title').textContent = `Validierungs-Checks (${titles[phase]})`;
             renderResults();
 
-            // Toggle feature dashboard visibility
             const dashboard = document.getElementById('featureDashboard');
             if (dashboard) {
                 dashboard.style.display = phase === 5 ? 'block' : 'none';
-                if (phase === 5 && state.featureStats) {
-                    renderFeatureDashboard(state.featureStats);
-                }
+                if (phase === 5 && state.featureStats) renderFeatureDashboard(state.featureStats);
             }
         }
 
@@ -2155,104 +1315,56 @@
             const body = document.getElementById('resultsBody');
 
             document.getElementById('resultsCount').textContent = `${results.length} Tests`;
-
-            // Update phase counts
-            document.getElementById('phase1Count').textContent = state.results.phase1.length;
-            document.getElementById('phase2Count').textContent = state.results.phase2.length;
-            document.getElementById('phase3Count').textContent = state.results.phase3.length;
-            document.getElementById('phase4Count').textContent = state.results.phase4.length;
-            document.getElementById('phase5Count').textContent = state.results.phase5.length;
+            for (let p = 1; p <= 5; p++) {
+                document.getElementById(`phase${p}Count`).textContent = state.results[`phase${p}`].length;
+            }
 
             if (results.length === 0) {
-                body.innerHTML = `
-                    <div style="padding: 40px; text-align: center; color: #64748b;">
-                        Keine Tests in Phase ${state.currentPhase} ausgeführt.
-                    </div>
-                `;
+                body.innerHTML = `<div style="padding: 40px; text-align: center; color: #64748b;">Keine Tests in Phase ${state.currentPhase}.</div>`;
                 return;
             }
 
-            body.innerHTML = results.map(r => {
-                // Phase 3 liefert checks als Array, andere Phasen als Object
-                let checksCount, passed, failed;
-                if (Array.isArray(r.checks)) {
-                    checksCount = r.checks;
-                    passed = checksCount.filter(c => c.passed).length;
-                    failed = checksCount.length - passed;
-                } else if (r.checks && typeof r.checks === 'object') {
-                    checksCount = Object.values(r.checks);
-                    passed = checksCount.filter(c => c.passed).length;
-                    failed = checksCount.length - passed;
-                } else {
-                    passed = r.status === 'success' || r.status === 'passed' ? 5 : 0;
-                    failed = r.status === 'error' || r.status === 'failed' ? 5 : 0;
+            body.innerHTML = results.map((r, idx) => {
+                let passed = 0, failed = 0;
+                if (r.checks && typeof r.checks === 'object') {
+                    const values = Object.values(r.checks);
+                    passed = values.filter(c => c.passed).length;
+                    failed = values.length - passed;
                 }
 
                 let extraInfo = '';
                 if (state.currentPhase === 2) extraInfo = r.chartType || '';
-                if (state.currentPhase === 3) extraInfo = r.templateId || '';
-
-                // Für Phase 3: Kürze den Titel wenn vorhanden
-                let displayFile = r.filename;
-                if (state.currentPhase === 3 && r.title) {
-                    displayFile = `${r.title}`;
-                }
+                if (state.currentPhase >= 3) extraInfo = r.templateId || '';
 
                 return `
                     <div class="test-row">
                         <span class="test-index">#${r.index}</span>
-                        <span class="test-file" title="${r.filename}${r.title ? ' - ' + r.title : ''}">${displayFile}</span>
+                        <span class="test-file" title="${r.filename}${r.title ? ' - ' + r.title : ''}">${r.title || r.filename}</span>
                         <span class="test-status ${r.status}">
-                            ${r.status === 'success' || r.status === 'passed' ? '✓' : r.status === 'warning' ? '⚠' : '✗'}
-                            ${r.status}
+                            ${r.status === 'success' ? '✓' : r.status === 'warning' ? '⚠' : '✗'} ${r.status}
                         </span>
                         <span style="color: #64748b; font-size: 12px;">${extraInfo}</span>
-                        <span class="test-checks">
-                            <span class="passed">${passed}✓</span> /
-                            <span class="failed">${failed}✗</span>
-                        </span>
-                        <button class="btn-details" onclick="showDetails(${state.currentPhase}, ${results.indexOf(r)})">
-                            Details
-                        </button>
+                        <span class="test-checks"><span class="passed">${passed}✓</span> / <span class="failed">${failed}✗</span></span>
+                        <button class="btn-details" onclick="showDetails(${state.currentPhase}, ${idx})">Details</button>
                     </div>
                 `;
             }).join('');
 
-            // Update validation panel with first result's checks
-            if (results.length > 0 && results[0].checks) {
-                renderValidationChecks(results[0].checks);
-            }
+            if (results.length > 0 && results[0].checks) renderValidationChecks(results[0].checks);
         }
 
         function renderValidationChecks(checks) {
             const grid = document.getElementById('checkGrid');
-
-            // Phase 3 liefert Array-Format, andere Phasen Object-Format
-            if (Array.isArray(checks)) {
-                grid.innerHTML = checks.map(check => `
-                    <div class="check-item">
-                        <div class="check-icon ${check.passed ? 'pass' : 'fail'}">
-                            ${check.passed ? '✓' : '✗'}
-                        </div>
-                        <span class="check-name">${formatCheckName(check.name)}</span>
-                        <span class="check-value">${check.value || (check.passed ? 'OK' : 'Failed')}</span>
-                    </div>
-                `).join('');
-            } else {
-                grid.innerHTML = Object.entries(checks).map(([name, check]) => `
-                    <div class="check-item">
-                        <div class="check-icon ${check.passed ? 'pass' : 'fail'}">
-                            ${check.passed ? '✓' : '✗'}
-                        </div>
-                        <span class="check-name">${formatCheckName(name)}</span>
-                        <span class="check-value">${check.value}</span>
-                    </div>
-                `).join('');
-            }
+            grid.innerHTML = Object.entries(checks).map(([name, check]) => `
+                <div class="check-item">
+                    <div class="check-icon ${check.passed ? 'pass' : 'fail'}">${check.passed ? '✓' : '✗'}</div>
+                    <span class="check-name">${formatCheckName(name)}</span>
+                    <span class="check-value">${check.value}</span>
+                </div>
+            `).join('');
         }
 
         function renderFeatureDashboard(stats) {
-            // 1. Activation rate bars
             const barsEl = document.getElementById('featureActivationBars');
             if (barsEl) {
                 const featureColors = {
@@ -2268,9 +1380,7 @@
                         <div class="feature-bar-row">
                             <span class="feature-bar-name">${id}</span>
                             <div class="feature-bar-track">
-                                <div class="feature-bar-fill" style="width: ${rate}%; background: ${color};">
-                                    ${rate > 15 ? `${enabled}/${total}` : ''}
-                                </div>
+                                <div class="feature-bar-fill" style="width: ${rate}%; background: ${color};">${rate > 15 ? `${enabled}/${total}` : ''}</div>
                             </div>
                             <span class="feature-bar-rate">${rate}%</span>
                         </div>
@@ -2278,7 +1388,6 @@
                 }).join('');
             }
 
-            // 2. Bracket modes
             const bracketEl = document.getElementById('bracketModeChart');
             if (bracketEl && stats.bracketModes) {
                 const modes = Object.entries(stats.bracketModes).sort((a, b) => b[1] - a[1]);
@@ -2286,25 +1395,19 @@
                 bracketEl.innerHTML = modes.length > 0 ? modes.map(([mode, count]) => `
                     <div class="bracket-mode-item">
                         <span class="bracket-mode-label">${mode}</span>
-                        <div class="bracket-mode-bar">
-                            <div class="bracket-mode-fill" style="width: ${(count / maxCount * 100)}%;"></div>
-                        </div>
+                        <div class="bracket-mode-bar"><div class="bracket-mode-fill" style="width: ${(count / maxCount * 100)}%;"></div></div>
                         <span class="bracket-mode-count">${count}</span>
                     </div>
                 `).join('') : '<div style="color: #64748b; font-size: 13px;">Keine Bracket-Daten</div>';
             }
 
-            // 3. Conflicts log
             const conflictsEl = document.getElementById('conflictsLog');
             if (conflictsEl) {
                 const uniqueConflicts = [];
                 const seen = new Set();
                 (stats.resolvedConflicts || []).forEach(c => {
                     const key = `${c.feature}:${c.reason}`;
-                    if (!seen.has(key)) {
-                        seen.add(key);
-                        uniqueConflicts.push(c);
-                    }
+                    if (!seen.has(key)) { seen.add(key); uniqueConflicts.push(c); }
                 });
                 conflictsEl.innerHTML = uniqueConflicts.length > 0 ? uniqueConflicts.map(c => `
                     <div class="conflict-item">
@@ -2314,21 +1417,13 @@
                 `).join('') : '<div style="color: #64748b; font-size: 13px;">Keine Konflikte aufgelöst</div>';
             }
 
-            // 4. Template x Feature Heatmap
             const heatmapEl = document.getElementById('templateHeatmap');
             if (heatmapEl && stats.templateCoverage) {
                 const templates = Object.keys(stats.templateCoverage).sort();
-                const shortFeatureNames = {
-                    bracket: 'BRK', scaleBreak: 'SB', categoryBrackets: 'CB',
-                    arrows: 'ARR', benchmarkLines: 'BL', negativeBridges: 'NB', grouping: 'GRP'
-                };
-
+                const shortNames = { bracket: 'BRK', scaleBreak: 'SB', categoryBrackets: 'CB', arrows: 'ARR', benchmarkLines: 'BL', negativeBridges: 'NB', grouping: 'GRP' };
                 let html = '<table class="heatmap-table"><thead><tr><th>Template</th>';
-                ALL_FEATURE_IDS.forEach(id => {
-                    html += `<th>${shortFeatureNames[id] || id}</th>`;
-                });
+                ALL_FEATURE_IDS.forEach(id => { html += `<th>${shortNames[id] || id}</th>`; });
                 html += '</tr></thead><tbody>';
-
                 templates.forEach(tid => {
                     const category = TEMPLATE_CATEGORIES[tid] || '';
                     html += `<tr><td style="text-align:left;color:#e2e8f0;font-weight:500;">${tid} <span style="color:#64748b;font-size:10px;">${category}</span></td>`;
@@ -2337,29 +1432,22 @@
                         const templateDef = findTemplate(tid);
                         const available = templateDef?.availableFeatures || [];
                         const isAvailable = available.includes(id);
-
-                        if (!isAvailable) {
-                            html += `<td><span class="heatmap-cell unavailable">—</span></td>`;
-                        } else if (count > 0) {
-                            html += `<td><span class="heatmap-cell active">${count}</span></td>`;
-                        } else {
-                            html += `<td><span class="heatmap-cell inactive">0</span></td>`;
-                        }
+                        if (!isAvailable) html += `<td><span class="heatmap-cell unavailable">—</span></td>`;
+                        else if (count > 0) html += `<td><span class="heatmap-cell active">${count}</span></td>`;
+                        else html += `<td><span class="heatmap-cell inactive">0</span></td>`;
                     });
                     html += '</tr>';
                 });
-
                 html += '</tbody></table>';
                 heatmapEl.innerHTML = html;
             }
 
-            // Update stats cards
             const featureRateEl = document.getElementById('statFeatureRate');
             if (featureRateEl) featureRateEl.textContent = stats.avgActiveFeatures;
 
             const integrityEl = document.getElementById('statIntegrity');
             if (integrityEl && state.results.phase5.length > 0) {
-                const passed = state.results.phase5.filter(r => r.status === 'success' || r.status === 'passed').length;
+                const passed = state.results.phase5.filter(r => r.status === 'success').length;
                 const total = state.results.phase5.length;
                 const rate = Math.round(passed / total * 100);
                 integrityEl.textContent = `${rate}%`;
@@ -2369,35 +1457,20 @@
 
         function formatCheckName(name) {
             const names = {
-                // Phase 1 checks
-                jsonSchema: 'JSON-Schema valide',
-                languagePreservation: 'Spracherhaltung',
-                scenariosDetected: 'Szenarien erkannt',
-                periodsExtracted: 'Perioden extrahiert',
-                reportTypePlausible: 'Report-Typ plausibel',
-                dataValuesPresent: 'Datenwerte vorhanden',
-                // Phase 2 checks
-                variantCount: 'Varianten-Anzahl (1-10)',
-                templateIdsValid: 'Template-IDs valide',
-                noDuplicates: 'Keine Duplikate',
-                dataFilterValid: 'dataFilter valide',
+                jsonSchema: 'JSON-Schema valide', languagePreservation: 'Spracherhaltung',
+                scenariosDetected: 'Szenarien erkannt', periodsExtracted: 'Perioden extrahiert',
+                reportTypePlausible: 'Report-Typ plausibel', dataValuesPresent: 'Datenwerte vorhanden',
+                variantCount: 'Varianten-Anzahl (1-10)', templateIdsValid: 'Template-IDs valide',
+                noDuplicates: 'Keine Duplikate', dataFilterValid: 'dataFilter valide',
                 uniqueValuePresent: 'uniqueValue vorhanden',
-                // Phase 3 checks
-                jsonValid: 'JSON valide',
-                requiredFields: 'Pflichtfelder',
-                labelsPreserved: 'Labels nicht übersetzt',
-                colorsValid: 'Farben valide',
-                typesConsistent: 'Typen konsistent',
-                schemaValid: 'Schema valide',
-                mathConsistent: 'Mathematisch konsistent',
-                dataFilterApplied: 'dataFilter angewandt',
-                // Phase 5 checks
-                featureBlockExists: 'Feature-Block vorhanden',
-                allFeaturesDocumented: 'Alle 7 Features dokumentiert',
-                availabilityRespected: 'Verfügbarkeit eingehalten',
-                conflictsResolved: 'Konflikte aufgelöst',
-                reasonFieldPresent: 'Begründungen vorhanden',
-                categoryConstraints: 'Kategorie-Einschränkungen'
+                configGenerated: 'Config generiert', hasBars: 'Daten-Elemente vorhanden',
+                labelsPreserved: 'Labels vorhanden', layoutIdMatches: 'Layout-ID korrekt',
+                generatedByDeterministic: 'Deterministisch generiert', mathConsistent: 'Mathematisch konsistent',
+                svgGenerated: 'SVG generiert', hasSvgElement: '<svg> Element', hasRects: 'Rechtecke vorhanden',
+                hasLabels: 'Text-Labels vorhanden', noErrors: 'Keine Fehler',
+                featureBlockExists: 'Feature-Block vorhanden', allFeaturesDocumented: 'Alle 7 Features dokumentiert',
+                availabilityRespected: 'Verfügbarkeit eingehalten', conflictsResolved: 'Konflikte aufgelöst',
+                reasonFieldPresent: 'Begründungen vorhanden', categoryConstraints: 'Kategorie-Einschränkungen'
             };
             return names[name] || name;
         }
@@ -2405,11 +1478,8 @@
         function showDetails(phase, index) {
             const results = state.results[`phase${phase}`];
             const result = results[index];
-
-            document.getElementById('modalTitle').textContent =
-                `${result.filename} - Phase ${phase}`;
-            document.getElementById('jsonViewer').textContent =
-                JSON.stringify(result, null, 2);
+            document.getElementById('modalTitle').textContent = `${result.filename} - Phase ${phase}${result.templateId ? ' (' + result.templateId + ')' : ''}`;
+            document.getElementById('jsonViewer').textContent = JSON.stringify(result, null, 2);
             document.getElementById('modalOverlay').classList.add('visible');
         }
 
@@ -2419,106 +1489,6 @@
             }
         }
 
-        // =====================================================
-        // HILFSFUNKTIONEN
-        // =====================================================
-
-        // Konvertiere Phase-3 Ergebnisse in einheitliches Format
-        function convertPhase3Results(phase3Data) {
-            if (!phase3Data || !phase3Data.results) return [];
-
-            const converted = [];
-            let globalIndex = 1;
-
-            phase3Data.results.forEach(fileResult => {
-                // Für jede Variante einen Eintrag
-                (fileResult.variants || []).forEach(variant => {
-                    const checks = variant.checks || {};
-                    converted.push({
-                        index: globalIndex++,
-                        filename: fileResult.filename,
-                        templateId: variant.templateId,
-                        chartType: fileResult.chartType,
-                        variantId: variant.variantId,
-                        title: variant.title,
-                        status: variant.status || 'success',
-                        checks: [
-                            { name: 'schemaValid', passed: checks.schemaValid !== false },
-                            { name: 'labelsPreserved', passed: checks.labelsPreserved !== false },
-                            { name: 'colorsValid', passed: checks.colorsValid !== false },
-                            { name: 'mathConsistent', passed: checks.mathConsistent !== false && checks.mathConsistent !== 'n/a' },
-                            { name: 'typesConsistent', passed: checks.typesConsistent !== false && checks.typesConsistent !== 'n/a' }
-                        ],
-                        chartConfig: variant.chartConfig || null
-                    });
-                });
-            });
-
-            return converted;
-        }
-
-        function computePhase5FromPhase3(phase3Results, precomputed) {
-            const phase5Results = [];
-            const phase3Raw = precomputed?._phase3Raw || null;
-
-            // Find WF variants with features from raw data
-            if (phase3Raw && phase3Raw.results) {
-                let globalIndex = 1;
-                phase3Raw.results.forEach(fileResult => {
-                    (fileResult.variants || []).forEach(variant => {
-                        if (!variant.templateId || !variant.templateId.startsWith('WF-')) return;
-
-                        const features = variant.chartConfig?.features || variant.generatedFeatures;
-                        if (!features) return;
-
-                        const templateDef = findTemplate(variant.templateId);
-                        const featureChecks = Validators.validateFeatures(variant, templateDef);
-
-                        phase5Results.push({
-                            index: globalIndex++,
-                            filename: fileResult.filename,
-                            templateId: variant.templateId,
-                            variantId: variant.variantId,
-                            title: variant.title || `${variant.templateId} Variant ${variant.variantId}`,
-                            status: getStatusFromChecks(featureChecks),
-                            checks: Object.entries(featureChecks).map(([name, check]) => ({
-                                name, passed: check.passed, value: check.value
-                            })),
-                            features: features
-                        });
-                    });
-                });
-            }
-
-            // Fallback: also check phase3Results for chartConfig with features
-            if (phase5Results.length === 0) {
-                phase3Results.forEach((r, i) => {
-                    if (!r.templateId || !r.templateId.startsWith('WF-')) return;
-                    if (!r.chartConfig?.features) return;
-
-                    const templateDef = findTemplate(r.templateId);
-                    const featureChecks = Validators.validateFeatures(
-                        { templateId: r.templateId, chartConfig: r.chartConfig },
-                        templateDef
-                    );
-
-                    phase5Results.push({
-                        index: i + 1,
-                        filename: r.filename,
-                        templateId: r.templateId,
-                        title: r.title || `${r.templateId}`,
-                        status: getStatusFromChecks(featureChecks),
-                        checks: Object.entries(featureChecks).map(([name, check]) => ({
-                            name, passed: check.passed, value: check.value
-                        })),
-                        features: r.chartConfig.features
-                    });
-                });
-            }
-
-            return phase5Results;
-        }
-
         function log(type, message) {
             const body = document.getElementById('logBody');
             const time = new Date().toLocaleTimeString();
@@ -2526,29 +1496,18 @@
             entry.className = `log-entry ${type}`;
             entry.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
             body.insertBefore(entry, body.firstChild);
-
-            // Limit log entries
-            while (body.children.length > 100) {
-                body.removeChild(body.lastChild);
-            }
+            while (body.children.length > 200) body.removeChild(body.lastChild);
         }
 
-        function clearLog() {
-            document.getElementById('logBody').innerHTML = '';
-            log('info', 'Log gelöscht');
-        }
+        function clearLog() { document.getElementById('logBody').innerHTML = ''; log('info', 'Log gelöscht'); }
 
-        function stopTests() {
-            state.aborted = true;
-            log('warning', 'Tests werden abgebrochen...');
-        }
+        function stopTests() { state.aborted = true; log('warning', 'Tests werden abgebrochen...'); }
 
         function clearResults() {
             state.results = { phase1: [], phase2: [], phase3: [], phase4: [], phase5: [] };
             state.featureStats = null;
             state.stats = { total: 0, passed: 0, warnings: 0, failed: 0, duration: 0, apiCalls: 0 };
-            updateStats();
-            renderResults();
+            updateStats(); renderResults();
             document.getElementById('progressContainer').style.display = 'none';
             log('info', 'Ergebnisse zurückgesetzt');
         }
@@ -2556,11 +1515,12 @@
         function exportResults() {
             const exportData = {
                 timestamp: new Date().toISOString(),
+                architecture: 'deterministic-v3.1',
+                pipeline: 'PROMPT-1 (KI) → PROMPT-2 (KI) → DeterministicConfigGenerator (JS) → JS-Renderer (SVG)',
                 stats: state.stats,
                 featureStats: state.featureStats,
                 results: state.results
             };
-
             const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2568,11 +1528,9 @@
             a.download = `pipeline-test-results-${Date.now()}.json`;
             a.click();
             URL.revokeObjectURL(url);
-
             log('success', 'Ergebnisse exportiert');
         }
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>

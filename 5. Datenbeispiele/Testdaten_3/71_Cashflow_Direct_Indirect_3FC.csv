@@ -1,20 +1,17 @@
-Cashflow Statement - Consulting Partners GmbH,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4
+Cashflow Statement - Consulting Partners GmbH,,,,
 FY 2025 | TEUR | 3 Forecast Versions,,,,
-,,,,
 Position,FC1 Sept,FC2 Nov,FC3 Final,Δ FC3 vs FC1
 INDIRECT METHOD,,,,
-Net Income,4250,4420,4550,
-Depreciation,1850,1924,1980,
-Change in Receivables,-1200,-1248,-1285,
-Change in Payables,680,707,728,
-Change in Accruals,320,333,343,
-Operating CF (Indirect),,,,
-,,,,
+Net Income,4250,4420,4550,300
+Depreciation,1850,1924,1980,130
+Change in Receivables,-1200,-1248,-1285,-85
+Change in Payables,680,707,728,48
+Change in Accruals,320,333,343,23
+Operating CF (Indirect),5900,6136,6316,416
 DIRECT METHOD,,,,
-Cash from Customers,28500,29640,30520,
-Cash to Suppliers,-12000,-12480,-12855,
-Cash to Employees,-9500,-9880,-10175,
-Cash for Other OpEx,-1100,-1144,-1178,
-Operating CF (Direct),,,,
-,,,,
-Reconciliation Check,,,,
+Cash from Customers,28500,29640,30520,2020
+Cash to Suppliers,-12000,-12480,-12855,-855
+Cash to Employees,-9500,-9880,-10175,-675
+Cash for Other OpEx,-1100,-1144,-1178,-78
+Operating CF (Direct),5900,6136,6312,412
+Reconciliation Check,0,0,4,4

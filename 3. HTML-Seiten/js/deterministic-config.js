@@ -45,6 +45,15 @@ const DeterministicConfigGenerator = {
         const analysis = analysisResult.parsed?.analysis || {};
         const metadata = analysisResult.parsed?.metadata || {};
 
+        // Extrahiere tatsächliche Value-Keys aus normalized-Daten
+        // Dies ist die einzige zuverlässige Quelle — analysis.scenarios kann abweichen
+        const actualValueKeys = this._extractActualValueKeys(extracted.normalized || []);
+        if (actualValueKeys.length > 0) {
+            const mergedScenarios = this._mergeScenarios(analysis.scenarios || [], actualValueKeys);
+            analysis.scenarios = mergedScenarios;
+            analysis._actualValueKeys = actualValueKeys;
+        }
+
         let config;
         switch (chartType) {
             case 'waterfall':
@@ -68,7 +77,7 @@ const DeterministicConfigGenerator = {
         config.title = variant.title || template.display_name || '';
         config.subtitle = variant.subtitle || metadata.suggestedSubtitle || '';
 
-        console.log(`DeterministicConfigGenerator: "${variant.title}" (${variant.templateId}) → ${Object.keys(config).length} Felder`);
+        console.log(`DeterministicConfigGenerator: "${variant.title}" (${variant.templateId}) → ${config.bars?.length ?? 0} bars`);
         return config;
     },
 
@@ -104,13 +113,42 @@ const DeterministicConfigGenerator = {
         };
     },
 
+    // Case-insensitive Wert-Lookup in item.values mit Alias-Auflösung
+    _getValueForScenario(values, scenario) {
+        if (!values) return undefined;
+        // 1. Exakter Match
+        if (values[scenario] !== undefined) return values[scenario];
+        // 2. Case-insensitive Match
+        const upper = scenario.toUpperCase();
+        const keys = Object.keys(values);
+        const ciKey = keys.find(k => k.toUpperCase() === upper);
+        if (ciKey) return values[ciKey];
+        // 3. Alias-Match: z.B. scenario="FC" → suche "Forecast" in values-keys
+        const aliases = this._SCENARIO_ALIASES[upper] || [];
+        for (const alias of aliases) {
+            const aliasKey = keys.find(k => k.toUpperCase() === alias.toUpperCase());
+            if (aliasKey) return values[aliasKey];
+        }
+        // 4. Reverse-Alias: values hat z.B. "FC", scenario ist "Forecast"
+        for (const k of keys) {
+            const kAliases = this._SCENARIO_ALIASES[k.toUpperCase()] || [];
+            if (kAliases.some(a => a.toUpperCase() === upper)) return values[k];
+        }
+        // 5. Substring-Match: z.B. scenario="IST" und key="IST_CUM" oder key="IST Q1"
+        const substringKey = keys.find(k => k.toUpperCase().includes(upper) || upper.includes(k.toUpperCase()));
+        if (substringKey) return values[substringKey];
+        // 6. Wenn nur ein Wert vorhanden, diesen nehmen
+        if (keys.length === 1) return values[keys[0]];
+        return undefined;
+    },
+
     // ── Structure Bars (WF-01,02,05,06,07,10) ────────────
     _buildStructureBars(normalized, dataFilter, scenarios, colors) {
         const scenario = this._resolveScenario(dataFilter, scenarios);
         return normalized
-            .filter(item => item.values && item.values[scenario] !== undefined)
+            .filter(item => item.values && this._getValueForScenario(item.values, scenario) !== undefined)
             .map(item => {
-                const value = item.values[scenario];
+                const value = this._getValueForScenario(item.values, scenario);
                 return {
                     label: item.position,
                     value: value,
@@ -128,8 +166,11 @@ const DeterministicConfigGenerator = {
 
         const startItem = normalized.find(n => n.type === 'start');
         const endItem = normalized.find(n => n.type === 'end');
-        const fromValue = startItem?.values?.[fromScenario] || endItem?.values?.[fromScenario] || 0;
-        const toValue = startItem?.values?.[toScenario] || endItem?.values?.[toScenario] || 0;
+
+        const fromValue = this._getValueForScenario(startItem?.values, fromScenario)
+                       ?? this._getValueForScenario(endItem?.values, fromScenario) ?? 0;
+        const toValue = this._getValueForScenario(startItem?.values, toScenario)
+                     ?? this._getValueForScenario(endItem?.values, toScenario) ?? 0;
 
         const bars = [];
 
@@ -144,8 +185,8 @@ const DeterministicConfigGenerator = {
         normalized
             .filter(n => n.type !== 'start' && n.type !== 'end')
             .forEach(item => {
-                const fromVal = item.values?.[fromScenario] || 0;
-                const toVal = item.values?.[toScenario] || 0;
+                const fromVal = this._getValueForScenario(item.values, fromScenario) ?? 0;
+                const toVal = this._getValueForScenario(item.values, toScenario) ?? 0;
                 const delta = toVal - fromVal;
                 if (Math.abs(delta) > 0) {
                     bars.push({
@@ -186,24 +227,26 @@ const DeterministicConfigGenerator = {
             const endItem = normalized.find(n => n.type === 'end');
 
             compareScenarios.forEach(cs => {
-                if (startItem?.values?.[cs] !== undefined) {
+                const startVal = this._getValueForScenario(startItem?.values, cs);
+                if (startVal !== undefined) {
                     const idx = bars.findIndex(b => b.type === 'start');
                     if (idx >= 0) {
                         bars.splice(idx + 1, 0, {
                             label: cs,
-                            value: startItem.values[cs],
+                            value: startVal,
                             type: 'compare',
-                            displayValue: this._formatValue(startItem.values[cs]),
+                            displayValue: this._formatValue(startVal),
                             color: colors.compare || '#7F8C8D'
                         });
                     }
                 }
-                if (endItem?.values?.[cs] !== undefined) {
+                const endVal = this._getValueForScenario(endItem?.values, cs);
+                if (endVal !== undefined) {
                     bars.push({
                         label: cs,
-                        value: endItem.values[cs],
+                        value: endVal,
                         type: 'compare',
-                        displayValue: this._formatValue(endItem.values[cs]),
+                        displayValue: this._formatValue(endVal),
                         color: colors.compare || '#7F8C8D'
                     });
                 }
@@ -217,9 +260,11 @@ const DeterministicConfigGenerator = {
     _generateBarConfig(variant, template, extracted, analysis, metadata, colors) {
         const normalized = extracted.normalized || [];
         const scenarios = analysis.scenarios || ['IST'];
-        const resolvedScenarios = Array.isArray(variant.dataFilter?.scenario)
+        // Resolve KI-Szenarien gegen tatsächliche Szenarien (case-insensitive)
+        const rawScenarios = Array.isArray(variant.dataFilter?.scenario)
             ? variant.dataFilter.scenario
             : [this._resolveScenario(variant.dataFilter, scenarios)];
+        const resolvedScenarios = rawScenarios.map(s => this._matchScenario(s, scenarios) || s);
 
         const barColors = Array.isArray(colors) && colors.length > 0 ? colors : DEFAULT_COLORS.bar;
         const periods = resolvedScenarios.map((s, i) => ({
@@ -232,7 +277,7 @@ const DeterministicConfigGenerator = {
             .filter(item => item.type !== 'subtotal')
             .map(item => ({
                 name: item.position,
-                values: resolvedScenarios.map(s => Math.abs(item.values?.[s] || 0))
+                values: resolvedScenarios.map(s => Math.abs(this._getValueForScenario(item.values, s) ?? 0))
             }));
 
         return {
@@ -260,7 +305,7 @@ const DeterministicConfigGenerator = {
             name: pos.position,
             color: stackedColors[i % stackedColors.length] || DEFAULT_COLORS.stacked[i % DEFAULT_COLORS.stacked.length],
             values: periodLabels.map(p => {
-                return Math.abs(pos.values?.[p] || pos.values?.[scenario] || 0);
+                return Math.abs(this._getValueForScenario(pos.values, p) ?? this._getValueForScenario(pos.values, scenario) ?? 0);
             }),
             type: pos.type
         }));
@@ -454,6 +499,42 @@ const DeterministicConfigGenerator = {
 
     // ── Helfer-Methoden ───────────────────────────────────
 
+    // Extrahiert alle tatsächlichen Value-Keys aus normalized[].values
+    // Dies ist die einzige zuverlässige Szenario-Quelle
+    _extractActualValueKeys(normalized) {
+        const keySet = new Set();
+        for (const item of normalized) {
+            if (item.values && typeof item.values === 'object') {
+                for (const k of Object.keys(item.values)) {
+                    keySet.add(k);
+                }
+            }
+        }
+        return [...keySet];
+    },
+
+    // Merged analysis.scenarios mit tatsächlichen Value-Keys
+    // Stellt sicher dass alle tatsächlichen Keys als Szenarien verfügbar sind
+    _mergeScenarios(declaredScenarios, actualKeys) {
+        const result = [...declaredScenarios];
+        for (const key of actualKeys) {
+            // Prüfe ob dieser Key bereits (exakt oder als Alias) abgedeckt ist
+            const alreadyCovered = result.some(s => {
+                if (s === key) return true;
+                if (s.toUpperCase() === key.toUpperCase()) return true;
+                const aliases = this._SCENARIO_ALIASES[s.toUpperCase()] || [];
+                if (aliases.some(a => a.toUpperCase() === key.toUpperCase())) return true;
+                const keyAliases = this._SCENARIO_ALIASES[key.toUpperCase()] || [];
+                if (keyAliases.some(a => a.toUpperCase() === s.toUpperCase())) return true;
+                return false;
+            });
+            if (!alreadyCovered) {
+                result.push(key);
+            }
+        }
+        return result;
+    },
+
     _getTemplateCategory(templateId) {
         const map = {
             'WF-01':'structure', 'WF-02':'structure', 'WF-05':'structure',
@@ -467,28 +548,80 @@ const DeterministicConfigGenerator = {
         return map[templateId] || 'structure';
     },
 
+    // Szenario-Alias-Map: KI-Modelle verwenden unterschiedliche Bezeichnungen
+    _SCENARIO_ALIASES: {
+        'ACTUAL': ['IST', 'ACT', 'ACTUAL', 'ACTUALS', 'AKTUELL'],
+        'IST': ['ACTUAL', 'ACT', 'ACTUALS', 'AKTUELL'],
+        'FC': ['FORECAST', 'FCST', 'FC'],
+        'FORECAST': ['FC', 'FCST'],
+        'BUD': ['BUDGET', 'BUD', 'PLAN', 'TARGET'],
+        'BUDGET': ['BUD', 'PLAN', 'TARGET'],
+        'PLAN': ['BUD', 'BUDGET', 'TARGET'],
+        'PY': ['VJ', 'PRIOR YEAR', 'PRIOR_YEAR', 'VORJAHR', 'LY', 'LAST YEAR'],
+        'VJ': ['PY', 'PRIOR YEAR', 'PRIOR_YEAR', 'VORJAHR', 'LY', 'LAST YEAR'],
+        'LY': ['PY', 'VJ', 'PRIOR YEAR', 'VORJAHR'],
+        'YTD': ['YEAR TO DATE', 'YEAR-TO-DATE', 'CUM'],
+        'CUM': ['YTD', 'CUMULATED', 'SEL_CUM'],
+    },
+
+    // Case-insensitive Szenario-Matching mit Alias-Auflösung
+    // Findet das tatsächliche Szenario in der scenarios-Liste, auch wenn
+    // KI-Modelle unterschiedliche Bezeichnungen verwenden
+    _matchScenario(candidate, scenarios) {
+        if (!candidate || !scenarios || scenarios.length === 0) return null;
+        // 1. Exakter Match
+        if (scenarios.includes(candidate)) return candidate;
+        // 2. Case-insensitive Match
+        const upper = candidate.toUpperCase();
+        const match = scenarios.find(s => s.toUpperCase() === upper);
+        if (match) return match;
+        // 3. Alias-Match: z.B. KI sagt "Forecast" → suche "FC" in scenarios
+        const aliases = this._SCENARIO_ALIASES[upper] || [];
+        for (const alias of aliases) {
+            const aliasMatch = scenarios.find(s => s.toUpperCase() === alias.toUpperCase());
+            if (aliasMatch) return aliasMatch;
+        }
+        // 4. Reverse-Alias: z.B. scenarios hat "Forecast", KI sagt "FC"
+        for (const s of scenarios) {
+            const sAliases = this._SCENARIO_ALIASES[s.toUpperCase()] || [];
+            if (sAliases.some(a => a.toUpperCase() === upper)) return s;
+        }
+        // 5. Kein Match
+        return null;
+    },
+
     _resolveScenario(dataFilter, scenarios) {
         if (dataFilter?.scenario && typeof dataFilter.scenario === 'string') {
-            return dataFilter.scenario;
+            const matched = this._matchScenario(dataFilter.scenario, scenarios);
+            if (matched) return matched;
+            console.warn(`_resolveScenario: KI-Szenario "${dataFilter.scenario}" nicht in [${scenarios.join(', ')}] gefunden`);
         }
         if (Array.isArray(dataFilter?.scenario) && dataFilter.scenario.length > 0) {
-            return dataFilter.scenario[0];
+            const matched = this._matchScenario(dataFilter.scenario[0], scenarios);
+            if (matched) return matched;
+            console.warn(`_resolveScenario: KI-Szenario "${dataFilter.scenario[0]}" nicht in [${scenarios.join(', ')}] gefunden`);
         }
         const priority = ['IST', 'ACTUAL', 'FC', 'FORECAST', 'BUD', 'BUDGET'];
         for (const p of priority) {
-            if (scenarios.includes(p)) return p;
+            const matched = this._matchScenario(p, scenarios);
+            if (matched) return matched;
         }
         return scenarios[0] || 'IST';
     },
 
     _resolveScenarioPair(dataFilter, scenarios) {
         if (Array.isArray(dataFilter?.scenario) && dataFilter.scenario.length >= 2) {
-            return [dataFilter.scenario[0], dataFilter.scenario[1]];
+            const s0 = this._matchScenario(dataFilter.scenario[0], scenarios) || dataFilter.scenario[0];
+            const s1 = this._matchScenario(dataFilter.scenario[1], scenarios) || dataFilter.scenario[1];
+            return [s0, s1];
         }
-        if (scenarios.includes('BUD') && scenarios.includes('IST')) return ['BUD', 'IST'];
-        if (scenarios.includes('VJ') && scenarios.includes('IST')) return ['VJ', 'IST'];
-        if (scenarios.includes('PY') && scenarios.includes('IST')) return ['PY', 'IST'];
-        if (scenarios.includes('FC') && scenarios.includes('IST')) return ['FC', 'IST'];
+        // Case-insensitive Paar-Suche
+        const pairs = [['BUD', 'IST'], ['VJ', 'IST'], ['PY', 'IST'], ['FC', 'IST']];
+        for (const [a, b] of pairs) {
+            const ma = this._matchScenario(a, scenarios);
+            const mb = this._matchScenario(b, scenarios);
+            if (ma && mb) return [ma, mb];
+        }
         return [scenarios[0] || 'BUD', scenarios[1] || 'IST'];
     },
 

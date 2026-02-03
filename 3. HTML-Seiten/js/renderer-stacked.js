@@ -40,7 +40,7 @@ function renderStackedBarChart(svgId, config) {
     const categoryTotals = config.categories.map((_, catIndex) =>
         config.segments.reduce((sum, seg) => sum + seg.values[catIndex], 0)
     );
-    const maxTotal = options.normalized ? 100 : Math.max(...categoryTotals);
+    const maxTotal = options.normalized ? 100 : (Math.max(...categoryTotals) || 1);
     const chartBottom = margin.top + chartHeight;
 
     // Track bar positions for brackets

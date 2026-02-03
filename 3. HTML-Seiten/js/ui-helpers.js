@@ -265,24 +265,6 @@ function renderReasoningSection() {
 
 function _renderPipelinePerformance() {
     const callLog = aiReasoningData.callLog || [];
-    if (callLog.length === 0) return '';
-
-    // Gruppiere Calls nach Typ
-    const prompt2Calls = callLog.filter(c => c.label.startsWith('PROMPT-2'));
-
-    function aggregateGroup(calls, label) {
-        if (calls.length === 0) return null;
-        const totalDuration = calls.reduce((s, c) => s + (c.duration || 0), 0);
-        const totalInput = calls.reduce((s, c) => s + (c.usage?.input_tokens || 0), 0);
-        const totalOutput = calls.reduce((s, c) => s + (c.usage?.output_tokens || 0), 0);
-        const totalCacheRead = calls.reduce((s, c) => s + (c.usage?.cache_read_input_tokens || 0), 0);
-        const totalCacheWrite = calls.reduce((s, c) => s + (c.usage?.cache_creation_input_tokens || 0), 0);
-        return { label, count: calls.length, totalDuration, totalInput, totalOutput, totalCacheRead, totalCacheWrite };
-    }
-
-    const groups = [
-        aggregateGroup(prompt2Calls, 'PROMPT-2 (Varianten)')
-    ].filter(Boolean);
 
     // Kosten berechnen (Anthropic claude-sonnet-4-20250514 Preise)
     const INPUT_COST = 3.0;    // $/MTok
@@ -298,12 +280,51 @@ function _renderPipelinePerformance() {
         return n.toString();
     }
 
+    // PROMPT-1 Stats aus sessionStorage laden (gesetzt in upload.html)
+    let prompt1Group = null;
+    try {
+        const p1Raw = sessionStorage.getItem('prompt1Stats');
+        if (p1Raw) {
+            const p1 = JSON.parse(p1Raw);
+            prompt1Group = {
+                label: p1.label || 'PROMPT-1 (Analyse)',
+                count: 1,
+                totalDuration: p1.duration || 0,
+                totalInput: p1.usage?.input_tokens || 0,
+                totalOutput: p1.usage?.output_tokens || 0,
+                totalCacheRead: p1.usage?.cache_read_input_tokens || 0,
+                totalCacheWrite: p1.usage?.cache_creation_input_tokens || 0
+            };
+        }
+    } catch (e) { /* sessionStorage parse error */ }
+
+    // PROMPT-2 Calls aus dem aktuellen callLog
+    const prompt2Calls = callLog.filter(c => c.label.startsWith('PROMPT-2'));
+
+    function aggregateGroup(calls, label) {
+        if (calls.length === 0) return null;
+        const totalDuration = calls.reduce((s, c) => s + (c.duration || 0), 0);
+        const totalInput = calls.reduce((s, c) => s + (c.usage?.input_tokens || 0), 0);
+        const totalOutput = calls.reduce((s, c) => s + (c.usage?.output_tokens || 0), 0);
+        const totalCacheRead = calls.reduce((s, c) => s + (c.usage?.cache_read_input_tokens || 0), 0);
+        const totalCacheWrite = calls.reduce((s, c) => s + (c.usage?.cache_creation_input_tokens || 0), 0);
+        return { label, count: calls.length, totalDuration, totalInput, totalOutput, totalCacheRead, totalCacheWrite };
+    }
+
+    const groups = [
+        prompt1Group,
+        aggregateGroup(prompt2Calls, 'PROMPT-2 (Varianten)')
+    ].filter(Boolean);
+
+    if (groups.length === 0) return '';
+
     const totalInput = groups.reduce((s, g) => s + g.totalInput, 0);
     const totalOutput = groups.reduce((s, g) => s + g.totalOutput, 0);
     const totalCacheRead = groups.reduce((s, g) => s + g.totalCacheRead, 0);
     const totalDuration = groups.reduce((s, g) => s + g.totalDuration, 0);
     const totalCost = calcCost(totalInput, totalOutput, totalCacheRead);
     const cacheSavings = ((totalCacheRead / 1e6) * (INPUT_COST - CACHE_READ_COST));
+    const totalCalls = (prompt1Group ? 1 : 0) + prompt2Calls.length;
 
     let tableRows = groups.map(g => {
         const cost = calcCost(g.totalInput, g.totalOutput, g.totalCacheRead);
@@ -323,7 +344,7 @@ function _renderPipelinePerformance() {
 
     // Gesamt-Zeile
     tableRows += `<tr class="pipeline-total">
-        <td>GESAMT (${callLog.length} Calls)</td>
+        <td>GESAMT (${totalCalls} Calls)</td>
         <td class="token-count">${formatTokens(totalInput)}</td>
         <td class="token-count">${formatTokens(totalOutput)}</td>
         <td>${totalCacheRead > 0 ? `<span class="pipeline-cache-hit">-$${cacheSavings.toFixed(3)} gespart</span>` : '-'}</td>
